@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DSCE ISE Project Portal</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --background-light: #ecf0f1;
+            --background-dark: #2c3e50;
+            --text-primary: #2c3e50;
+            --text-secondary: #34495e;
+            --white: #ffffff;
+            --table-hover: #f8fafc;
+            --border-radius: 12px;
+            --box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(-20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            background: 
+                linear-gradient(135deg, rgba(236,240,241,0.8) 0%, rgba(245,247,250,0.9) 100%),
+                repeating-linear-gradient(45deg, rgba(52,152,219,0.05) 0px, rgba(52,152,219,0.05) 2px, transparent 2px, transparent 10px);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .page-wrapper {
+            display: flex;
+            flex-direction: column;
+            max-width: 1400px;
+            width: 95%;
+            margin: 2rem auto;
+            gap: 2rem;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--background-dark) 0%, #34495e 100%);
+            color: var(--white);
+            padding: 2.5rem;
+            border-radius: var(--border-radius);
+            box-shadow: 
+                0 20px 40px rgba(0,0,0,0.1),
+                0 0 0 1px rgba(255,255,255,0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at top right, rgba(52,152,219,0.2) 0%, transparent 70%),
+                linear-gradient(45deg, rgba(52,152,219,0.1) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            position: relative;
+            z-index: 1;
+            animation: slideIn 0.5s ease;
+        }
+
+        .header-logo {
+            width: 120px;
+            height: 120px;
+            margin-right: 2.5rem;
+            background: var(--white);
+            border-radius: 50%;
+            padding: 8px;
+            box-shadow: 
+                0 8px 20px rgba(0,0,0,0.2),
+                0 0 0 2px rgba(255,255,255,0.1);
+            transition: var(--transition);
+        }
+
+        .header-logo:hover {
+            transform: scale(1.05) rotate(5deg);
+        }
+
+        .header-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            border-radius: 50%;
+        }
+
+        .header-title {
+            flex: 1;
+        }
+
+        .header h1 {
+            font-size: 2.8rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+            background: linear-gradient(45deg, #fff, #ecf0f1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            color: rgba(255,255,255,0.9);
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+
+        .search-container {
+            background: rgba(255,255,255,0.98);
+            border-radius: var(--border-radius);
+            padding: 2.5rem;
+            box-shadow: 
+                0 15px 35px rgba(0,0,0,0.1),
+                0 0 0 1px rgba(0,0,0,0.05);
+            position: relative;
+            transition: var(--transition);
+            backdrop-filter: blur(10px);
+        }
+
+        .search-container:hover {
+            transform: translateY(-5px);
+            box-shadow: 
+                0 20px 40px rgba(0,0,0,0.12),
+                0 0 0 1px rgba(0,0,0,0.05);
+        }
+
+        .search-inputs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .search-inputs > * {
+            flex: 1;
+            min-width: 200px;
+            padding: 1rem 1.25rem;
+            border: 2px solid rgba(236,240,241,0.8);
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: var(--transition);
+            background: var(--white);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .search-inputs select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%232c3e50' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            background-size: 1em;
+            padding-right: 2.5rem;
+        }
+        .search-inputs select:hover,
+        .search-inputs input:hover {
+            border-color: rgba(52,152,219,0.5);
+        }
+
+        .search-inputs select:focus,
+        .search-inputs input:focus {
+            border-color: var(--secondary-color);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(52,152,219,0.2);
+        }
+
+        .search-btn {
+            background: linear-gradient(135deg, var(--secondary-color) 0%, #2980b9 100%);
+            color: var(--white);
+            border: none;
+            border-radius: 10px;
+            padding: 1rem 1.5rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: var(--transition);
+            font-weight: 600;
+            min-width: 160px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 15px rgba(52,152,219,0.2);
+        }
+
+        .search-btn:hover {
+            background: linear-gradient(135deg, #2980b9 0%, var(--secondary-color) 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(52,152,219,0.3);
+        }
+
+        #suggestions {
+            position: absolute;
+            top: calc(100% - 1rem);
+            left: 2rem;
+            right: 2rem;
+            background: var(--white);
+            border-radius: 0 0 var(--border-radius) var(--border-radius);
+            max-height: 300px;
+            overflow-y: auto;
+            z-index: 1000;
+            box-shadow: 
+                0 15px 35px rgba(0,0,0,0.1),
+                0 0 0 1px rgba(0,0,0,0.05);
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .suggestion-item {
+            padding: 1rem 1.25rem;
+            cursor: pointer;
+            transition: var(--transition);
+            border-bottom: 1px solid var(--background-light);
+            animation: slideIn 0.3s ease;
+        }
+
+        .suggestion-item:hover {
+            background-color: var(--background-light);
+            padding-left: 1.75rem;
+            color: var(--secondary-color);
+        }
+
+        #results {
+            background: rgba(255,255,255,0.98);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: 
+                0 15px 35px rgba(0,0,0,0.1),
+                0 0 0 1px rgba(0,0,0,0.05);
+            animation: fadeIn 0.5s ease;
+        }
+
+        .results-header {
+            padding: 1.5rem 2rem;
+            background: linear-gradient(135deg, var(--background-dark) 0%, #34495e 100%);
+            color: var(--white);
+        }
+
+        .results-header h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        th {
+            background: linear-gradient(135deg, var(--background-dark) 0%, #34495e 100%);
+            color: var(--white);
+            padding: 1.25rem 1.5rem;
+            text-align: left;
+            font-size: 0.9rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            border-bottom: 2px solid rgba(52,152,219,0.1);
+        }
+
+        td {
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid var(--background-light);
+            transition: var(--transition);
+            vertical-align: top;
+        }
+
+        tr {
+            transition: var(--transition);
+        }
+
+        tr:hover td {
+            background: rgba(52,152,219,0.05);
+        }
+
+        td ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        td ul li {
+            padding: 0.25rem 0;
+        }
+
+        .proof-link {
+            color: var(--secondary-color);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            transition: var(--transition);
+            background: rgba(52,152,219,0.1);
+        }
+
+        .proof-link:hover {
+            background: var(--secondary-color);
+            color: var(--white);
+            transform: translateX(5px);
+        }
+
+        @media (max-width: 768px) {
+            .page-wrapper {
+                margin: 1rem auto;
+                gap: 1rem;
+            }
+
+            .header {
+                padding: 1.5rem;
+            }
+
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+                gap: 1rem;
+            }
+
+            .header-logo {
+                margin: 0;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .search-container {
+                padding: 1.5rem;
+            }
+
+            .search-inputs {
+                flex-direction: column;
+            }
+
+            .search-inputs > * {
+                width: 100%;
+            }
+
+            .search-btn {
+                width: 100%;
+            }
+
+            #suggestions {
+                left: 1rem;
+                right: 1rem;
+            }
+
+            th, td {
+                padding: 1rem;
+            }
+
+            .proof-link {
+                padding: 0.25rem 0.5rem;
+            }
+        }
+    </style>
+    <div class="page-wrapper">
+        <header class="header">
+            <div class="header-content">
+                <div class="header-logo">
+                    <img src="images.jpg" alt="DSCE Logo">
+                </div>
+                <div class="header-title">
+                    <h1>DSCE ISE Project Portal</h1>
+                    <p>Dayanand Sagar College of Engineering - Information Science Department</p>
+                </div>
+            </div>
+        </header>
+
+        <div class="search-container">
+            <div class="search-inputs">
+                <select id="year">
+                    <option value="2021-22">2021-22</option>
+                    <option value="2022-23">2022-23</option>
+                    <option value="2023-24">2023-24</option>
+                    <option value="2024-25">2024-25</option>
+                </select>
+                <select id="searchType">
+                    <option value="all">All Fields</option>
+                    <option value="title">Project Title Only</option>
+                    <option value="guide">Guide Name Only</option>
+                </select>
+                <input type="text" id="searchInput" placeholder="Search projects..." autocomplete="off">
+                <button onclick="searchProjects()" class="search-btn">
+                    <i class="fas fa-search"></i> Search Projects
+                </button>
+            </div>
+            <div id="suggestions"></div>
+        </div>
+
+        <div id="results"></div>
+    </div>
+
+    <script>
+        let typingTimer;
+        const doneTypingInterval = 300;
+
+        const searchInput = document.getElementById('searchInput');
+        const suggestionsDiv = document.getElementById('suggestions');
+
+        searchInput.addEventListener('input', () => {
+            clearTimeout(typingTimer);
+            if (searchInput.value.length >= 2) {
+                typingTimer = setTimeout(getSuggestions, doneTypingInterval);
+            } else {
+                suggestionsDiv.style.display = 'none';
+            }
+        });
+
+        searchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && searchInput.value.trim()) {
+                searchProjects();
+            }
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!e.target.matches('#searchInput') && !e.target.matches('.suggestion-item')) {
+                suggestionsDiv.style.display = 'none';
+            }
+        });
+
+        async function getSuggestions() {
+            const year = document.getElementById('year').value;
+            const searchType = document.getElementById('searchType').value;
+            const searchTerm = searchInput.value.trim();
+
+            if (searchTerm.length < 2) return;
+
+            try {
+                const response = await fetch(`/api/suggestions/?year=${year}&q=${encodeURIComponent(searchTerm)}&search_type=${searchType}`);
+                const data = await response.json();
+
+                if (data.suggestions.length > 0) {
+                    let suggestionsHtml = '';
+                    data.suggestions.forEach(suggestion => {
+                        suggestionsHtml += `
+                            <div class="suggestion-item" onclick="selectSuggestion('${suggestion.replace(/'/g, "\\'")}')">${suggestion}</div>
+                        `;
+                    });
+                    suggestionsDiv.innerHTML = suggestionsHtml;
+                    suggestionsDiv.style.display = 'block';
+                } else {
+                    suggestionsDiv.style.display = 'none';
+                }
+            } catch (error) {
+                console.error('Error fetching suggestions:', error);
+                suggestionsDiv.style.display = 'none';
+            }
+        }
+
+        function selectSuggestion(suggestion) {
+            searchInput.value = suggestion;
+            suggestionsDiv.style.display = 'none';
+            searchProjects();
+        }
+
+        async function searchProjects() {
+            const year = document.getElementById('year').value;
+            const searchTerm = searchInput.value.trim();
+            const searchType = document.getElementById('searchType').value;
+            
+            if (!searchTerm) {
+                alert('Please enter a search term');
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/search/?year=${year}&q=${encodeURIComponent(searchTerm)}&search_type=${searchType}`);
+                const data = await response.json();
+                
+                let html = '<div class="results-header"><h2>Search Results</h2></div>';
+                if (!data.results || data.results.length === 0) {
+                    html += `
+                        <div style="padding: 2rem; text-align: center; color: var(--text-secondary);">
+                            <i class="fas fa-search" style="font-size: 2rem; margin-bottom: 1rem;"></i>
+                            <p>No results found</p>
+                        </div>`;
+                } else {
+                    html += `
+                        <table>
+                            <tr>
+                                <th>Group No</th>
+                                <th>USN</th>
+                                <th>Names</th>
+                                <th>Project Title</th>
+                                <th>Guide Name</th>
+                                <th>Outcomes</th>
+                                <th>Proof Link</th>
+                            </tr>
+                    `;
+                    
+                    data.results.forEach(project => {
+                        html += `
+                            <tr>
+                                <td>${project.group_no || '-'}</td>
+                                <td>
+                                    <ul>
+                                        ${Array.isArray(project.usn) ? 
+                                            project.usn.map(usn => `<li>${usn}</li>`).join('') : 
+                                            '-'}
+                                    </ul>
+                                </td>
+                                <td>
+                                    <ul>
+                                        ${Array.isArray(project.name) ? 
+                                            project.name.map(name => `<li>${name}</li>`).join('') : 
+                                            '-'}
+                                    </ul>
+                                </td>
+                                <td>${project.project_title || '-'}</td>
+                                <td>${project.guide_name || '-'}</td>
+                                <td>${project.outcomes || '-'}</td>
+                                <td>${project.proof_link ? 
+                                    `<a href="${project.proof_link}" target="_blank" class="proof-link">
+                                        <i class="fas fa-external-link-alt"></i> View Proof
+                                    </a>` : 
+                                    '-'}</td>
+                            </tr>
+                        `;
+                    });
+                    html += '</table>';
+                }
+                document.getElementById('results').innerHTML = html;
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('results').innerHTML = `
+                    <div style="padding: 2rem; text-align: center; color: var(--accent-color);">
+                        <i class="fas fa-exclamation-triangle" style="font-size: 2rem; margin-bottom: 1rem;"></i>
+                        <p>Error fetching results: ${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Initialize the current year as default
+        document.addEventListener('DOMContentLoaded', () => {
+            const currentYear = new Date().getFullYear();
+            const yearSelect = document.getElementById('year');
+            const yearOptions = Array.from(yearSelect.options);
+            const defaultYear = yearOptions.find(option => option.value.startsWith(currentYear - 1));
+            if (defaultYear) {
+                defaultYear.selected = true;
+            }
+        });
+    </script>
+</body>
+</html>
