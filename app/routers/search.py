@@ -2,11 +2,22 @@ from fastapi import APIRouter, Depends, Query, HTTPException
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.database import get_db
-from typing import Optional
+from typing import Optional, List
 
 router = APIRouter()
 
-VALID_YEARS = {"2021-22", "2022-23", "2023-24", "2024-25"}
+# Utility to get all year tables dynamically
+async def get_year_tables(db: AsyncSession) -> List[str]:
+    query = text("""
+        SELECT tablename FROM pg_tables
+        WHERE schemaname='public'
+        AND tablename ~ '^[0-9]{4}_[0-9]{2}$'
+        ORDER BY tablename DESC
+    """)
+    result = await db.execute(query)
+    tables = [row[0] for row in result]
+    # Convert 2024_25 -> 2024-25 for frontend
+    return [t.replace("_", "-") for t in tables]
 
 async def search_projects(
     year: str, 
@@ -14,11 +25,29 @@ async def search_projects(
     db: AsyncSession,
     search_type: str = "all"
 ):
-    if year not in VALID_YEARS:
+    # Accept "all" for searching across all years
+    if year == "all":
+        tables = await get_year_tables(db)
+        results = []
+        for y in tables:
+            table_name = y.replace("-", "_")
+            try:
+                sub_results = await search_projects(y, search_term, db, search_type)
+                # Add project_year for display
+                for r in sub_results:
+                    r = dict(r)
+                    r["project_year"] = y
+                    results.append(r)
+            except Exception:
+                continue
+        return results
+
+    # Validate year
+    tables = await get_year_tables(db)
+    if year not in tables:
         raise HTTPException(status_code=400, detail="Invalid academic year format.")
-    
+
     table_name = year.replace("-", "_")
-    
     # Build the search query based on type
     if search_type == "title":
         search_vector = "setweight(to_tsvector('english', project_title), 'A')"
@@ -26,7 +55,7 @@ async def search_projects(
         search_vector = "setweight(to_tsvector('english', guide_name), 'A')"
     else:
         search_vector = "search_vector"  # Use pre-computed vector
-    
+
     query = text(f"""
         SELECT 
             group_no,
@@ -36,17 +65,22 @@ async def search_projects(
             guide_name,
             outcomes,
             proof_link,
+            ppt_links,
+            report_links,
             ts_rank({search_vector}, to_tsquery('english', :search_term)) as rank
         FROM "{table_name}"
         WHERE {search_vector} @@ to_tsquery('english', :search_term)
         ORDER BY rank DESC, project_title ASC
     """)
-    
     try:
-        # Convert space-separated terms to tsquery format
         tsquery_terms = ' & '.join(search_term.split())
         result = await db.execute(query, {"search_term": tsquery_terms})
-        return result.mappings().all()
+        rows = result.mappings().all()
+        # Add project_year for display
+        for r in rows:
+            r = dict(r)
+            r["project_year"] = year
+        return rows
     except Exception as e:
         print(f"Search error: {e}")
         raise HTTPException(status_code=500, detail="Database search error")
@@ -57,19 +91,18 @@ async def get_suggestions(
     db: AsyncSession,
     search_type: str = "all"
 ):
-    if year not in VALID_YEARS:
+    tables = await get_year_tables(db)
+    if year not in tables:
         raise HTTPException(status_code=400, detail="Invalid academic year format.")
-    
+
     table_name = year.replace("-", "_")
-    
-    # Select column based on search type
     if search_type == "title":
         column = "project_title"
     elif search_type == "guide":
         column = "guide_name"
     else:
-        column = "project_title"  # Default to project_title for suggestions
-    
+        column = "project_title"
+
     query = text(f"""
         SELECT DISTINCT {column}
         FROM "{table_name}"
@@ -77,9 +110,7 @@ async def get_suggestions(
         ORDER BY {column}
         LIMIT 10
     """)
-    
     try:
-        # Convert space-separated terms to tsquery format
         tsquery_terms = ' & '.join(f"{term}:*" for term in search_term.split())
         result = await db.execute(query, {"search_term": tsquery_terms})
         return [row[0] for row in result]
@@ -87,9 +118,15 @@ async def get_suggestions(
         print(f"Suggestions error: {e}")
         raise HTTPException(status_code=500, detail="Database error while fetching suggestions")
 
+@router.get("/years")
+async def get_years(db: AsyncSession = Depends(get_db)):
+    """Return all available academic years (tables) in YYYY-YY format."""
+    years = await get_year_tables(db)
+    return {"years": years}
+
 @router.get("/search/")
 async def full_text_search(
-    year: str = Query(..., description="Academic year in format YYYY-YY"),
+    year: str = Query(..., description="Academic year in format YYYY-YY or 'all'"),
     q: str = Query(..., min_length=2),
     search_type: Optional[str] = Query("all", description="Search type: 'all', 'title', or 'guide'"),
     db: AsyncSession = Depends(get_db)

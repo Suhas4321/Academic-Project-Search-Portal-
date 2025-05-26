@@ -1,592 +1,1413 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DSCE ISE Project Portal</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
-    <style>
-        :root {
-            --primary-color: #2c3e50;
-            --secondary-color: #3498db;
-            --accent-color: #e74c3c;
-            --background-light: #ecf0f1;
-            --background-dark: #2c3e50;
-            --text-primary: #2c3e50;
-            --text-secondary: #34495e;
-            --white: #ffffff;
-            --table-hover: #f8fafc;
-            --border-radius: 12px;
-            --box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-            --transition: all 0.3s ease;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DSCE ISE Project Portal</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: url('/static/dept.jpg') center center / cover no-repeat fixed;
+      color: #1a202c;
+      line-height: 1.6;
+      min-height: 100vh;
+      position: relative;
+    }
 
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
+    /* Reduced background overlay opacity significantly to remove foggy effect */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(255, 255, 255, 0.05);
+      z-index: -1;
+    }
 
-        @keyframes slideIn {
-            from {
-                transform: translateX(-20px);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
-        }
+    .container {
+      max-width: 100vw;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+    }
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            line-height: 1.6;
-            background: 
-                linear-gradient(135deg, rgba(236,240,241,0.8) 0%, rgba(245,247,250,0.9) 100%),
-                repeating-linear-gradient(45deg, rgba(52,152,219,0.05) 0px, rgba(52,152,219,0.05) 2px, transparent 2px, transparent 10px);
-            color: var(--text-primary);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
+    /* Navigation Bar */
+    .navbar {
+      background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%);
+      padding: 1rem 0;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      animation: slideDown 0.6s ease-out;
+    }
 
-        .page-wrapper {
-            display: flex;
-            flex-direction: column;
-            max-width: 1400px;
-            width: 95%;
-            margin: 2rem auto;
-            gap: 2rem;
-            animation: fadeIn 0.5s ease;
-        }
+    .nav-content {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
 
-        .header {
-            background: linear-gradient(135deg, var(--background-dark) 0%, #34495e 100%);
-            color: var(--white);
-            padding: 2.5rem;
-            border-radius: var(--border-radius);
-            box-shadow: 
-                0 20px 40px rgba(0,0,0,0.1),
-                0 0 0 1px rgba(255,255,255,0.1);
-            position: relative;
-            overflow: hidden;
-        }
+    .nav-brand {
+      color: white;
+      font-size: 1.2rem;
+      font-weight: 600;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: transform 0.3s ease;
+    }
 
-        .header::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: 
-                radial-gradient(circle at top right, rgba(52,152,219,0.2) 0%, transparent 70%),
-                linear-gradient(45deg, rgba(52,152,219,0.1) 0%, transparent 70%);
-            pointer-events: none;
-        }
+    .nav-brand:hover {
+      transform: scale(1.05);
+    }
 
-        .header-content {
-            display: flex;
-            align-items: center;
-            position: relative;
-            z-index: 1;
-            animation: slideIn 0.5s ease;
-        }
+    .admin-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: linear-gradient(135deg, #e53e3e 0%, #c53030 100%);
+      color: white;
+      padding: 0.75rem 1.5rem;
+      border-radius: 12px;
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(229, 62, 62, 0.3);
+      animation: pulse 2s infinite;
+    }
 
-        .header-logo {
-            width: 120px;
-            height: 120px;
-            margin-right: 2.5rem;
-            background: var(--white);
-            border-radius: 50%;
-            padding: 8px;
-            box-shadow: 
-                0 8px 20px rgba(0,0,0,0.2),
-                0 0 0 2px rgba(255,255,255,0.1);
-            transition: var(--transition);
-        }
+    .admin-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(229, 62, 62, 0.4);
+      animation: none;
+    }
 
-        .header-logo:hover {
-            transform: scale(1.05) rotate(5deg);
-        }
+    /* Header Section - Full width with proper spacing */
+    .header {
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.85) 0%, rgba(118, 75, 162, 0.85) 100%);
+      color: white;
+      padding: 2rem 0 1.5rem;
+      position: relative;
+      overflow: hidden;
+      width: 100%;
+    }
 
-        .header-logo img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            border-radius: 50%;
-        }
+    .header::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 20"><defs><radialGradient id="a" cx="50%" cy="0%" r="100%"><stop offset="0%" stop-color="rgba(255,255,255,.1)"/><stop offset="100%" stop-color="rgba(255,255,255,0)"/></radialGradient></defs><rect width="100" height="20" fill="url(%23a)"/></svg>') repeat-x;
+      opacity: 0.1;
+    }
 
-        .header-title {
-            flex: 1;
-        }
+    .header-content {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 2rem;
+      position: relative;
+      z-index: 1;
+      animation: fadeInUp 1s ease-out;
+    }
 
-        .header h1 {
-            font-size: 2.8rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
-            background: linear-gradient(45deg, #fff, #ecf0f1);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
+    .header-logo {
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+    }
 
-        .header p {
-            font-size: 1.2rem;
-            color: rgba(255,255,255,0.9);
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
-        }
+    .header-logo img {
+      width: 100px;
+      height: 100px;
+      border-radius: 20px;
+      background: white;
+      padding: 8px;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+      transition: transform 0.3s ease;
+      animation: float 3s ease-in-out infinite;
+    }
 
-        .search-container {
-            background: rgba(255,255,255,0.98);
-            border-radius: var(--border-radius);
-            padding: 2.5rem;
-            box-shadow: 
-                0 15px 35px rgba(0,0,0,0.1),
-                0 0 0 1px rgba(0,0,0,0.05);
-            position: relative;
-            transition: var(--transition);
-            backdrop-filter: blur(10px);
-        }
+    .header-logo img:hover {
+      transform: scale(1.05) rotate(5deg);
+    }
 
-        .search-container:hover {
-            transform: translateY(-5px);
-            box-shadow: 
-                0 20px 40px rgba(0,0,0,0.12),
-                0 0 0 1px rgba(0,0,0,0.05);
-        }
+    .header-title {
+      flex: 1;
+      text-align: left;
+      margin-left: 2rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
 
-        .search-inputs {
-            display: flex;
-            gap: 1rem;
-            margin-bottom: 1rem;
-            flex-wrap: wrap;
-        }
+    .header-title h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      background: linear-gradient(135deg, #ffffff 0%, #e2e8f0 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: textShine 2s ease-in-out infinite alternate;
+      line-height: 1.2;
+    }
 
-        .search-inputs > * {
-            flex: 1;
-            min-width: 200px;
-            padding: 1rem 1.25rem;
-            border: 2px solid rgba(236,240,241,0.8);
-            border-radius: 10px;
-            font-size: 1rem;
-            transition: var(--transition);
-            background: var(--white);
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-        }
+    .header-title p {
+      font-size: 1.1rem;
+      color: #e2e8f0;
+      margin: 0.2rem 0;
+      font-weight: 400;
+      animation: fadeIn 1.5s ease-out;
+    }
 
-        .search-inputs select {
-            appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%232c3e50' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 1rem center;
-            background-size: 1em;
-            padding-right: 2.5rem;
-        }
-        .search-inputs select:hover,
-        .search-inputs input:hover {
-            border-color: rgba(52,152,219,0.5);
-        }
+    /* Search Container with balanced grid layout */
+    .search-container {
+      max-width: 1400px;
+      margin: -1.5rem auto 2rem;
+      padding: 0 2rem;
+      position: relative;
+      z-index: 10;
+      animation: slideUp 0.8s ease-out;
+    }
 
-        .search-inputs select:focus,
-        .search-inputs input:focus {
-            border-color: var(--secondary-color);
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(52,152,219,0.2);
-        }
+    .search-card {
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 20px;
+      padding: 2rem;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(10px);
+      transition: transform 0.3s ease;
+    }
 
-        .search-btn {
-            background: linear-gradient(135deg, var(--secondary-color) 0%, #2980b9 100%);
-            color: var(--white);
-            border: none;
-            border-radius: 10px;
-            padding: 1rem 1.5rem;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-            transition: var(--transition);
-            font-weight: 600;
-            min-width: 160px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            box-shadow: 0 4px 15px rgba(52,152,219,0.2);
-        }
+    .search-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+    }
 
-        .search-btn:hover {
-            background: linear-gradient(135deg, #2980b9 0%, var(--secondary-color) 100%);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(52,152,219,0.3);
-        }
+    .search-form {
+      display: grid;
+      grid-template-columns: 220px 220px 2fr 130px;
+      gap: 1rem;
+      align-items: center;
+    }
 
-        #suggestions {
-            position: absolute;
-            top: calc(100% - 1rem);
-            left: 2rem;
-            right: 2rem;
-            background: var(--white);
-            border-radius: 0 0 var(--border-radius) var(--border-radius);
-            max-height: 300px;
-            overflow-y: auto;
-            z-index: 1000;
-            box-shadow: 
-                0 15px 35px rgba(0,0,0,0.1),
-                0 0 0 1px rgba(0,0,0,0.05);
-            display: none;
-            animation: fadeIn 0.3s ease;
-        }
+    .search-form select,
+    .search-form input {
+      padding: 0.75rem 1rem;
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      background: white;
+      font-family: inherit;
+    }
 
-        .suggestion-item {
-            padding: 1rem 1.25rem;
-            cursor: pointer;
-            transition: var(--transition);
-            border-bottom: 1px solid var(--background-light);
-            animation: slideIn 0.3s ease;
-        }
+    .search-form input {
+      width: 100%;
+    }
 
-        .suggestion-item:hover {
-            background-color: var(--background-light);
-            padding-left: 1.75rem;
-            color: var(--secondary-color);
-        }
+    .search-form select:focus,
+    .search-form input:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+      transform: translateY(-2px);
+    }
 
-        #results {
-            background: rgba(255,255,255,0.98);
-            border-radius: var(--border-radius);
-            overflow: hidden;
-            box-shadow: 
-                0 15px 35px rgba(0,0,0,0.1),
-                0 0 0 1px rgba(0,0,0,0.05);
-            animation: fadeIn 0.5s ease;
-        }
+    .search-btn {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      padding: 0.75rem 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+      white-space: nowrap;
+    }
 
-        .results-header {
-            padding: 1.5rem 2rem;
-            background: linear-gradient(135deg, var(--background-dark) 0%, #34495e 100%);
-            color: var(--white);
-        }
+    .search-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    }
 
-        .results-header h2 {
-            font-size: 1.5rem;
-            font-weight: 600;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
-        }
+    .search-btn:active {
+      transform: translateY(0);
+    }
 
-        table {
-            width: 100%;
-            border-collapse: separate;
-            border-spacing: 0;
-        }
+    /* Suggestions */
+    #suggestions {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 0 0 12px 12px;
+      max-height: 200px;
+      overflow-y: auto;
+      display: none;
+      z-index: 1000;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      animation: fadeIn 0.3s ease-out;
+    }
 
-        th {
-            background: linear-gradient(135deg, var(--background-dark) 0%, #34495e 100%);
-            color: var(--white);
-            padding: 1.25rem 1.5rem;
-            text-align: left;
-            font-size: 0.9rem;
-            font-weight: 600;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            border-bottom: 2px solid rgba(52,152,219,0.1);
-        }
+    .suggestion-item {
+      padding: 0.75rem 1rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border-bottom: 1px solid #f7fafc;
+    }
 
-        td {
-            padding: 1.25rem 1.5rem;
-            border-bottom: 1px solid var(--background-light);
-            transition: var(--transition);
-            vertical-align: top;
-        }
+    .suggestion-item:hover {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      transform: translateX(5px);
+    }
 
-        tr {
-            transition: var(--transition);
-        }
+    /* Results Section */
+    .results-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 2rem 2rem;
+    }
 
-        tr:hover td {
-            background: rgba(52,152,219,0.05);
-        }
+    .results-card {
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      animation: fadeInUp 0.6s ease-out;
+    }
 
-        td ul {
-            list-style: none;
-            margin: 0;
-            padding: 0;
-        }
+    .results-header {
+      background: linear-gradient(135deg, #4a5568 0%, #2d3748 100%);
+      color: white;
+      padding: 1.5rem 2rem;
+      position: relative;
+      overflow: hidden;
+    }
 
-        td ul li {
-            padding: 0.25rem 0;
-        }
+    .results-header::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+      animation: shimmer 2s infinite;
+    }
 
-        .proof-link {
-            color: var(--secondary-color);
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.5rem 1rem;
-            border-radius: 6px;
-            transition: var(--transition);
-            background: rgba(52,152,219,0.1);
-        }
+    .results-header h2 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin: 0;
+      position: relative;
+      z-index: 1;
+    }
 
-        .proof-link:hover {
-            background: var(--secondary-color);
-            color: var(--white);
-            transform: translateX(5px);
-        }
+    .table-container {
+      overflow-x: auto;
+      max-height: 70vh;
+      overflow-y: auto;
+    }
 
-        @media (max-width: 768px) {
-            .page-wrapper {
-                margin: 1rem auto;
-                gap: 1rem;
-            }
+    .results-table {
+      width: 100%;
+      min-width: 1200px;
+      border-collapse: separate;
+      border-spacing: 0;
+      font-size: 0.9rem;
+    }
 
-            .header {
-                padding: 1.5rem;
-            }
+    .results-table th {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 1rem 0.75rem;
+      text-align: left;
+      font-weight: 600;
+      position: sticky;
+      top: 0;
+      z-index: 5;
+      white-space: nowrap;
+      border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+      transition: all 0.3s ease;
+    }
 
-            .header-content {
-                flex-direction: column;
-                text-align: center;
-                gap: 1rem;
-            }
+    .results-table th:hover {
+      background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+    }
 
-            .header-logo {
-                margin: 0;
-            }
+    .results-table td {
+      padding: 0.75rem;
+      border-bottom: 1px solid #e2e8f0;
+      background: white;
+      vertical-align: top;
+      transition: all 0.3s ease;
+    }
 
-            .header h1 {
-                font-size: 2rem;
-            }
+    .results-table tbody tr:nth-child(even) td {
+      background: #f8fafc;
+    }
 
-            .search-container {
-                padding: 1.5rem;
-            }
+    .results-table tbody tr:hover td {
+      background: linear-gradient(135deg, #edf2f7 0%, #e2e8f0 100%);
+      transform: scale(1.01);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
 
-            .search-inputs {
-                flex-direction: column;
-            }
+    .proof-link {
+      color: #667eea;
+      text-decoration: none;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      transition: all 0.3s ease;
+      padding: 0.25rem 0.5rem;
+      border-radius: 6px;
+    }
 
-            .search-inputs > * {
-                width: 100%;
-            }
+    .proof-link:hover {
+      color: white;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    }
 
-            .search-btn {
-                width: 100%;
-            }
+    
+    /* Enhanced Chatbot Styles */
+    #chatbot {
+      position: fixed;
+      bottom: 100px;
+      right: 30px;
+      width: 380px;
+      height: 480px;
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+      display: none;
+      flex-direction: column;
+      z-index: 1000;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      animation: slideInRight 0.5s ease-out;
+      resize: both;
+      min-width: 300px;
+      min-height: 400px;
+      max-width: 600px;
+      max-height: 700px;
+    }
 
-            #suggestions {
-                left: 1rem;
-                right: 1rem;
-            }
+    #chatbot.show {
+      display: flex;
+    }
 
-            th, td {
-                padding: 1rem;
-            }
+    #chatbot-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 1rem 1.5rem;
+      cursor: move;
+      position: relative;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      user-select: none;
+    }
 
-            .proof-link {
-                padding: 0.25rem 0.5rem;
-            }
-        }
-    </style>
-    <div class="page-wrapper">
-        <header class="header">
-            <div class="header-content">
-                <div class="header-logo">
-                    <img src="images.jpg" alt="DSCE Logo">
-                </div>
-                <div class="header-title">
-                    <h1>DSCE ISE Project Portal</h1>
-                    <p>Dayanand Sagar College of Engineering - Information Science Department</p>
-                </div>
-            </div>
-        </header>
+    #chatbot-header:active {
+      cursor: grabbing;
+    }
 
-        <div class="search-container">
-            <div class="search-inputs">
-                <select id="year">
-                    <option value="2021-22">2021-22</option>
-                    <option value="2022-23">2022-23</option>
-                    <option value="2023-24">2023-24</option>
-                    <option value="2024-25">2024-25</option>
-                </select>
-                <select id="searchType">
-                    <option value="all">All Fields</option>
-                    <option value="title">Project Title Only</option>
-                    <option value="guide">Guide Name Only</option>
-                </select>
-                <input type="text" id="searchInput" placeholder="Search projects..." autocomplete="off">
-                <button onclick="searchProjects()" class="search-btn">
-                    <i class="fas fa-search"></i> Search Projects
-                </button>
-            </div>
-            <div id="suggestions"></div>
+    #chatbot-toggle-size {
+      cursor: pointer;
+      padding: 0.25rem;
+      border-radius: 4px;
+      transition: background 0.2s ease;
+    }
+
+    #chatbot-toggle-size:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    #chatbot-body {
+      flex: 1;
+      padding: 1.5rem;
+      overflow-y: auto;
+      background: #f8fafc;
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+
+    #chatbot-body p {
+      margin-bottom: 1rem;
+      color: #4a5568;
+    }
+
+    #chatbot-body ul {
+      margin: 1rem 0;
+      padding-left: 1.5rem;
+      color: #4a5568;
+    }
+
+    #chatbot-body li {
+      margin-bottom: 0.5rem;
+    }
+
+    #chatbot-body strong {
+      color: #2d3748;
+    }
+
+    #chatbot-input {
+      background: white;
+      padding: 1rem;
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+      border-top: 1px solid #e2e8f0;
+    }
+
+    #chatbot-dropdown {
+      flex: 1;
+      padding: 0.75rem 1rem;
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      font-size: 0.9rem;
+      background: white;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    #chatbot-dropdown:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    #chatbot-send {
+      padding: 0.75rem 1.5rem;
+      border: none;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+    }
+
+    #chatbot-send:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+
+    #chatbot-semester-container {
+      background: white;
+      padding: 1rem;
+      display: none;
+      gap: 0.75rem;
+      align-items: center;
+      border-top: 1px solid #e2e8f0;
+    }
+
+    #chatbot-semester-dropdown {
+      flex: 1;
+      padding: 0.75rem 1rem;
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      font-size: 0.9rem;
+      background: white;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    #chatbot-semester-dropdown:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    #chatbot-semester-send {
+      padding: 0.75rem 1.5rem;
+      border: none;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+    }
+
+    #chatbot-semester-send:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+
+    #chatbot-toggle {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      cursor: pointer;
+      box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+      z-index: 1001;
+      font-size: 1.5rem;
+      transition: all 0.3s ease;
+      animation: bounce 2s infinite;
+    }
+
+    #chatbot-toggle:hover {
+      transform: translateY(-3px) scale(1.1);
+      box-shadow: 0 15px 30px rgba(102, 126, 234, 0.4);
+      animation: none;
+    }
+
+    /* Chat message styling */
+    .chat-message {
+      margin-bottom: 1rem;
+      padding: 0.75rem;
+      border-radius: 12px;
+      animation: fadeIn 0.3s ease-out;
+    }
+
+    .chat-message.user {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      margin-left: 2rem;
+    }
+
+    .chat-message.bot {
+      background: white;
+      border: 1px solid #e2e8f0;
+      color: #4a5568;
+    }
+
+    .chat-message a {
+      color: #667eea;
+      text-decoration: underline;
+      font-weight: 500;
+    }
+
+    .chat-message.user a {
+      color: white;
+    }
+
+    /* Animations */
+    @keyframes slideDown {
+      from {
+        transform: translateY(-100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(50px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+
+    @keyframes float {
+      0%, 100% {
+        transform: translateY(0px);
+      }
+      50% {
+        transform: translateY(-10px);
+      }
+    }
+
+    @keyframes textShine {
+      0% {
+        background-position: 0% 50%;
+      }
+      100% {
+        background-position: 100% 50%;
+      }
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        transform: scale(1);
+      }
+      50% {
+        transform: scale(1.05);
+      }
+    }
+
+    @keyframes bounce {
+      0%, 20%, 50%, 80%, 100% {
+        transform: translateY(0);
+      }
+      40% {
+        transform: translateY(-10px);
+      }
+      60% {
+        transform: translateY(-5px);
+      }
+    }
+
+    @keyframes shimmer {
+      0% {
+        left: -100%;
+      }
+      100% {
+        left: 100%;
+      }
+    }
+
+    @keyframes slideInRight {
+      from {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+
+    /* Loading Animation */
+    .loading {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 2px solid #f3f3f3;
+      border-top: 2px solid #667eea;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Responsive Design */
+    @media (max-width: 1200px) {
+      .search-form {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+      }
+      
+      .results-table {
+        font-size: 0.8rem;
+      }
+      
+      .results-table th,
+      .results-table td {
+        padding: 0.5rem;
+      }
+      
+      .header-content {
+        flex-direction: column;
+        text-align: center;
+        justify-content: center;
+      }
+      
+      .header-title {
+        text-align: center;
+        margin-left: 0;
+      }
+      
+      .header-title h1 {
+        font-size: 2.2rem;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .header {
+        padding: 2rem 1rem;
+      }
+      
+      .search-container,
+      .results-container {
+        padding: 0 1rem;
+      }
+      
+      .search-card {
+        padding: 1.5rem;
+      }
+      
+      #chatbot {
+        width: 300px;
+        right: 15px;
+        bottom: 80px;
+      }
+      
+      .nav-content {
+        padding: 0 1rem;
+      }
+      
+      .nav-brand {
+        font-size: 1rem;
+      }
+      
+      .admin-btn {
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+      }
+    }
+
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+    }
+
+    /* Additional college website styling */
+    .no-results, .error-message {
+      text-align: center;
+      padding: 4rem 2rem;
+      animation: fadeInUp 0.6s ease-out;
+    }
+
+    .no-results i, .error-message i {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      animation: pulse 2s infinite;
+    }
+
+    .no-results {
+      color: #718096;
+    }
+
+    .error-message {
+      color: #e53e3e;
+    }
+  </style>
+</head>
+<body>
+  
+  <div class="container">
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+      <div class="nav-content">
+        <a href="#" class="nav-brand">
+          <i class="fas fa-graduation-cap"></i>
+          DSCE ISE Portal
+        </a>
+        <a href="/admin-login" class="admin-btn">
+          <i class="fas fa-user-shield"></i>
+          <span>Admin Access</span>
+        </a>
+      </div>
+    </nav>
+
+    <!-- Header Section -->
+    <header class="header">
+      <div class="header-content">
+        <div class="header-logo">
+          <img src="/static/images.jpg" alt="DSCE Logo" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDEwMCAxMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjNjY3ZWVhIi8+Cjx0ZXh0IHg9IjUwIiB5PSI1NSIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjE0IiBmaWxsPSJ3aGl0ZSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+RFNDRS1JU0U8L3RleHQ+Cjwvc3ZnPg=='">
         </div>
+        <div class="header-title">
+          <h1>DSCE ISE Project Portal</h1>
+          <p>Dayanand Sagar College of Engineering</p>
+          <p>Information Science & Engineering Department</p>
+          <p>Academic Excellence Through Innovation</p>
+        </div>
+      </div>
+    </header>
 
-        <div id="results"></div>
+    <!-- Search Section -->
+    <div class="search-container">
+      <div class="search-card">
+        <form id="searchForm" class="search-form">
+          <select id="year">
+            <option value="all">All Academic Years</option>
+          </select>
+          <select id="searchType">
+            <option value="all">Search All Fields</option>
+            <option value="title">Project Title Only</option>
+            <option value="guide">Guide Name Only</option>
+          </select>
+          <div style="position: relative;">
+            <input type="text" id="searchInput" placeholder="Enter search keywords..." autocomplete="off">
+            <div id="suggestions"></div>
+          </div>
+          <button type="submit" class="search-btn">
+            <i class="fas fa-search"></i>
+            <span>Search</span>
+          </button>
+        </form>
+      </div>
     </div>
 
-    <script>
-        let typingTimer;
-        const doneTypingInterval = 300;
+    <!-- Results Section -->
+    <div class="results-container">
+      <div id="results" class="results-card" style="display: none;">
+        <div class="results-header">
+          <h2>Search Results</h2>
+        </div>
+        <div class="table-container">
+          <div id="results-content">Results will appear here</div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-        const searchInput = document.getElementById('searchInput');
-        const suggestionsDiv = document.getElementById('suggestions');
+  <!-- Chatbot Widget -->
+  <div id="chatbot">
+    <div id="chatbot-header">
+      <span><i class="fas fa-robot"></i> Assistant</span>
+      <span id="chatbot-toggle-size"><i class="fas fa-minus"></i></span>
+    </div>
+    <div id="chatbot-body">
+      <p><strong>Welcome!</strong> I can help you with:</p>
+      <ul>
+        <li>Proctoring information</li>
+        <li>Syllabus documents</li>
+        <li>Timetables</li>
+        <li>Elective details</li>
+      </ul>
+      <p>Please select an option below to get started.</p>
+    </div>
+    <div id="chatbot-input">
+      <select id="chatbot-dropdown">
+        <option value="">Select a service...</option>
+        <option value="proctoring">Proctoring Lists</option>
+        <option value="syllabus">Academic Syllabus</option>
+        <option value="timetable">Class Timetables</option>
+        <option value="elective">Elective Information</option>
+      </select>
+      <button id="chatbot-send">Send</button>
+    </div>
+    <div id="chatbot-semester-container">
+      <select id="chatbot-semester-dropdown">
+        <option value="">Select Semester</option>
+        <option value="1">1st Semester</option>
+        <option value="2">2nd Semester</option>
+        <option value="3">3rd Semester</option>
+        <option value="4">4th Semester</option>
+        <option value="5">5th Semester</option>
+        <option value="6">6th Semester</option>
+        <option value="7">7th Semester</option>
+        <option value="8">8th Semester</option>
+      </select>
+      <button id="chatbot-semester-send">Submit</button>
+    </div>
+  </div>
 
-        searchInput.addEventListener('input', () => {
-            clearTimeout(typingTimer);
-            if (searchInput.value.length >= 2) {
-                typingTimer = setTimeout(getSuggestions, doneTypingInterval);
-            } else {
-                suggestionsDiv.style.display = 'none';
-            }
+  <button id="chatbot-toggle">
+    <i class="fas fa-comment"></i>
+  </button>
+
+  <script>
+    // ... keep existing code (all JavaScript functionality remains the same)
+    // Initialize the application
+    document.addEventListener('DOMContentLoaded', function() {
+      loadAcademicYears();
+      initializeSearchFunctionality();
+      initializeChatbot();
+      addDynamicEffects();
+    });
+
+    // Add dynamic effects
+    function addDynamicEffects() {
+      // Parallax effect for header
+      window.addEventListener('scroll', function() {
+        const scrolled = window.pageYOffset;
+        const header = document.querySelector('.header');
+        if (header) {
+          header.style.transform = `translateY(${scrolled * 0.5}px)`;
+        }
+      });
+
+      // Add hover effects to cards
+      const cards = document.querySelectorAll('.search-card, .results-card');
+      cards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+          this.style.transform = 'translateY(-5px) scale(1.02)';
         });
-
-        searchInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter' && searchInput.value.trim()) {
-                searchProjects();
-            }
+        card.addEventListener('mouseleave', function() {
+          this.style.transform = 'translateY(0) scale(1)';
         });
+      });
 
-        document.addEventListener('click', (e) => {
-            if (!e.target.matches('#searchInput') && !e.target.matches('.suggestion-item')) {
-                suggestionsDiv.style.display = 'none';
-            }
+      // Add typing effect to search input
+      const searchInput = document.getElementById('searchInput');
+      searchInput.addEventListener('focus', function() {
+        this.style.boxShadow = '0 0 20px rgba(102, 126, 234, 0.3)';
+      });
+      searchInput.addEventListener('blur', function() {
+        this.style.boxShadow = 'none';
+      });
+    }
+
+    // Load academic years from API
+    async function loadAcademicYears() {
+      try {
+        const response = await fetch('/api/years');
+        const data = await response.json();
+        const yearSelect = document.getElementById('year');
+        
+        data.years.forEach(year => {
+          const option = document.createElement('option');
+          option.value = year;
+          option.textContent = year;
+          yearSelect.appendChild(option);
         });
+      } catch (error) {
+        console.error('Error loading academic years:', error);
+      }
+    }
 
-        async function getSuggestions() {
-            const year = document.getElementById('year').value;
-            const searchType = document.getElementById('searchType').value;
-            const searchTerm = searchInput.value.trim();
+    // Search functionality
+    function initializeSearchFunctionality() {
+      const searchInput = document.getElementById('searchInput');
+      const suggestionsDiv = document.getElementById('suggestions');
+      const searchForm = document.getElementById('searchForm');
+      let typingTimer;
+      const doneTypingInterval = 300;
 
-            if (searchTerm.length < 2) return;
+      // Search input event handlers
+      searchInput.addEventListener('input', function() {
+        clearTimeout(typingTimer);
+        if (this.value.length >= 2) {
+          typingTimer = setTimeout(() => getSuggestions(this.value), doneTypingInterval);
+        } else {
+          hideSuggestions();
+        }
+      });
 
-            try {
-                const response = await fetch(`/api/suggestions/?year=${year}&q=${encodeURIComponent(searchTerm)}&search_type=${searchType}`);
-                const data = await response.json();
+      searchInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter' && this.value.trim()) {
+          e.preventDefault();
+          performSearch();
+        }
+      });
 
-                if (data.suggestions.length > 0) {
-                    let suggestionsHtml = '';
-                    data.suggestions.forEach(suggestion => {
-                        suggestionsHtml += `
-                            <div class="suggestion-item" onclick="selectSuggestion('${suggestion.replace(/'/g, "\\'")}')">${suggestion}</div>
-                        `;
-                    });
-                    suggestionsDiv.innerHTML = suggestionsHtml;
-                    suggestionsDiv.style.display = 'block';
-                } else {
-                    suggestionsDiv.style.display = 'none';
-                }
-            } catch (error) {
-                console.error('Error fetching suggestions:', error);
-                suggestionsDiv.style.display = 'none';
-            }
+      searchForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        performSearch();
+      });
+
+      // Hide suggestions when clicking outside
+      document.addEventListener('click', function(e) {
+        if (!e.target.matches('#searchInput') && !e.target.matches('.suggestion-item')) {
+          hideSuggestions();
+        }
+      });
+    }
+
+    // Get search suggestions
+    async function getSuggestions(searchTerm) {
+      if (searchTerm.length < 2) return;
+      
+      const year = document.getElementById('year').value;
+      const searchType = document.getElementById('searchType').value;
+      
+      try {
+        const response = await fetch(`/api/suggestions/?year=${year}&q=${encodeURIComponent(searchTerm)}&search_type=${searchType}`);
+        const data = await response.json();
+        
+        if (data.suggestions && data.suggestions.length > 0) {
+          showSuggestions(data.suggestions);
+        } else {
+          hideSuggestions();
+        }
+      } catch (error) {
+        console.error('Error fetching suggestions:', error);
+        hideSuggestions();
+      }
+    }
+
+    // Display suggestions
+    function showSuggestions(suggestions) {
+      const suggestionsDiv = document.getElementById('suggestions');
+      let html = '';
+      
+      suggestions.forEach(suggestion => {
+        const escapedSuggestion = suggestion.replace(/'/g, "\\'").replace(/"/g, '\\"');
+        html += `<div class="suggestion-item" onclick="selectSuggestion('${escapedSuggestion}')">${suggestion}</div>`;
+      });
+      
+      suggestionsDiv.innerHTML = html;
+      suggestionsDiv.style.display = 'block';
+    }
+
+    // Hide suggestions
+    function hideSuggestions() {
+      document.getElementById('suggestions').style.display = 'none';
+    }
+
+    // Select a suggestion
+    function selectSuggestion(suggestion) {
+      document.getElementById('searchInput').value = suggestion;
+      hideSuggestions();
+      performSearch();
+    }
+
+    // Perform search
+    async function performSearch() {
+      const year = document.getElementById('year').value;
+      const searchTerm = document.getElementById('searchInput').value.trim();
+      const searchType = document.getElementById('searchType').value;
+      
+      if (!searchTerm) {
+        alert('Please enter a search term');
+        return;
+      }
+
+      const resultsDiv = document.getElementById('results');
+      const resultsContent = document.getElementById('results-content');
+      
+      // Show loading state
+      resultsDiv.style.display = 'block';
+      resultsContent.innerHTML = '<div style="text-align: center; padding: 2rem;"><span class="loading"></span> Searching...</div>';
+
+      try {
+        const response = await fetch(`/api/search/?year=${year}&q=${encodeURIComponent(searchTerm)}&search_type=${searchType}`);
+        const data = await response.json();
+        
+        displayResults(data.results, year);
+      } catch (error) {
+        console.error('Error performing search:', error);
+        resultsContent.innerHTML = `
+          <div class="error-message">
+            <i class="fas fa-exclamation-triangle"></i>
+            <h3>Search Error</h3>
+            <p>Unable to fetch results. Please try again.</p>
+          </div>
+        `;
+      }
+    }
+
+    // Display search results
+    function displayResults(results, selectedYear) {
+      const resultsContent = document.getElementById('results-content');
+      
+      if (!results || results.length === 0) {
+        resultsContent.innerHTML = `
+          <div class="no-results">
+            <i class="fas fa-search"></i>
+            <h3>No Results Found</h3>
+            <p>Try adjusting your search criteria or keywords.</p>
+          </div>
+        `;
+        return;
+      }
+
+      const showYearColumn = selectedYear === "all";
+      const showReportPptLinks = selectedYear === "2024-25" || selectedYear === "all";
+      
+      let tableHTML = `
+        <table class="results-table">
+          <thead>
+            <tr>
+              <th>Group</th>
+              ${showYearColumn ? '<th>Academic Year</th>' : ''}
+              <th>USN</th>
+              <th>Student Names</th>
+              <th>Project Title</th>
+              <th>Guide Name</th>
+              <th>Outcomes</th>
+              <th>Proof Link</th>
+              ${showReportPptLinks ? '<th>Documents</th>' : ''}
+            </tr>
+          </thead>
+          <tbody>
+      `;
+
+      results.forEach(project => {
+        tableHTML += `
+          <tr>
+            <td><strong>${project.group_no || '-'}</strong></td>
+            ${showYearColumn ? `<td><span class="badge">${project.project_year || '-'}</span></td>` : ''}
+            <td>
+              ${Array.isArray(project.usn) ? 
+                `<ul>${project.usn.map(usn => `<li>${usn}</li>`).join('')}</ul>` : 
+                (project.usn || '-')
+              }
+            </td>
+            <td>
+              ${Array.isArray(project.name) ? 
+                `<ul>${project.name.map(name => `<li>${name}</li>`).join('')}</ul>` : 
+                (project.name || '-')
+              }
+            </td>
+            <td><strong>${project.project_title || '-'}</strong></td>
+            <td>${project.guide_name || '-'}</td>
+            <td>${project.outcomes || '-'}</td>
+            <td>
+              ${project.proof_link ? 
+                `<a href="${project.proof_link}" target="_blank" class="proof-link">
+                  <i class="fas fa-external-link-alt"></i> View Proof
+                </a>` : 
+                '-'
+              }
+            </td>
+            ${showReportPptLinks ? `
+              <td>
+                ${project.report_links ? `<a href="${project.report_links}" target="_blank" class="proof-link"><i class="fas fa-file-pdf"></i> Report</a>` : '-'}
+                ${project.report_links && project.ppt_links ? '<br>' : ''}
+                ${project.ppt_links ? `<a href="${project.ppt_links}" target="_blank" class="proof-link"><i class="fas fa-file-powerpoint"></i> PPT</a>` : ''}
+              </td>
+            ` : ''}
+          </tr>
+        `;
+      });
+
+      tableHTML += '</tbody></table>';
+      resultsContent.innerHTML = tableHTML;
+    }
+
+    // Chatbot functionality
+    function initializeChatbot() {
+      const chatbot = document.getElementById('chatbot');
+      const chatbotToggle = document.getElementById('chatbot-toggle');
+      const chatbotToggleSize = document.getElementById('chatbot-toggle-size');
+      const chatbotSend = document.getElementById('chatbot-send');
+      const chatbotDropdown = document.getElementById('chatbot-dropdown');
+      const chatbotBody = document.getElementById('chatbot-body');
+      const chatbotSemesterContainer = document.getElementById('chatbot-semester-container');
+      const chatbotSemesterSend = document.getElementById('chatbot-semester-send');
+      const chatbotSemesterDropdown = document.getElementById('chatbot-semester-dropdown');
+      const chatbotHeader = document.getElementById('chatbot-header');
+
+      let selectedMainOption = "";
+      let isMinimized = false;
+      let isDragging = false;
+      let dragOffsetX = 0;
+      let dragOffsetY = 0;
+
+      // Dragging functionality
+      chatbotHeader.addEventListener('mousedown', function(e) {
+        isDragging = true;
+        dragOffsetX = e.clientX - chatbot.offsetLeft;
+        dragOffsetY = e.clientY - chatbot.offsetTop;
+        chatbotHeader.style.cursor = 'grabbing';
+        e.preventDefault();
+      });
+
+      document.addEventListener('mousemove', function(e) {
+        if (isDragging) {
+          const newLeft = e.clientX - dragOffsetX;
+          const newTop = e.clientY - dragOffsetY;
+          
+          // Keep chatbot within viewport
+          const maxLeft = window.innerWidth - chatbot.offsetWidth;
+          const maxTop = window.innerHeight - chatbot.offsetHeight;
+          
+          chatbot.style.left = Math.max(0, Math.min(newLeft, maxLeft)) + 'px';
+          chatbot.style.top = Math.max(0, Math.min(newTop, maxTop)) + 'px';
+          chatbot.style.right = 'auto';
+          chatbot.style.bottom = 'auto';
+        }
+      });
+
+      document.addEventListener('mouseup', function() {
+        if (isDragging) {
+          isDragging = false;
+          chatbotHeader.style.cursor = 'move';
+        }
+      });
+
+      // Toggle chatbot visibility
+      chatbotToggle.addEventListener('click', function() {
+        chatbot.classList.toggle('show');
+      });
+
+      // Minimize/maximize chatbot
+      chatbotToggleSize.addEventListener('click', function() {
+        if (!isMinimized) {
+          chatbotBody.style.display = 'none';
+          document.getElementById('chatbot-input').style.display = 'none';
+          chatbotSemesterContainer.style.display = 'none';
+          this.innerHTML = '<i class="fas fa-plus"></i>';
+          isMinimized = true;
+          chatbot.style.height = 'auto';
+        } else {
+          chatbotBody.style.display = 'block';
+          document.getElementById('chatbot-input').style.display = 'flex';
+          this.innerHTML = '<i class="fas fa-minus"></i>';
+          isMinimized = false;
+          chatbot.style.height = '480px';
+        }
+      });
+
+      // Handle main option selection
+      chatbotSend.addEventListener('click', function() {
+        selectedMainOption = chatbotDropdown.value;
+        const selectedText = chatbotDropdown.options[chatbotDropdown.selectedIndex].text;
+        
+        if (!selectedMainOption) {
+          addChatMessage('Please select a valid option.', 'bot');
+          return;
         }
 
-        function selectSuggestion(suggestion) {
-            searchInput.value = suggestion;
-            suggestionsDiv.style.display = 'none';
-            searchProjects();
+        addChatMessage(selectedText, 'user');
+
+        if (['proctoring', 'syllabus', 'timetable'].includes(selectedMainOption)) {
+          addChatMessage('Please select a semester for more specific information.', 'bot');
+          chatbotSemesterContainer.style.display = 'flex';
+        } else if (selectedMainOption === 'elective') {
+          addChatMessage('For elective course details, please consult with your academic advisor or visit the department office during office hours.', 'bot');
+          chatbotSemesterContainer.style.display = 'none';
         }
 
-        async function searchProjects() {
-            const year = document.getElementById('year').value;
-            const searchTerm = searchInput.value.trim();
-            const searchType = document.getElementById('searchType').value;
-            
-            if (!searchTerm) {
-                alert('Please enter a search term');
-                return;
-            }
+        chatbotDropdown.value = "";
+      });
 
-            try {
-                const response = await fetch(`/api/search/?year=${year}&q=${encodeURIComponent(searchTerm)}&search_type=${searchType}`);
-                const data = await response.json();
-                
-                let html = '<div class="results-header"><h2>Search Results</h2></div>';
-                if (!data.results || data.results.length === 0) {
-                    html += `
-                        <div style="padding: 2rem; text-align: center; color: var(--text-secondary);">
-                            <i class="fas fa-search" style="font-size: 2rem; margin-bottom: 1rem;"></i>
-                            <p>No results found</p>
-                        </div>`;
-                } else {
-                    html += `
-                        <table>
-                            <tr>
-                                <th>Group No</th>
-                                <th>USN</th>
-                                <th>Names</th>
-                                <th>Project Title</th>
-                                <th>Guide Name</th>
-                                <th>Outcomes</th>
-                                <th>Proof Link</th>
-                            </tr>
-                    `;
-                    
-                    data.results.forEach(project => {
-                        html += `
-                            <tr>
-                                <td>${project.group_no || '-'}</td>
-                                <td>
-                                    <ul>
-                                        ${Array.isArray(project.usn) ? 
-                                            project.usn.map(usn => `<li>${usn}</li>`).join('') : 
-                                            '-'}
-                                    </ul>
-                                </td>
-                                <td>
-                                    <ul>
-                                        ${Array.isArray(project.name) ? 
-                                            project.name.map(name => `<li>${name}</li>`).join('') : 
-                                            '-'}
-                                    </ul>
-                                </td>
-                                <td>${project.project_title || '-'}</td>
-                                <td>${project.guide_name || '-'}</td>
-                                <td>${project.outcomes || '-'}</td>
-                                <td>${project.proof_link ? 
-                                    `<a href="${project.proof_link}" target="_blank" class="proof-link">
-                                        <i class="fas fa-external-link-alt"></i> View Proof
-                                    </a>` : 
-                                    '-'}</td>
-                            </tr>
-                        `;
-                    });
-                    html += '</table>';
-                }
-                document.getElementById('results').innerHTML = html;
-            } catch (error) {
-                console.error('Error:', error);
-                document.getElementById('results').innerHTML = `
-                    <div style="padding: 2rem; text-align: center; color: var(--accent-color);">
-                        <i class="fas fa-exclamation-triangle" style="font-size: 2rem; margin-bottom: 1rem;"></i>
-                        <p>Error fetching results: ${error.message}</p>
-                    </div>
-                `;
-            }
+      // Handle semester selection
+      chatbotSemesterSend.addEventListener('click', function() {
+        const semesterValue = chatbotSemesterDropdown.value;
+        const semesterText = chatbotSemesterDropdown.options[chatbotSemesterDropdown.selectedIndex].text;
+        
+        if (!semesterValue) {
+          addChatMessage('Please select a semester.', 'bot');
+          return;
         }
 
-        // Initialize the current year as default
-        document.addEventListener('DOMContentLoaded', () => {
-            const currentYear = new Date().getFullYear();
-            const yearSelect = document.getElementById('year');
-            const yearOptions = Array.from(yearSelect.options);
-            const defaultYear = yearOptions.find(option => option.value.startsWith(currentYear - 1));
-            if (defaultYear) {
-                defaultYear.selected = true;
-            }
-        });
-    </script>
+        addChatMessage(semesterText, 'user');
+        handleSemesterRequest(selectedMainOption, semesterValue, semesterText);
+        
+        chatbotSemesterContainer.style.display = 'none';
+        chatbotSemesterDropdown.value = "";
+      });
+    }
+
+    // Add message to chatbot
+    function addChatMessage(message, sender) {
+      const chatbotBody = document.getElementById('chatbot-body');
+      const messageDiv = document.createElement('div');
+      messageDiv.className = `chat-message ${sender}`;
+      
+      if (sender === 'user') {
+        messageDiv.innerHTML = `<strong>You:</strong> ${message}`;
+      } else {
+        messageDiv.innerHTML = `<strong>Assistant:</strong> ${message}`;
+      }
+      
+      chatbotBody.appendChild(messageDiv);
+      chatbotBody.scrollTop = chatbotBody.scrollHeight;
+    }
+
+    // Handle semester-specific requests
+    function handleSemesterRequest(mainOption, semesterValue, semesterText) {
+      const basePath = "/static/";
+      
+      if (mainOption === 'proctoring') {
+        const link = `${basePath}First_sem_proctor_list_FINAL.xlsx`;
+        addChatMessage(`<a href="${link}" download>📥 Download Proctor List for ${semesterText}</a>`, 'bot');
+      } 
+      else if (mainOption === 'syllabus') {
+        let syllabusUrl = "";
+        
+        if (semesterValue === "1" || semesterValue === "2") {
+          syllabusUrl = "https://drive.google.com/file/d/1NKFaOqwXo3KDy0mYpk2y98U94yHRf_Wc/preview";
+        } else if (semesterValue === "3" || semesterValue === "4") {
+          syllabusUrl = basePath + "2nd22.pdf";
+        } else if (semesterValue === "5" || semesterValue === "6") {
+          syllabusUrl = basePath + "233rdsm.pdf";
+        } else if (semesterValue === "7" || semesterValue === "8") {
+          syllabusUrl = basePath + "38th22.pdf";
+        }
+        
+        if (syllabusUrl) {
+          addChatMessage(`<a href="${syllabusUrl}" target="_blank">📖 View ${semesterText} Syllabus</a>`, 'bot');
+        } else {
+          addChatMessage(`Sorry, the syllabus for ${semesterText} is not currently available. Please check back later.`, 'bot');
+        }
+      }
+      else if (mainOption === 'timetable') {
+        const timetableMap = {
+          '3': basePath + "3RD SEM NEP 2022 Time table 2024-25 updated (2).docx",
+          '4': basePath + "4th SEM NEP Time table 2024-25 (2).docx",
+          '5': basePath + "5TH SEM NEP 2022 Time table 2024-25 updated.docx",
+          '6': basePath + "6th SEM NEP Time table 2024-25.docx",
+          '8': basePath + "8th SEM NEP Time table 2024-25.docx"
+        };
+        
+        const timetableUrl = timetableMap[semesterValue];
+        
+        if (timetableUrl) {
+          addChatMessage(`<a href="${timetableUrl}" download>📅 Download ${semesterText} Timetable</a>`, 'bot');
+        } else {
+          addChatMessage(`Sorry, the timetable for ${semesterText} is not currently available. Please contact the department office.`, 'bot');
+        }
+      }
+    }
+  </script>
 </body>
 </html>
