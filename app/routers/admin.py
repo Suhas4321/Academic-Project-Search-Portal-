@@ -109,25 +109,13 @@ async def update_row(
     query = text(f'UPDATE "{table_name}" SET {assignments} WHERE group_no = :group_no;')
     await db.execute(query, params)
     
-    # Regenerate search_vector
+    # Regenerate search_vector using only project_title and guide_name with weights
     try:
-        # Build the search vector update query for this specific row
-        text_columns = ['project_title', 'guide_name', 'outcomes']
-        
-        # For usn and name columns, treat them as text (they contain string representations of arrays)
-        text_parts = []
-        for col in text_columns:
-            text_parts.append(f"COALESCE({col}, '')")
-        
-        # For usn and name columns, treat them as text
-        text_parts.append("COALESCE(usn, '')")
-        text_parts.append("COALESCE(name, '')")
-        
-        concat_expression = " || ' ' || ".join(text_parts)
-        
         search_query = text(f'''
             UPDATE "{table_name}"
-            SET search_vector = to_tsvector('english', {concat_expression})
+            SET search_vector = 
+                setweight(to_tsvector('english', COALESCE(project_title, '')), 'A') ||
+                setweight(to_tsvector('english', COALESCE(guide_name, '')), 'B')
             WHERE group_no = :group_no;
         ''')
         await db.execute(search_query, {"group_no": group_no})
@@ -323,7 +311,7 @@ async def upload_excel(
         # Write cleaned data to database
         cleaned_df.to_sql(new_table, sync_engine, index=False, if_exists="replace")
         
-        # Add tsvector column for full-text search
+        # Add tsvector column for full-text search using only project_title and guide_name
         with sync_engine.connect() as conn:
             # Add search vector column
             conn.execute(text(f'''
@@ -331,20 +319,13 @@ async def upload_excel(
                 ADD COLUMN IF NOT EXISTS search_vector tsvector;
             '''))
             
-            # Update search vector with text from relevant columns
-            # Since usn and name are now stored as comma-separated text, we can treat them as regular text fields
-            text_columns = ['project_title', 'guide_name', 'outcomes', 'usn', 'name']
-            
-            # Build the search vector update query
-            text_parts = []
-            for col in text_columns:
-                text_parts.append(f"COALESCE({col}, '')")
-            
-            concat_expression = " || ' ' || ".join(text_parts)
-            
+            # Update search vector with weighted text from project_title and guide_name only
+            # Project title gets weight 'A' (highest), guide name gets weight 'B'
             conn.execute(text(f'''
                 UPDATE "{new_table}"
-                SET search_vector = to_tsvector('english', {concat_expression});
+                SET search_vector = 
+                    setweight(to_tsvector('english', COALESCE(project_title, '')), 'A') ||
+                    setweight(to_tsvector('english', COALESCE(guide_name, '')), 'B');
             '''))
             
             # Create GIN index for fast full-text search with a valid index name

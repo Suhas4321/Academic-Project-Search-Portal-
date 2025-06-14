@@ -8,6 +8,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <style>
+    
     * {
       margin: 0;
       padding: 0;
@@ -261,6 +262,17 @@
 
     .search-btn:active {
       transform: translateY(0);
+    }
+
+    /* Badge for year display */
+    .badge {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 0.25rem 0.75rem;
+      border-radius: 12px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      display: inline-block;
     }
 
     /* Suggestions */
@@ -980,6 +992,9 @@
       initializeSearchFunctionality();
       initializeChatbot();
       addDynamicEffects();
+      
+      // Set up periodic refresh to check for new tables every 30 seconds
+      setInterval(loadAcademicYears, 30000);
     });
 
     // Add dynamic effects
@@ -1021,12 +1036,26 @@
         const data = await response.json();
         const yearSelect = document.getElementById('year');
         
+        // Store current selection
+        const currentValue = yearSelect.value;
+        
+        // Clear existing options except "All Academic Years"
+        yearSelect.innerHTML = '<option value="all">All Academic Years</option>';
+        
         data.years.forEach(year => {
           const option = document.createElement('option');
           option.value = year;
-          option.textContent = year;
+          option.textContent = `Academic Year ${year}`;
           yearSelect.appendChild(option);
         });
+        
+        // Restore previous selection if it still exists
+        if (currentValue && currentValue !== 'all') {
+          const foundOption = Array.from(yearSelect.options).find(option => option.value === currentValue);
+          if (foundOption) {
+            yearSelect.value = currentValue;
+          }
+        }
       } catch (error) {
         console.error('Error loading academic years:', error);
       }
@@ -1169,7 +1198,7 @@
       }
 
       const showYearColumn = selectedYear === "all";
-      const showReportPptLinks = selectedYear === "2024-25" || selectedYear === "all";
+      const showReportPptLinks = true; // Always show these columns if data exists
       
       let tableHTML = `
         <table class="results-table">
@@ -1190,20 +1219,41 @@
       `;
 
       results.forEach(project => {
+        // Parse USN and name fields (they might be strings with commas or arrays)
+        const parseField = (field) => {
+          if (!field) return '-';
+          if (Array.isArray(field)) return field;
+          if (typeof field === 'string') {
+            // Check if it looks like an array string
+            if (field.startsWith('[') && field.endsWith(']')) {
+              try {
+                return JSON.parse(field.replace(/'/g, '"'));
+              } catch (e) {
+                return field.split(',').map(item => item.trim());
+              }
+            }
+            return field.split(',').map(item => item.trim());
+          }
+          return [field];
+        };
+
+        const usnList = parseField(project.usn);
+        const nameList = parseField(project.name);
+
         tableHTML += `
           <tr>
             <td><strong>${project.group_no || '-'}</strong></td>
             ${showYearColumn ? `<td><span class="badge">${project.project_year || '-'}</span></td>` : ''}
             <td>
-              ${Array.isArray(project.usn) ? 
-                `<ul>${project.usn.map(usn => `<li>${usn}</li>`).join('')}</ul>` : 
-                (project.usn || '-')
+              ${Array.isArray(usnList) && usnList.length > 1 ? 
+                `<ul>${usnList.map(usn => `<li>${usn}</li>`).join('')}</ul>` : 
+                (usnList[0] || project.usn || '-')
               }
             </td>
             <td>
-              ${Array.isArray(project.name) ? 
-                `<ul>${project.name.map(name => `<li>${name}</li>`).join('')}</ul>` : 
-                (project.name || '-')
+              ${Array.isArray(nameList) && nameList.length > 1 ? 
+                `<ul>${nameList.map(name => `<li>${name}</li>`).join('')}</ul>` : 
+                (nameList[0] || project.name || '-')
               }
             </td>
             <td><strong>${project.project_title || '-'}</strong></td>
@@ -1219,9 +1269,10 @@
             </td>
             ${showReportPptLinks ? `
               <td>
-                ${project.report_links ? `<a href="${project.report_links}" target="_blank" class="proof-link"><i class="fas fa-file-pdf"></i> Report</a>` : '-'}
-                ${project.report_links && project.ppt_links ? '<br>' : ''}
-                ${project.ppt_links ? `<a href="${project.ppt_links}" target="_blank" class="proof-link"><i class="fas fa-file-powerpoint"></i> PPT</a>` : ''}
+                ${project.report_links && project.report_links !== '' ? `<a href="${project.report_links}" target="_blank" class="proof-link"><i class="fas fa-file-pdf"></i> Report</a>` : ''}
+                ${project.report_links && project.report_links !== '' && project.ppt_links && project.ppt_links !== '' ? '<br>' : ''}
+                ${project.ppt_links && project.ppt_links !== '' ? `<a href="${project.ppt_links}" target="_blank" class="proof-link"><i class="fas fa-file-powerpoint"></i> PPT</a>` : ''}
+                ${(!project.report_links || project.report_links === '') && (!project.ppt_links || project.ppt_links === '') ? '-' : ''}
               </td>
             ` : ''}
           </tr>
