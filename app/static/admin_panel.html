@@ -127,6 +127,16 @@
       border-color: #0ea5e9;
       background-color: #e0f2fe;
     }
+    
+    .input-error {
+      border-color: #ef4444 !important;
+      box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1) !important;
+    }
+    
+    .input-valid {
+      border-color: #10b981 !important;
+      box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1) !important;
+    }
   </style>
 </head>
 <body class="bg-gradient-to-br from-slate-50 to-blue-50 min-h-screen">
@@ -187,8 +197,8 @@
       <div class="bg-white rounded-xl p-6 shadow-lg hover-lift border border-gray-100">
         <div class="flex items-center justify-between">
           <div>
-            <p class="text-gray-600 text-sm font-medium">Active Status</p>
-            <p id="activeYear" class="text-2xl font-bold text-gray-800">System Active</p>
+            <p class="text-gray-600 text-sm font-medium">System Status</p>
+            <p id="activeYear" class="text-2xl font-bold text-gray-800">Active</p>
           </div>
           <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
             <i class="fas fa-check-circle text-orange-600 text-xl"></i>
@@ -268,10 +278,11 @@
               <label for="new_table" class="block text-sm font-medium text-gray-700 mb-2">
                 <i class="fas fa-tag mr-2 text-primary-500"></i>Table Name
               </label>
-              <input type="text" id="new_table" name="new_table" required pattern="^[A-Za-z0-9_]+$"
+              <input type="text" id="new_table" name="new_table" required
                 placeholder="e.g., students_2024, projects_fall, my_data_table"
-                class="w-full border border-gray-300 rounded-lg shadow-sm py-3 px-4 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors" />
-              <p class="text-xs text-gray-500 mt-1">Only letters, numbers, and underscores allowed. Max 63 characters.</p>
+                class="w-full border border-gray-300 rounded-lg shadow-sm py-3 px-4 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300" />
+              <p id="tableNameHelp" class="text-xs text-gray-500 mt-1">Only letters, numbers, and underscores allowed. Max 63 characters.</p>
+              <p id="tableNameError" class="text-xs text-red-600 mt-1 hidden"></p>
             </div>
             
             <div>
@@ -297,13 +308,13 @@
             <ul class="text-sm text-blue-700 space-y-1">
               <li>• Excel file should have headers in the 3rd row</li>
               <li>• Required columns: Group No, USN, Name, Project Title, Guide Name, Outcomes, Proof Link</li>
-              <li>• Table name: Only letters, numbers, and underscores (e.g., students_2024)</li>
+              <li>• Table name: Only letters, numbers, and underscores (e.g., students_2024, CSE_Projects)</li>
               <li>• File size should be less than 10MB</li>
               <li>• Supports Excel (.xlsx, .xls) and CSV files</li>
             </ul>
           </div>
 
-          <button type="submit" class="w-full py-3 px-6 bg-gradient-to-r from-primary-600 to-primary-700 text-white font-medium rounded-lg hover:from-primary-700 hover:to-primary-800 transition-all duration-300 shadow-lg hover:shadow-xl flex items-center justify-center">
+          <button type="submit" id="uploadBtn" class="w-full py-3 px-6 bg-gradient-to-r from-primary-600 to-primary-700 text-white font-medium rounded-lg hover:from-primary-700 hover:to-primary-800 transition-all duration-300 shadow-lg hover:shadow-xl flex items-center justify-center">
             <i class="fas fa-upload mr-3"></i>Upload and Create Table
           </button>
           
@@ -347,7 +358,7 @@
     // Enhanced table name validation function
     function isValidTableName(name) {
       // Only allow letters, numbers, and underscores, max 63 characters
-      return /^[A-Za-z0-9_]{1,63}$/.test(name);
+      return /^[A-Za-z0-9_]{1,63}$/.test(name) && name.length > 0;
     }
 
     // DOM elements and variables
@@ -367,6 +378,9 @@
     const excelFileInput = document.getElementById('excel_file');
     const fileName = document.getElementById('fileName');
     const newTableInput = document.getElementById('new_table');
+    const tableNameHelp = document.getElementById('tableNameHelp');
+    const tableNameError = document.getElementById('tableNameError');
+    const uploadBtn = document.getElementById('uploadBtn');
 
     // Tab system
     const tabButtons = document.querySelectorAll('.tab-button');
@@ -394,24 +408,61 @@
       });
     });
 
-    // Real-time table name validation
+    // Real-time table name validation with enhanced feedback
     newTableInput.addEventListener('input', function(e) {
-      const value = e.target.value;
+      const value = e.target.value.trim();
       const isValid = isValidTableName(value);
       
-      if (value && !isValid) {
-        e.target.classList.add('border-red-500', 'focus:ring-red-500', 'focus:border-red-500');
-        e.target.classList.remove('border-gray-300', 'focus:ring-primary-500', 'focus:border-primary-500');
+      // Remove existing classes
+      e.target.classList.remove('input-error', 'input-valid');
+      tableNameError.classList.add('hidden');
+      tableNameHelp.classList.remove('hidden');
+      uploadBtn.disabled = false;
+      uploadBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+      
+      if (value.length === 0) {
+        // Empty input - neutral state
+        return;
+      }
+      
+      if (!isValid) {
+        e.target.classList.add('input-error');
+        tableNameHelp.classList.add('hidden');
+        tableNameError.classList.remove('hidden');
+        uploadBtn.disabled = true;
+        uploadBtn.classList.add('opacity-50', 'cursor-not-allowed');
+        
+        // Specific error messages
+        if (value.length > 63) {
+          tableNameError.textContent = 'Table name too long. Maximum 63 characters allowed.';
+        } else if (!/^[A-Za-z0-9_]+$/.test(value)) {
+          tableNameError.textContent = 'Invalid characters. Only letters, numbers, and underscores allowed.';
+        } else {
+          tableNameError.textContent = 'Invalid table name format.';
+        }
       } else {
-        e.target.classList.remove('border-red-500', 'focus:ring-red-500', 'focus:border-red-500');
-        e.target.classList.add('border-gray-300', 'focus:ring-primary-500', 'focus:border-primary-500');
+        e.target.classList.add('input-valid');
+        tableNameHelp.textContent = `✓ Valid table name (${value.length}/63 characters)`;
+        tableNameHelp.classList.remove('text-gray-500');
+        tableNameHelp.classList.add('text-green-600');
+      }
+    });
+
+    // Reset help text when input loses focus
+    newTableInput.addEventListener('blur', function(e) {
+      if (!e.target.value || isValidTableName(e.target.value)) {
+        tableNameHelp.textContent = 'Only letters, numbers, and underscores allowed. Max 63 characters.';
+        tableNameHelp.classList.remove('text-green-600');
+        tableNameHelp.classList.add('text-gray-500');
       }
     });
 
     // File upload enhancements
     excelFileInput.addEventListener('change', function(e) {
       if (e.target.files.length > 0) {
-        fileName.textContent = `Selected: ${e.target.files[0].name}`;
+        const file = e.target.files[0];
+        const fileSize = (file.size / 1024 / 1024).toFixed(2); // MB
+        fileName.innerHTML = `<i class="fas fa-file-excel text-green-600 mr-2"></i>Selected: <strong>${file.name}</strong> (${fileSize} MB)`;
         fileName.classList.remove('hidden');
       }
     });
@@ -434,7 +485,9 @@
       const files = e.dataTransfer.files;
       if (files.length > 0) {
         excelFileInput.files = files;
-        fileName.textContent = `Selected: ${files[0].name}`;
+        const file = files[0];
+        const fileSize = (file.size / 1024 / 1024).toFixed(2);
+        fileName.innerHTML = `<i class="fas fa-file-excel text-green-600 mr-2"></i>Selected: <strong>${file.name}</strong> (${fileSize} MB)`;
         fileName.classList.remove('hidden');
       }
     });
@@ -601,19 +654,20 @@
     // Excel Upload Handler with enhanced validation
     excelUploadForm.addEventListener('submit', async function(e) {
       e.preventDefault();
-      showLoading();
-      excelUploadMsg.classList.add('hidden');
       
       const tableName = newTableInput.value.trim();
       
-      // Validate table name before submitting
+      // Final validation before submitting
       if (!isValidTableName(tableName)) {
-        excelUploadMsg.innerHTML = '<i class="fas fa-exclamation-triangle mr-2"></i>Invalid table name. Only letters, numbers, and underscores allowed (max 63 characters).';
+        excelUploadMsg.innerHTML = '<i class="fas fa-exclamation-triangle mr-2"></i>Please enter a valid table name before uploading.';
         excelUploadMsg.className = 'mt-4 text-center text-sm rounded-lg p-3 bg-red-100 text-red-800 border border-red-200';
         excelUploadMsg.classList.remove('hidden');
-        hideLoading();
+        newTableInput.focus();
         return;
       }
+      
+      showLoading();
+      excelUploadMsg.classList.add('hidden');
       
       const formData = new FormData(excelUploadForm);
 
@@ -626,11 +680,19 @@
         const data = await resp.json();
         
         if (resp.ok && data.success) {
-          excelUploadMsg.innerHTML = '<i class="fas fa-check-circle mr-2"></i>Table uploaded successfully!';
+          excelUploadMsg.innerHTML = `<i class="fas fa-check-circle mr-2"></i>✅ Table "${tableName}" uploaded successfully! ${data.rows_imported} records imported.`;
           excelUploadMsg.className = 'mt-4 text-center text-sm rounded-lg p-3 bg-green-100 text-green-800 border border-green-200';
           excelUploadMsg.classList.remove('hidden');
           excelUploadForm.reset();
           fileName.classList.add('hidden');
+          // Reset input styling
+          newTableInput.classList.remove('input-error', 'input-valid');
+          tableNameError.classList.add('hidden');
+          tableNameHelp.classList.remove('hidden', 'text-green-600');
+          tableNameHelp.classList.add('text-gray-500');
+          tableNameHelp.textContent = 'Only letters, numbers, and underscores allowed. Max 63 characters.';
+          uploadBtn.disabled = false;
+          uploadBtn.classList.remove('opacity-50', 'cursor-not-allowed');
           fetchTables();
         } else {
           excelUploadMsg.innerHTML = `<i class="fas fa-exclamation-triangle mr-2"></i>${data.detail || 'Upload failed.'}`;
@@ -638,7 +700,7 @@
           excelUploadMsg.classList.remove('hidden');
         }
       } catch (err) {
-        excelUploadMsg.innerHTML = '<i class="fas fa-exclamation-triangle mr-2"></i>Error uploading table.';
+        excelUploadMsg.innerHTML = '<i class="fas fa-exclamation-triangle mr-2"></i>Network error. Please try again.';
         excelUploadMsg.className = 'mt-4 text-center text-sm rounded-lg p-3 bg-red-100 text-red-800 border border-red-200';
         excelUploadMsg.classList.remove('hidden');
       } finally {
