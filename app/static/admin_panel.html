@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -188,11 +187,11 @@
       <div class="bg-white rounded-xl p-6 shadow-lg hover-lift border border-gray-100">
         <div class="flex items-center justify-between">
           <div>
-            <p class="text-gray-600 text-sm font-medium">Active Year</p>
-            <p id="activeYear" class="text-3xl font-bold text-gray-800">2024-25</p>
+            <p class="text-gray-600 text-sm font-medium">Active Status</p>
+            <p id="activeYear" class="text-2xl font-bold text-gray-800">System Active</p>
           </div>
           <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
-            <i class="fas fa-calendar text-orange-600 text-xl"></i>
+            <i class="fas fa-check-circle text-orange-600 text-xl"></i>
           </div>
         </div>
       </div>
@@ -267,12 +266,12 @@
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label for="new_table" class="block text-sm font-medium text-gray-700 mb-2">
-                <i class="fas fa-tag mr-2 text-primary-500"></i>Table Name (YYYY_MM format)
+                <i class="fas fa-tag mr-2 text-primary-500"></i>Table Name
               </label>
-              <input type="text" id="new_table" name="new_table" required pattern="^[0-9]{4}_[0-9]{2}$"
-                placeholder="e.g., 2024_12"
+              <input type="text" id="new_table" name="new_table" required pattern="^[A-Za-z0-9_]+$"
+                placeholder="e.g., students_2024, projects_fall, my_data_table"
                 class="w-full border border-gray-300 rounded-lg shadow-sm py-3 px-4 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors" />
-              <p class="text-xs text-gray-500 mt-1">Use format: Year_Month (2024_12 for December 2024)</p>
+              <p class="text-xs text-gray-500 mt-1">Only letters, numbers, and underscores allowed. Max 63 characters.</p>
             </div>
             
             <div>
@@ -280,11 +279,11 @@
                 <i class="fas fa-file-excel mr-2 text-green-500"></i>Excel File Upload
               </label>
               <div class="upload-zone rounded-lg p-6 text-center">
-                <input type="file" id="excel_file" name="file" accept=".xlsx,.xls" required class="hidden" />
+                <input type="file" id="excel_file" name="file" accept=".xlsx,.xls,.csv" required class="hidden" />
                 <label for="excel_file" class="cursor-pointer">
                   <i class="fas fa-cloud-upload-alt text-4xl text-gray-400 mb-3"></i>
                   <p class="text-gray-600 font-medium">Click to upload or drag and drop</p>
-                  <p class="text-sm text-gray-500">Excel files (.xlsx, .xls) only</p>
+                  <p class="text-sm text-gray-500">Excel (.xlsx, .xls) or CSV files only</p>
                 </label>
               </div>
               <div id="fileName" class="mt-2 text-sm text-gray-600 hidden"></div>
@@ -298,8 +297,9 @@
             <ul class="text-sm text-blue-700 space-y-1">
               <li>• Excel file should have headers in the 3rd row</li>
               <li>• Required columns: Group No, USN, Name, Project Title, Guide Name, Outcomes, Proof Link</li>
-              <li>• Table name must follow YYYY_MM format (e.g., 2024_12)</li>
+              <li>• Table name: Only letters, numbers, and underscores (e.g., students_2024)</li>
               <li>• File size should be less than 10MB</li>
+              <li>• Supports Excel (.xlsx, .xls) and CSV files</li>
             </ul>
           </div>
 
@@ -344,7 +344,13 @@
   </div>
 
   <script>
-    // ... keep existing code (DOM elements and variables)
+    // Enhanced table name validation function
+    function isValidTableName(name) {
+      // Only allow letters, numbers, and underscores, max 63 characters
+      return /^[A-Za-z0-9_]{1,63}$/.test(name);
+    }
+
+    // DOM elements and variables
     const tableSelect = document.getElementById('tableSelect');
     const tableContainer = document.getElementById('tableContainer');
     const entryCount = document.getElementById('entryCount');
@@ -360,6 +366,7 @@
     const loadingOverlay = document.getElementById('loadingOverlay');
     const excelFileInput = document.getElementById('excel_file');
     const fileName = document.getElementById('fileName');
+    const newTableInput = document.getElementById('new_table');
 
     // Tab system
     const tabButtons = document.querySelectorAll('.tab-button');
@@ -385,6 +392,20 @@
         tabContents.forEach(content => content.classList.add('hidden'));
         document.getElementById(targetTab).classList.remove('hidden');
       });
+    });
+
+    // Real-time table name validation
+    newTableInput.addEventListener('input', function(e) {
+      const value = e.target.value;
+      const isValid = isValidTableName(value);
+      
+      if (value && !isValid) {
+        e.target.classList.add('border-red-500', 'focus:ring-red-500', 'focus:border-red-500');
+        e.target.classList.remove('border-gray-300', 'focus:ring-primary-500', 'focus:border-primary-500');
+      } else {
+        e.target.classList.remove('border-red-500', 'focus:ring-red-500', 'focus:border-red-500');
+        e.target.classList.add('border-gray-300', 'focus:ring-primary-500', 'focus:border-primary-500');
+      }
     });
 
     // File upload enhancements
@@ -437,7 +458,7 @@
         tables.forEach(t => {
           const option = document.createElement('option');
           option.value = t;
-          option.textContent = t.replace('_', ' - ');
+          option.textContent = t.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
           tableSelect.appendChild(option);
         });
         document.getElementById('totalTables').textContent = tables.length;
@@ -577,11 +598,22 @@
     nextBtn.onclick = () => { if ((currentPage * pageSize) < currentData.length) { currentPage++; renderTable(); } };
     refreshBtn.onclick = fetchTables;
 
-    // Excel Upload Handler
+    // Excel Upload Handler with enhanced validation
     excelUploadForm.addEventListener('submit', async function(e) {
       e.preventDefault();
       showLoading();
       excelUploadMsg.classList.add('hidden');
+      
+      const tableName = newTableInput.value.trim();
+      
+      // Validate table name before submitting
+      if (!isValidTableName(tableName)) {
+        excelUploadMsg.innerHTML = '<i class="fas fa-exclamation-triangle mr-2"></i>Invalid table name. Only letters, numbers, and underscores allowed (max 63 characters).';
+        excelUploadMsg.className = 'mt-4 text-center text-sm rounded-lg p-3 bg-red-100 text-red-800 border border-red-200';
+        excelUploadMsg.classList.remove('hidden');
+        hideLoading();
+        return;
+      }
       
       const formData = new FormData(excelUploadForm);
 
