@@ -36,6 +36,15 @@ sync_engine = create_engine(SYNC_DB_URL, echo=True)
 
 router = APIRouter(prefix="/admin", tags=["admin"])
 
+# Safe table name validator
+def is_safe_table_name(name):
+    """
+    Validates table name to only contain letters, numbers, and underscores.
+    Prevents SQL injection by blocking dangerous characters.
+    """
+    if not name or len(name) > 63:  # PostgreSQL table name limit
+        return False
+    return bool(re.match(r"^[A-Za-z0-9_]+$", name))
 
 @router.post("/login")
 async def login(
@@ -57,56 +66,77 @@ async def login(
         detail="Invalid credentials"
     )
 
-
 @router.get("/tables")
 async def list_tables(db: AsyncSession = Depends(get_db)):
     """
-    Returns list of year-based tables in public schema.
+    Returns list of all tables in public schema (excluding system tables).
     """
     query = text(
         "SELECT tablename FROM pg_tables "
         "WHERE schemaname='public' "
-        "AND tablename ~ '^[0-9]{4}_[0-9]{2}$';"
+        "AND tablename NOT LIKE 'pg_%' "
+        "AND tablename NOT LIKE 'sql_%';"
     )
     result = await db.execute(query)
     tables = [row[0] for row in result]
     return {"tables": tables}
 
-
 @router.get("/tables/{table_name}")
 async def get_table(
-    table_name: str = Path(..., regex=r"^[0-9]{4}_[0-9]{2}$"),
+    table_name: str = Path(...),
     db: AsyncSession = Depends(get_db)
 ):
     """
     Returns all rows from specified table ordered by group_no.
     """
+    if not is_safe_table_name(table_name):
+        raise HTTPException(
+            status_code=400,
+            detail="Table name may only contain letters, numbers, and underscore (_)."
+        )
+    
     query = text(f'SELECT * FROM "{table_name}" ORDER BY group_no;')
-    result = await db.execute(query)
-    rows = result.mappings().all()
-    return {"rows": rows}
-
+    try:
+        result = await db.execute(query)
+        rows = result.mappings().all()
+        return {"rows": rows}
+    except Exception as e:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Table '{table_name}' not found or error accessing it: {e}"
+        )
 
 @router.post("/tables/{table_name}")
 async def insert_row(
-    table_name: str = Path(..., regex=r"^[0-9]{4}_[0-9]{2}$"),
+    table_name: str = Path(...),
     data: dict = Body(...),
     db: AsyncSession = Depends(get_db)
 ):
     """
     Inserts new row into specified table.
     """
+    if not is_safe_table_name(table_name):
+        raise HTTPException(
+            status_code=400,
+            detail="Table name may only contain letters, numbers, and underscore (_)."
+        )
+    
     cols = ", ".join(data.keys())
     vals = ", ".join(f":{k}" for k in data.keys())
     query = text(f'INSERT INTO "{table_name}" ({cols}) VALUES ({vals});')
-    await db.execute(query, data)
-    await db.commit()
-    return {"success": True}
-
+    try:
+        await db.execute(query, data)
+        await db.commit()
+        return {"success": True}
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error inserting row: {e}"
+        )
 
 @router.put("/tables/{table_name}/{group_no}")
 async def update_row(
-    table_name: str = Path(..., regex=r"^[0-9]{4}_[0-9]{2}$"),
+    table_name: str = Path(...),
     group_no: int = Path(...),
     data: dict = Body(...),
     db: AsyncSession = Depends(get_db)
@@ -114,6 +144,12 @@ async def update_row(
     """
     Updates row identified by group_no in specified table and returns the updated row.
     """
+    if not is_safe_table_name(table_name):
+        raise HTTPException(
+            status_code=400,
+            detail="Table name may only contain letters, numbers, and underscore (_)."
+        )
+    
     logger.debug(f"→ PUT /admin/tables/{table_name}/{group_no} payload: {data!r}")
 
     # Strip out search_vector if sent by frontend
@@ -165,7 +201,10 @@ async def update_row(
         WHERE group_no = :group_no;
     """
     logger.debug(f"   Rebuilding search_vector for group_no={group_no}")
-    await db.execute(text(sv_sql), {"group_no": group_no})
+    try:
+        await db.execute(text(sv_sql), {"group_no": group_no})
+    except Exception as e:
+        logger.warning(f"   ⚠️ Could not update search_vector: {e}")
 
     await db.commit()
     logger.debug("   ✅ Committed transaction")
@@ -175,21 +214,31 @@ async def update_row(
         "row": dict(updated) if updated else None
     }
 
-
 @router.delete("/tables/{table_name}/{group_no}")
 async def delete_row(
-    table_name: str = Path(..., regex=r"^[0-9]{4}_[0-9]{2}$"),
+    table_name: str = Path(...),
     group_no: int = Path(...),
     db: AsyncSession = Depends(get_db)
 ):
     """
     Deletes row identified by group_no in specified table.
     """
+    if not is_safe_table_name(table_name):
+        raise HTTPException(
+            status_code=400,
+            detail="Table name may only contain letters, numbers, and underscore (_)."
+        )
+    
     query = text(f'DELETE FROM "{table_name}" WHERE group_no = :group_no;')
-    await db.execute(query, {"group_no": group_no})
-    await db.commit()
-    return {"success": True}
-
+    try:
+        await db.execute(query, {"group_no": group_no})
+        await db.commit()
+        return {"success": True}
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error deleting row: {e}"
+        )
 
 @router.post("/upload-excel")
 async def upload_excel(
@@ -203,8 +252,12 @@ async def upload_excel(
     if not request.session.get("admin_authenticated"):
         raise HTTPException(status_code=403, detail="Not logged in")
 
-    if not re.match(r"^[0-9]{4}_[0-9]{2}$", new_table):
-        raise HTTPException(status_code=400, detail="Table name must be in YYYY_MM format.")
+    # Validate table name instead of enforcing format
+    if not is_safe_table_name(new_table):
+        raise HTTPException(
+            status_code=400,
+            detail="Table name may only contain letters, numbers, and underscore (_). Max 63 characters."
+        )
 
     contents = await file.read()
     try:
