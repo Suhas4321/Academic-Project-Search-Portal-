@@ -1,22 +1,25 @@
-from fastapi import APIRouter, Depends, Query, HTTPException
+from fastapi import APIRouter, Depends, Query, HTTPException, Path
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.database import get_db
 from typing import Optional, List
 import re
 
+
 router = APIRouter()
+
 
 # ────────────────────────────────────────────────────────────────────────────────
 # Helpers
 # ────────────────────────────────────────────────────────────────────────────────
-SAFE_TABLE_RE = re.compile(r"^[A-Za-z0-9_]{1,63}$")      # backend + frontend rule
-BLOCKLIST     = {"alembic_version"}                      # skip system tables
+SAFE_TABLE_RE = re.compile(r"^[A-Za-z0-9_-]{1,63}$")      # backend + frontend rule (updated to allow hyphens)
+BLOCKLIST     = {"alembic_version"}                        # skip system tables
+
 
 
 async def get_year_tables(db: AsyncSession) -> List[str]:
     """
-    Return every user-created table whose name is “safe” (letters / digits /
+    Return every user-created table whose name is "safe" (letters / digits /
     underscores, ≤63 chars).  The list is converted from underscores to hyphens
     before being sent to the UI so that names read nicely there.
     """
@@ -38,6 +41,7 @@ async def get_year_tables(db: AsyncSession) -> List[str]:
     return [t.replace("_", "-") for t in sorted(tables)]
 
 
+
 async def get_table_columns(db: AsyncSession, table_name: str) -> List[str]:
     query = text(
         """
@@ -49,6 +53,60 @@ async def get_table_columns(db: AsyncSession, table_name: str) -> List[str]:
     )
     result = await db.execute(query, {"table_name": table_name})
     return [row[0] for row in result]
+
+
+
+# ────────────────────────────────────────────────────────────────────────────────
+# New function to get all projects from a specific year
+# ────────────────────────────────────────────────────────────────────────────────
+async def get_all_projects_by_year(year: str, db: AsyncSession):
+    """
+    Fetch all projects from a specific academic year table.
+    """
+    tables = await get_year_tables(db)
+    if year not in tables:
+        raise HTTPException(status_code=400, detail="Unknown academic year.")
+
+    table_name = year.replace("-", "_")
+    columns = await get_table_columns(db, table_name)
+    
+    # Check for optional columns
+    has_ppt_links = "ppt_links" in columns
+    has_report_links = "report_links" in columns
+
+    ppt_links_col = "COALESCE(ppt_links, '') AS ppt_links" if has_ppt_links else "'' AS ppt_links"
+    report_links_col = "COALESCE(report_links, '') AS report_links" if has_report_links else "'' AS report_links"
+
+    query = text(f"""
+        SELECT
+            group_no,
+            usn,
+            name,
+            project_title,
+            guide_name,
+            outcomes,
+            proof_link,
+            {ppt_links_col},
+            {report_links_col}
+        FROM "{table_name}"
+        ORDER BY 
+            CASE WHEN group_no ~ '^[0-9]+$' THEN CAST(group_no AS INTEGER) ELSE 999999 END,
+            group_no,
+            project_title ASC
+    """)
+
+    try:
+        result = await db.execute(query)
+        projects = []
+        for row in result.mappings().all():
+            project = dict(row)
+            project["project_year"] = year
+            projects.append(project)
+        return projects
+    except Exception as exc:
+        print(f"[get_all_projects] query error in {table_name}: {exc}")
+        raise HTTPException(status_code=500, detail="Error fetching projects from database")
+
 
 
 # ────────────────────────────────────────────────────────────────────────────────
@@ -96,6 +154,7 @@ async def search_projects(
         results.append(r)
 
     return results
+
 
 
 async def search_single_table(
@@ -169,6 +228,7 @@ async def search_single_table(
         return []
 
 
+
 # ────────────────────────────────────────────────────────────────────────────────
 # Autocomplete helpers
 # ────────────────────────────────────────────────────────────────────────────────
@@ -197,6 +257,7 @@ async def get_suggestions(
         raise HTTPException(status_code=400, detail="Unknown table name.")
 
     return await get_table_suggestions(year.replace("-", "_"), search_term, db, search_type)
+
 
 
 async def get_table_suggestions(
@@ -246,6 +307,7 @@ async def get_table_suggestions(
     return [row[0] for row in result if row[0]]
 
 
+
 # ────────────────────────────────────────────────────────────────────────────────
 # Routes
 # ────────────────────────────────────────────────────────────────────────────────
@@ -259,6 +321,21 @@ async def get_years(db: AsyncSession = Depends(get_db)):
     return {"years": years}
 
 
+
+@router.get("/projects/{year}")
+async def get_projects_by_year(
+    year: str = Path(..., description="Academic year (e.g., '2023-2024')"),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Fetch all projects from a specific academic year.
+    This endpoint is called when user selects an academic year from dropdown.
+    """
+    projects = await get_all_projects_by_year(year, db)
+    return {"projects": projects, "year": year, "count": len(projects)}
+
+
+
 @router.get("/search/")
 async def full_text_search(
     year: str = Query(..., description="Table name shown in the dropdown or 'all'"),
@@ -268,6 +345,7 @@ async def full_text_search(
 ):
     results = await search_projects(year, q, db, search_type)
     return {"results": results}
+
 
 
 @router.get("/suggestions/")

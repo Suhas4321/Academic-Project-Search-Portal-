@@ -1,1461 +1,730 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>DSCE ISE Project Portal</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-  <style>
-    
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-      background: url('/static/dept.jpg') center center / cover no-repeat fixed;
-      color: #1a202c;
-      line-height: 1.6;
-      min-height: 100vh;
-      position: relative;
-    }
-
-    /* Reduced background overlay opacity significantly to remove foggy effect */
-    body::before {
-      content: '';
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(255, 255, 255, 0.05);
-      z-index: -1;
-    }
-
-    .container {
-      max-width: 100vw;
-      margin: 0;
-      padding: 0;
-      min-height: 100vh;
-    }
-
-    /* Navigation Bar */
-    .navbar {
-      background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%);
-      padding: 1rem 0;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-      animation: slideDown 0.6s ease-out;
-    }
-
-    .nav-content {
-      max-width: 1400px;
-      margin: 0 auto;
-      padding: 0 2rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .nav-brand {
-      color: white;
-      font-size: 1.2rem;
-      font-weight: 600;
-      text-decoration: none;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      transition: transform 0.3s ease;
-    }
-
-    .nav-brand:hover {
-      transform: scale(1.05);
-    }
-
-    .admin-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      background: linear-gradient(135deg, #e53e3e 0%, #c53030 100%);
-      color: white;
-      padding: 0.75rem 1.5rem;
-      border-radius: 12px;
-      text-decoration: none;
-      font-weight: 600;
-      transition: all 0.3s ease;
-      box-shadow: 0 4px 15px rgba(229, 62, 62, 0.3);
-      animation: pulse 2s infinite;
-    }
-
-    .admin-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(229, 62, 62, 0.4);
-      animation: none;
-    }
-
-    /* Header Section - Full width with proper spacing */
-    .header {
-      background: linear-gradient(135deg, rgba(102, 126, 234, 0.85) 0%, rgba(118, 75, 162, 0.85) 100%);
-      color: white;
-      padding: 2rem 0 1.5rem;
-      position: relative;
-      overflow: hidden;
-      width: 100%;
-    }
-
-    .header::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 20"><defs><radialGradient id="a" cx="50%" cy="0%" r="100%"><stop offset="0%" stop-color="rgba(255,255,255,.1)"/><stop offset="100%" stop-color="rgba(255,255,255,0)"/></radialGradient></defs><rect width="100" height="20" fill="url(%23a)"/></svg>') repeat-x;
-      opacity: 0.1;
-    }
-
-    .header-content {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      width: 100%;
-      max-width: 1400px;
-      margin: 0 auto;
-      padding: 0 2rem;
-      position: relative;
-      z-index: 1;
-      animation: fadeInUp 1s ease-out;
-    }
-
-    .header-logo {
-      flex-shrink: 0;
-      display: flex;
-      align-items: center;
-    }
-
-    .header-logo img {
-      width: 100px;
-      height: 100px;
-      border-radius: 20px;
-      background: white;
-      padding: 8px;
-      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-      transition: transform 0.3s ease;
-      animation: float 3s ease-in-out infinite;
-    }
-
-    .header-logo img:hover {
-      transform: scale(1.05) rotate(5deg);
-    }
-
-    .header-title {
-      flex: 1;
-      text-align: left;
-      margin-left: 2rem;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-    }
-
-    .header-title h1 {
-      font-size: 2.5rem;
-      font-weight: 700;
-      margin-bottom: 0.5rem;
-      background: linear-gradient(135deg, #ffffff 0%, #e2e8f0 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      animation: textShine 2s ease-in-out infinite alternate;
-      line-height: 1.2;
-    }
-
-    .header-title p {
-      font-size: 1.1rem;
-      color: #e2e8f0;
-      margin: 0.2rem 0;
-      font-weight: 400;
-      animation: fadeIn 1.5s ease-out;
-    }
-
-    /* Search Container with balanced grid layout */
-    .search-container {
-      max-width: 1400px;
-      margin: -1.5rem auto 2rem;
-      padding: 0 2rem;
-      position: relative;
-      z-index: 10;
-      animation: slideUp 0.8s ease-out;
-    }
-
-    .search-card {
-      background: rgba(255, 255, 255, 0.95);
-      border-radius: 20px;
-      padding: 2rem;
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      backdrop-filter: blur(10px);
-      transition: transform 0.3s ease;
-    }
-
-    .search-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
-    }
-
-    .search-form {
-      display: grid;
-      grid-template-columns: 220px 220px 2fr 130px;
-      gap: 1rem;
-      align-items: center;
-    }
-
-    .search-form select,
-    .search-form input {
-      padding: 0.75rem 1rem;
-      border: 2px solid #e2e8f0;
-      border-radius: 12px;
-      font-size: 1rem;
-      transition: all 0.3s ease;
-      background: white;
-      font-family: inherit;
-    }
-
-    .search-form input {
-      width: 100%;
-    }
-
-    .search-form select:focus,
-    .search-form input:focus {
-      outline: none;
-      border-color: #667eea;
-      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-      transform: translateY(-2px);
-    }
-
-    .search-btn {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      border: none;
-      border-radius: 12px;
-      padding: 0.75rem 1rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.5rem;
-      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
-      white-space: nowrap;
-    }
-
-    .search-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
-    }
-
-    .search-btn:active {
-      transform: translateY(0);
-    }
-
-    /* Badge for year display */
-    .badge {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      padding: 0.25rem 0.75rem;
-      border-radius: 12px;
-      font-size: 0.8rem;
-      font-weight: 600;
-      display: inline-block;
-    }
-
-    /* Suggestions */
-    #suggestions {
-      position: absolute;
-      top: 100%;
-      left: 0;
-      right: 0;
-      background: white;
-      border: 1px solid #e2e8f0;
-      border-radius: 0 0 12px 12px;
-      max-height: 200px;
-      overflow-y: auto;
-      display: none;
-      z-index: 1000;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-      animation: fadeIn 0.3s ease-out;
-    }
-
-    .suggestion-item {
-      padding: 0.75rem 1rem;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      border-bottom: 1px solid #f7fafc;
-    }
-
-    .suggestion-item:hover {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      transform: translateX(5px);
-    }
-
-    /* Results Section */
-    .results-container {
-      max-width: 1400px;
-      margin: 0 auto;
-      padding: 0 2rem 2rem;
-    }
-
-    .results-card {
-      background: rgba(255, 255, 255, 0.95);
-      border-radius: 20px;
-      overflow: hidden;
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      animation: fadeInUp 0.6s ease-out;
-    }
-
-    .results-header {
-      background: linear-gradient(135deg, #4a5568 0%, #2d3748 100%);
-      color: white;
-      padding: 1.5rem 2rem;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .results-header::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-      animation: shimmer 2s infinite;
-    }
-
-    .results-header h2 {
-      font-size: 1.5rem;
-      font-weight: 600;
-      margin: 0;
-      position: relative;
-      z-index: 1;
-    }
-
-    /* CHANGED: Removed max-height and overflow-y auto to show full table */
-    .table-container {
-      overflow-x: auto;
-    }
-
-    .results-table {
-      width: 100%;
-      min-width: 1200px;
-      border-collapse: separate;
-      border-spacing: 0;
-      font-size: 0.9rem;
-    }
-
-    .results-table th {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      padding: 1rem 0.75rem;
-      text-align: left;
-      font-weight: 600;
-      position: sticky;
-      top: 0;
-      z-index: 5;
-      white-space: nowrap;
-      border-bottom: 2px solid rgba(255, 255, 255, 0.1);
-      transition: all 0.3s ease;
-    }
-
-    .results-table th:hover {
-      background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
-    }
-
-    .results-table td {
-      padding: 0.75rem;
-      border-bottom: 1px solid #e2e8f0;
-      background: white;
-      vertical-align: top;
-      transition: all 0.3s ease;
-    }
-
-    .results-table tbody tr:nth-child(even) td {
-      background: #f8fafc;
-    }
-
-    .results-table tbody tr:hover td {
-      background: linear-gradient(135deg, #edf2f7 0%, #e2e8f0 100%);
-      transform: scale(1.01);
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    }
-
-    .proof-link {
-      color: #667eea;
-      text-decoration: none;
-      font-weight: 500;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.3rem;
-      transition: all 0.3s ease;
-      padding: 0.25rem 0.5rem;
-      border-radius: 6px;
-    }
-
-    .proof-link:hover {
-      color: white;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
-    }
-
-    
-    /* Enhanced Chatbot Styles */
-    #chatbot {
-      position: fixed;
-      bottom: 100px;
-      right: 30px;
-      width: 380px;
-      height: 480px;
-      background: white;
-      border-radius: 20px;
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
-      display: none;
-      flex-direction: column;
-      z-index: 1000;
-      overflow: hidden;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      animation: slideInRight 0.5s ease-out;
-      resize: both;
-      min-width: 300px;
-      min-height: 400px;
-      max-width: 600px;
-      max-height: 700px;
-    }
-
-    #chatbot.show {
-      display: flex;
-    }
-
-    #chatbot-header {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      padding: 1rem 1.5rem;
-      cursor: move;
-      position: relative;
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      user-select: none;
-    }
-
-    #chatbot-header:active {
-      cursor: grabbing;
-    }
-
-    #chatbot-toggle-size {
-      cursor: pointer;
-      padding: 0.25rem;
-      border-radius: 4px;
-      transition: background 0.2s ease;
-    }
-
-    #chatbot-toggle-size:hover {
-      background: rgba(255, 255, 255, 0.2);
-    }
-
-    #chatbot-body {
-      flex: 1;
-      padding: 1.5rem;
-      overflow-y: auto;
-      background: #f8fafc;
-      font-size: 0.9rem;
-      line-height: 1.5;
-    }
-
-    #chatbot-body p {
-      margin-bottom: 1rem;
-      color: #4a5568;
-    }
-
-    #chatbot-body ul {
-      margin: 1rem 0;
-      padding-left: 1.5rem;
-      color: #4a5568;
-    }
-
-    #chatbot-body li {
-      margin-bottom: 0.5rem;
-    }
-
-    #chatbot-body strong {
-      color: #2d3748;
-    }
-
-    #chatbot-input {
-      background: white;
-      padding: 1rem;
-      display: flex;
-      gap: 0.75rem;
-      align-items: center;
-      border-top: 1px solid #e2e8f0;
-    }
-
-    #chatbot-dropdown {
-      flex: 1;
-      padding: 0.75rem 1rem;
-      border: 2px solid #e2e8f0;
-      border-radius: 12px;
-      font-size: 0.9rem;
-      background: white;
-      transition: all 0.3s ease;
-      cursor: pointer;
-    }
-
-    #chatbot-dropdown:focus {
-      outline: none;
-      border-color: #667eea;
-      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-    }
-
-    #chatbot-send {
-      padding: 0.75rem 1.5rem;
-      border: none;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      border-radius: 12px;
-      cursor: pointer;
-      font-size: 0.9rem;
-      font-weight: 600;
-      transition: all 0.3s ease;
-      box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
-    }
-
-    #chatbot-send:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-    }
-
-    #chatbot-semester-container {
-      background: white;
-      padding: 1rem;
-      display: none;
-      gap: 0.75rem;
-      align-items: center;
-      border-top: 1px solid #e2e8f0;
-    }
-
-    #chatbot-semester-dropdown {
-      flex: 1;
-      padding: 0.75rem 1rem;
-      border: 2px solid #e2e8f0;
-      border-radius: 12px;
-      font-size: 0.9rem;
-      background: white;
-      transition: all 0.3s ease;
-      cursor: pointer;
-    }
-
-    #chatbot-semester-dropdown:focus {
-      outline: none;
-      border-color: #667eea;
-      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-    }
-
-    #chatbot-semester-send {
-      padding: 0.75rem 1.5rem;
-      border: none;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      border-radius: 12px;
-      cursor: pointer;
-      font-size: 0.9rem;
-      font-weight: 600;
-      transition: all 0.3s ease;
-      box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
-    }
-
-    #chatbot-semester-send:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-    }
-
-    #chatbot-toggle {
-      position: fixed;
-      bottom: 30px;
-      right: 30px;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      border: none;
-      border-radius: 50%;
-      width: 60px;
-      height: 60px;
-      cursor: pointer;
-      box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
-      z-index: 1001;
-      font-size: 1.5rem;
-      transition: all 0.3s ease;
-      animation: bounce 2s infinite;
-    }
-
-    #chatbot-toggle:hover {
-      transform: translateY(-3px) scale(1.1);
-      box-shadow: 0 15px 30px rgba(102, 126, 234, 0.4);
-      animation: none;
-    }
-
-    /* Chat message styling */
-    .chat-message {
-      margin-bottom: 1rem;
-      padding: 0.75rem;
-      border-radius: 12px;
-      animation: fadeIn 0.3s ease-out;
-    }
-
-    .chat-message.user {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      margin-left: 2rem;
-    }
-
-    .chat-message.bot {
-      background: white;
-      border: 1px solid #e2e8f0;
-      color: #4a5568;
-    }
-
-    .chat-message a {
-      color: #667eea;
-      text-decoration: underline;
-      font-weight: 500;
-    }
-
-    .chat-message.user a {
-      color: white;
-    }
-
-    /* Animations */
-    @keyframes slideDown {
-      from {
-        transform: translateY(-100%);
-        opacity: 0;
-      }
-      to {
-        transform: translateY(0);
-        opacity: 1;
-      }
-    }
-
-    @keyframes fadeInUp {
-      from {
-        opacity: 0;
-        transform: translateY(30px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    @keyframes slideUp {
-      from {
-        opacity: 0;
-        transform: translateY(50px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    @keyframes fadeIn {
-      from {
-        opacity: 0;
-      }
-      to {
-        opacity: 1;
-      }
-    }
-
-    @keyframes float {
-      0%, 100% {
-        transform: translateY(0px);
-      }
-      50% {
-        transform: translateY(-10px);
-      }
-    }
-
-    @keyframes textShine {
-      0% {
-        background-position: 0% 50%;
-      }
-      100% {
-        background-position: 100% 50%;
-      }
-    }
-
-    @keyframes pulse {
-      0%, 100% {
-        transform: scale(1);
-      }
-      50% {
-        transform: scale(1.05);
-      }
-    }
-
-    @keyframes bounce {
-      0%, 20%, 50%, 80%, 100% {
-        transform: translateY(0);
-      }
-      40% {
-        transform: translateY(-10px);
-      }
-      60% {
-        transform: translateY(-5px);
-      }
-    }
-
-    @keyframes shimmer {
-      0% {
-        left: -100%;
-      }
-      100% {
-        left: 100%;
-      }
-    }
-
-    @keyframes slideInRight {
-      from {
-        transform: translateX(100%);
-        opacity: 0;
-      }
-      to {
-        transform: translateX(0);
-        opacity: 1;
-      }
-    }
-
-    /* Loading Animation */
-    .loading {
-      display: inline-block;
-      width: 20px;
-      height: 20px;
-      border: 2px solid #f3f3f3;
-      border-top: 2px solid #667eea;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-    }
-
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-
-    /* Responsive Design */
-    @media (max-width: 1200px) {
-      .search-form {
-        grid-template-columns: 1fr;
-        gap: 1rem;
-      }
-      
-      .results-table {
-        font-size: 0.8rem;
-      }
-      
-      .results-table th,
-      .results-table td {
-        padding: 0.5rem;
-      }
-      
-      .header-content {
-        flex-direction: column;
-        text-align: center;
-        justify-content: center;
-      }
-      
-      .header-title {
-        text-align: center;
-        margin-left: 0;
-      }
-      
-      .header-title h1 {
-        font-size: 2.2rem;
-      }
-    }
-
-    @media (max-width: 768px) {
-      .header {
-        padding: 2rem 1rem;
-      }
-      
-      .search-container,
-      .results-container {
-        padding: 0 1rem;
-      }
-      
-      .search-card {
-        padding: 1.5rem;
-      }
-      
-      #chatbot {
-        width: 300px;
-        right: 15px;
-        bottom: 80px;
-      }
-      
-      .nav-content {
-        padding: 0 1rem;
-      }
-      
-      .nav-brand {
-        font-size: 1rem;
-      }
-      
-      .admin-btn {
-        padding: 0.5rem 1rem;
-        font-size: 0.9rem;
-      }
-    }
-
-    /* Custom scrollbar */
-    ::-webkit-scrollbar {
-      width: 8px;
-      height: 8px;
-    }
-
-    ::-webkit-scrollbar-track {
-      background: #f1f1f1;
-      border-radius: 4px;
-    }
-
-    ::-webkit-scrollbar-thumb {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      border-radius: 4px;
-    }
-
-    ::-webkit-scrollbar-thumb:hover {
-      background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
-    }
-
-    /* Additional college website styling */
-    .no-results, .error-message {
-      text-align: center;
-      padding: 4rem 2rem;
-      animation: fadeInUp 0.6s ease-out;
-    }
-
-    .no-results i, .error-message i {
-      font-size: 3rem;
-      margin-bottom: 1rem;
-      animation: pulse 2s infinite;
-    }
-
-    .no-results {
-      color: #718096;
-    }
-
-    .error-message {
-      color: #e53e3e;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DSCE ISE Project Portal</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            background-image: url('/static/dept.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            line-height: 1.6;
+        }
+
+        /* Header - Full Width Layout like LeetCode - UPDATED */
+        .header {
+            background: rgba(52, 73, 94, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-content {
+            max-width: 1400px; /* Increased from 1200px */
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px; /* Reduced from 24px */
+            height: 64px;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-section img {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            object-fit: cover;
+        }
+
+        .logo-text {
+            color: white;
+            font-size: 18px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .logo-text:hover {
+            color: #74b9ff;
+        }
+
+        .admin-access {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .admin-access:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
+            color: white;
+        }
+
+        /* Main Content - Full Width Container - UPDATED */
+        .main-container {
+            max-width: 1400px; /* Increased from 1200px */
+            margin: 0 auto;
+            padding: 0 20px; /* Reduced from 24px */
+            padding-top: 40px;
+            padding-bottom: 40px;
+        }
+
+        /* Hero Section */
+        .hero-section {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .hero-content {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .hero-title {
+            font-size: 2.5rem;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 700;
+        }
+
+        .hero-subtitle {
+            font-size: 1.2rem;
+            color: #34495e;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .hero-description {
+            font-size: 1rem;
+            color: #7f8c8d;
+            margin-bottom: 5px;
+        }
+
+        /* Search Section - Full Width */
+        .search-section {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .search-controls {
+            display: grid;
+            grid-template-columns: 200px 200px 1fr auto;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .form-group {
+            position: relative;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            background: white;
+            font-family: inherit;
+        }
+
+        .form-control:focus {
+            border-color: #667eea;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-control:disabled {
+            background-color: #f8f9fa;
+            color: #6c757d;
+            cursor: not-allowed;
+        }
+
+        .search-input {
+            padding-right: 50px;
+        }
+
+        .search-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: inherit;
+        }
+
+        .search-btn:hover:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .search-btn:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Suggestions Dropdown */
+        .suggestions-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid #e9ecef;
+            border-top: none;
+            border-radius: 0 0 8px 8px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+        }
+
+        .suggestion-item {
+            padding: 10px 16px;
+            cursor: pointer;
+            border-bottom: 1px solid #f1f3f4;
+            transition: background-color 0.2s ease;
+        }
+
+        .suggestion-item:hover {
+            background-color: #f8f9fa;
+        }
+
+        .suggestion-item:last-child {
+            border-bottom: none;
+        }
+
+        /* Results Section - Full Width */
+        .results-section {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 16px;
+            padding: 0;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .results-header {
+            padding: 20px 30px;
+            border-bottom: 1px solid #e9ecef;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+        }
+
+        .results-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .results-count {
+            font-size: 0.9rem;
+            color: #6c757d;
+            margin: 0;
+        }
+
+        .results-table-container {
+            max-height: 600px;
+            overflow-y: auto;
+            overflow-x: auto;
+        }
+
+        .results-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 800px;
+        }
+
+        .results-table th {
+            background: #f8f9fa;
+            padding: 16px 20px;
+            text-align: left;
+            font-weight: 600;
+            color: #2c3e50;
+            border-bottom: 2px solid #e9ecef;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            white-space: nowrap;
+        }
+
+        .results-table td {
+            padding: 16px 20px;
+            border-bottom: 1px solid #f1f3f4;
+            vertical-align: top;
+            word-wrap: break-word;
+            max-width: 200px;
+        }
+
+        .results-table tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .results-table tbody tr:nth-child(even) {
+            background-color: rgba(248, 249, 250, 0.5);
+        }
+
+        /* Link Buttons */
+        .link-btn {
+            display: inline-block;
+            padding: 4px 8px;
+            margin: 2px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-size: 0.8rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .link-btn.proof {
+            background: #e3f2fd;
+            color: #1976d2;
+            border: 1px solid #bbdefb;
+        }
+
+        .link-btn.proof:hover {
+            background: #1976d2;
+            color: white;
+        }
+
+        .link-btn.ppt {
+            background: #fff3e0;
+            color: #f57c00;
+            border: 1px solid #ffcc02;
+        }
+
+        .link-btn.ppt:hover {
+            background: #f57c00;
+            color: white;
+        }
+
+        .link-btn.report {
+            background: #e8f5e8;
+            color: #388e3c;
+            border: 1px solid #c8e6c9;
+        }
+
+        .link-btn.report:hover {
+            background: #388e3c;
+            color: white;
+        }
+
+        /* Loading Animation */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-radius: 50%;
+            border-top-color: #667eea;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        /* Chatbot Styles */
+        .chatbot-widget {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 350px;
+            max-height: 500px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .chatbot-header {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: move;
+        }
+
+        .chatbot-title {
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .chatbot-controls {
+            display: flex;
+            gap: 5px;
+        }
+
+        .chatbot-btn {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            padding: 2px 6px;
+            border-radius: 3px;
+            transition: background 0.3s ease;
+        }
+
+        .chatbot-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .chatbot-content {
+            padding: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .chatbot-options {
+            display: grid;
+            gap: 10px;
+        }
+
+        .chatbot-option {
+            padding: 12px;
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .chatbot-option:hover {
+            background: #e9ecef;
+            transform: translateY(-1px);
+        }
+
+        .chatbot-option i {
+            color: #667eea;
+        }
+
+        /* For even wider screens, use more space - UPDATED */
+        @media (min-width: 1440px) {
+            .main-container {
+                max-width: 1600px;
+                padding: 0 40px;
+                padding-top: 40px;
+                padding-bottom: 40px;
+            }
+            
+            .header-content {
+                max-width: 1600px;
+                padding: 0 40px;
+            }
+        }
+
+        /* For very wide screens, use almost full width - UPDATED */
+        @media (min-width: 1800px) {
+            .main-container {
+                max-width: 90vw; /* 90% of viewport width */
+                padding: 0 2vw; /* 2% padding on each side */
+                padding-top: 40px;
+                padding-bottom: 40px;
+            }
+            
+            .header-content {
+                max-width: 90vw;
+                padding: 0 2vw;
+            }
+        }
+
+        /* Responsive Design - UPDATED */
+        @media (max-width: 1024px) {
+            .main-container {
+                padding: 0 12px; /* Reduced from 16px */
+                padding-top: 30px;
+            }
+            
+            .header-content {
+                padding: 0 12px;
+            }
+            
+            .search-controls {
+                grid-template-columns: 1fr 1fr;
+                gap: 12px;
+            }
+            
+            .search-controls > div:nth-child(3),
+            .search-controls > div:nth-child(4) {
+                grid-column: 1 / -1;
+            }
+
+            .hero-content {
+                padding: 30px 20px;
+            }
+
+            .search-section {
+                padding: 20px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header-content {
+                padding: 0 12px; /* Reduced from 16px */
+            }
+            
+            .main-container {
+                padding: 0 12px;
+                padding-top: 30px;
+            }
+            
+            .search-controls {
+                grid-template-columns: 1fr;
+            }
+            
+            .hero-title {
+                font-size: 2rem;
+            }
+
+            .hero-subtitle {
+                font-size: 1.1rem;
+            }
+
+            .chatbot-widget {
+                width: 300px;
+                bottom: 10px;
+                right: 10px;
+            }
+
+            .results-table th,
+            .results-table td {
+                padding: 12px 10px;
+                font-size: 0.9rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero-title {
+                font-size: 1.8rem;
+            }
+
+            .logo-text {
+                font-size: 16px;
+            }
+
+            .admin-access {
+                padding: 8px 16px;
+                font-size: 0.9rem;
+            }
+
+            .chatbot-widget {
+                width: calc(100vw - 20px);
+                bottom: 10px;
+                right: 10px;
+                left: 10px;
+            }
+        }
+
+        /* Utility Classes */
+        .hidden {
+            display: none !important;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .shimmer {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+    </style>
 </head>
-<body>
-  
-  <div class="container">
-    <!-- Navigation Bar -->
-    <nav class="navbar">
-      <div class="nav-content">
-        <a href="#" class="nav-brand">
-          <i class="fas fa-graduation-cap"></i>
-          DSCE ISE Portal
-        </a>
-        <a href="/admin-login" class="admin-btn">
-          <i class="fas fa-user-shield"></i>
-          <span>Admin Access</span>
-        </a>
-      </div>
-    </nav>
 
-    <!-- Header Section -->
+<body>
+    <!-- Header with full-width layout like LeetCode -->
     <header class="header">
-      <div class="header-content">
-        <div class="header-logo">
-          <img src="/static/images.jpg" alt="DSCE Logo" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDEwMCAxMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjNjY3ZWVhIi8+Cjx0ZXh0IHg9IjUwIiB5PSI1NSIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjE0IiBmaWxsPSJ3aGl0ZSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+RFNDRS1JU0U8L3RleHQ+Cjwvc3ZnPg=='">
+        <div class="header-content">
+            <div class="logo-section">
+                <img src="/static/images.jpg" alt="DSCE Logo">
+                <a href="/" class="logo-text">DSCE ISE Portal</a>
+            </div>
+            <a href="/admin-login" class="admin-access">
+                <i class="fas fa-user-shield"></i> Admin Access
+            </a>
         </div>
-        <div class="header-title">
-          <h1>DSCE ISE Project Portal</h1>
-          <p>Dayanand Sagar College of Engineering</p>
-          <p>Information Science & Engineering Department</p>
-          <p>Academic Excellence Through Innovation</p>
-        </div>
-      </div>
     </header>
 
-    <!-- Search Section -->
-    <div class="search-container">
-      <div class="search-card">
-        <form id="searchForm" class="search-form">
-          <select id="year">
-            <option value="all">All Academic Years</option>
-          </select>
-          <select id="searchType">
-            <option value="all">Search All Fields</option>
-            <option value="title">Project Title Only</option>
-            <option value="guide">Guide Name Only</option>
-          </select>
-          <div style="position: relative;">
-            <input type="text" id="searchInput" placeholder="Enter search keywords..." autocomplete="off">
-            <div id="suggestions"></div>
-          </div>
-          <button type="submit" class="search-btn">
-            <i class="fas fa-search"></i>
-            <span>Search</span>
-          </button>
-        </form>
-      </div>
+    <!-- Main Content -->
+    <div class="main-container">
+        <!-- Hero Section -->
+        <section class="hero-section">
+            <div class="hero-content">
+                <h1 class="hero-title">DSCE ISE Project Portal</h1>
+                <p class="hero-subtitle">Dayanand Sagar College of Engineering</p>
+                <p class="hero-description">Information Science & Engineering Department</p>
+                <p class="hero-description">Academic Excellence Through Innovation</p>
+            </div>
+        </section>
+
+        <!-- Search Section -->
+        <section class="search-section">
+            <div class="search-controls">
+                <div class="form-group">
+                    <select id="year-select" class="form-control">
+                        <option value="">Select Academic Year</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <select id="search-type" class="form-control">
+                        <option value="all">Search All Fields</option>
+                        <option value="title">Project Title Only</option>
+                        <option value="guide">Guide Name Only</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <input type="text" id="search-input" class="form-control search-input" 
+                           placeholder="Select academic year first..." disabled>
+                    <div id="suggestions" class="suggestions-dropdown"></div>
+                </div>
+                
+                <button id="search-btn" class="search-btn" disabled>
+                    <i class="fas fa-search"></i> Search
+                </button>
+            </div>
+        </section>
+
+        <!-- Results Section -->
+        <section class="results-section" id="results-section" style="display: none;">
+            <div class="results-header">
+                <h3 class="results-title" id="results-title">Search Results</h3>
+                <p class="results-count" id="results-count">0 projects found</p>
+            </div>
+            <div class="results-table-container">
+                <table class="results-table">
+                    <thead>
+                        <tr>
+                            <th>Year</th>
+                            <th>Group</th>
+                            <th>USN</th>
+                            <th>Name</th>
+                            <th>Project Title</th>
+                            <th>Guide Name</th>
+                            <th>Outcomes</th>
+                            <th>Links</th>
+                        </tr>
+                    </thead>
+                    <tbody id="results-body">
+                    </tbody>
+                </table>
+            </div>
+        </section>
     </div>
 
-    <!-- Results Section -->
-    <div class="results-container">
-      <div id="results" class="results-card" style="display: none;">
-        <div class="results-header">
-          <h2>Search Results</h2>
+    <!-- Chatbot Widget -->
+    <div class="chatbot-widget" id="chatbot-widget">
+        <div class="chatbot-header" id="chatbot-header">
+            <span class="chatbot-title">
+                <i class="fas fa-robot"></i> DSCE Assistant
+            </span>
+            <div class="chatbot-controls">
+                <button class="chatbot-btn" id="minimize-btn" title="Minimize">
+                    <i class="fas fa-minus"></i>
+                </button>
+                <button class="chatbot-btn" id="close-btn" title="Close">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
         </div>
-        <div class="table-container">
-          <div id="results-content">Results will appear here</div>
+        <div class="chatbot-content" id="chatbot-content">
+            <div class="chatbot-options">
+                <div class="chatbot-option" data-action="proctoring">
+                    <i class="fas fa-list-alt"></i>
+                    <div>
+                        <strong>Proctoring Lists</strong>
+                        <br><small>Download proctor assignments</small>
+                    </div>
+                </div>
+                <div class="chatbot-option" data-action="syllabus">
+                    <i class="fas fa-book"></i>
+                    <div>
+                        <strong>Academic Syllabus</strong>
+                        <br><small>Semester-wise syllabus documents</small>
+                    </div>
+                </div>
+                <div class="chatbot-option" data-action="timetable">
+                    <i class="fas fa-calendar-alt"></i>
+                    <div>
+                        <strong>Class Timetables</strong>
+                        <br><small>Download semester timetables</small>
+                    </div>
+                </div>
+                <div class="chatbot-option" data-action="electives">
+                    <i class="fas fa-graduation-cap"></i>
+                    <div>
+                        <strong>Elective Information</strong>
+                        <br><small>Guidance on elective subjects</small>
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
     </div>
-  </div>
-
-  <!-- Chatbot Widget -->
-  <div id="chatbot">
-    <div id="chatbot-header">
-      <span><i class="fas fa-robot"></i> Assistant</span>
-      <span id="chatbot-toggle-size"><i class="fas fa-minus"></i></span>
-    </div>
-    <div id="chatbot-body">
-      <p><strong>Welcome!</strong> I can help you with:</p>
-      <ul>
-        <li>Proctoring information</li>
-        <li>Syllabus documents</li>
-        <li>Timetables</li>
-        <li>Elective details</li>
-      </ul>
-      <p>Please select an option below to get started.</p>
-    </div>
-    <div id="chatbot-input">
-      <select id="chatbot-dropdown">
-        <option value="">Select a service...</option>
-        <option value="proctoring">Proctoring Lists</option>
-        <option value="syllabus">Academic Syllabus</option>
-        <option value="timetable">Class Timetables</option>
-        <option value="elective">Elective Information</option>
-      </select>
-      <button id="chatbot-send">Send</button>
-    </div>
-    <div id="chatbot-semester-container">
-      <select id="chatbot-semester-dropdown">
-        <option value="">Select Semester</option>
-        <option value="1">1st Semester</option>
-        <option value="2">2nd Semester</option>
-        <option value="3">3rd Semester</option>
-        <option value="4">4th Semester</option>
-        <option value="5">5th Semester</option>
-        <option value="6">6th Semester</option>
-        <option value="7">7th Semester</option>
-        <option value="8">8th Semester</option>
-      </select>
-      <button id="chatbot-semester-send">Submit</button>
-    </div>
-  </div>
-
-  <button id="chatbot-toggle">
-    <i class="fas fa-comment"></i>
-  </button>
-
-  <script>
-    // Initialize the application
-    document.addEventListener('DOMContentLoaded', function() {
-      loadAcademicYears();
-      initializeSearchFunctionality();
-      initializeChatbot();
-      addDynamicEffects();
-      
-      // Set up periodic refresh to check for new tables every 30 seconds
-      setInterval(loadAcademicYears, 30000);
-    });
-
-    // Add dynamic effects
-    function addDynamicEffects() {
-      // Parallax effect for header
-      window.addEventListener('scroll', function() {
-        const scrolled = window.pageYOffset;
-        const header = document.querySelector('.header');
-        if (header) {
-          header.style.transform = `translateY(${scrolled * 0.5}px)`;
-        }
-      });
-
-      // Add hover effects to cards
-      const cards = document.querySelectorAll('.search-card, .results-card');
-      cards.forEach(card => {
-        card.addEventListener('mouseenter', function() {
-          this.style.transform = 'translateY(-5px) scale(1.02)';
-        });
-        card.addEventListener('mouseleave', function() {
-          this.style.transform = 'translateY(0) scale(1)';
-        });
-      });
-
-      // Add typing effect to search input
-      const searchInput = document.getElementById('searchInput');
-      searchInput.addEventListener('focus', function() {
-        this.style.boxShadow = '0 0 20px rgba(102, 126, 234, 0.3)';
-      });
-      searchInput.addEventListener('blur', function() {
-        this.style.boxShadow = 'none';
-      });
-    }
-
-    // Load academic years from API
-    async function loadAcademicYears() {
-      try {
-        const response = await fetch('/api/years');
-        const data = await response.json();
-        const yearSelect = document.getElementById('year');
-        
-        // Store current selection
-        const currentValue = yearSelect.value;
-        
-        // Clear existing options except "All Academic Years"
-        yearSelect.innerHTML = '<option value="all">All Academic Years</option>';
-        
-        data.years.forEach(year => {
-          const option = document.createElement('option');
-          option.value = year;
-          option.textContent = `Academic Year ${year}`;
-          yearSelect.appendChild(option);
-        });
-        
-        // Restore previous selection if it still exists
-        if (currentValue && currentValue !== 'all') {
-          const foundOption = Array.from(yearSelect.options).find(option => option.value === currentValue);
-          if (foundOption) {
-            yearSelect.value = currentValue;
-          }
-        }
-      } catch (error) {
-        console.error('Error loading academic years:', error);
-      }
-    }
-
-    // Search functionality
-    function initializeSearchFunctionality() {
-      const searchInput = document.getElementById('searchInput');
-      const suggestionsDiv = document.getElementById('suggestions');
-      const searchForm = document.getElementById('searchForm');
-      let typingTimer;
-      const doneTypingInterval = 300;
-
-      // Search input event handlers
-      searchInput.addEventListener('input', function() {
-        clearTimeout(typingTimer);
-        if (this.value.length >= 2) {
-          typingTimer = setTimeout(() => getSuggestions(this.value), doneTypingInterval);
-        } else {
-          hideSuggestions();
-        }
-      });
-
-      searchInput.addEventListener('keypress', function(e) {
-        if (e.key === 'Enter' && this.value.trim()) {
-          e.preventDefault();
-          performSearch();
-        }
-      });
-
-      searchForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        performSearch();
-      });
-
-      // Hide suggestions when clicking outside
-      document.addEventListener('click', function(e) {
-        if (!e.target.matches('#searchInput') && !e.target.matches('.suggestion-item')) {
-          hideSuggestions();
-        }
-      });
-    }
-
-    // Get search suggestions
-    async function getSuggestions(searchTerm) {
-      if (searchTerm.length < 2) return;
-      
-      const year = document.getElementById('year').value;
-      const searchType = document.getElementById('searchType').value;
-      
-      try {
-        const response = await fetch(`/api/suggestions/?year=${year}&q=${encodeURIComponent(searchTerm)}&search_type=${searchType}`);
-        const data = await response.json();
-        
-        if (data.suggestions && data.suggestions.length > 0) {
-          showSuggestions(data.suggestions);
-        } else {
-          hideSuggestions();
-        }
-      } catch (error) {
-        console.error('Error fetching suggestions:', error);
-        hideSuggestions();
-      }
-    }
-
-    // Display suggestions
-    function showSuggestions(suggestions) {
-      const suggestionsDiv = document.getElementById('suggestions');
-      let html = '';
-      
-      suggestions.forEach(suggestion => {
-        const escapedSuggestion = suggestion.replace(/'/g, "\\'").replace(/"/g, '\\"');
-        html += `<div class="suggestion-item" onclick="selectSuggestion('${escapedSuggestion}')">${suggestion}</div>`;
-      });
-      
-      suggestionsDiv.innerHTML = html;
-      suggestionsDiv.style.display = 'block';
-    }
-
-    // Hide suggestions
-    function hideSuggestions() {
-      document.getElementById('suggestions').style.display = 'none';
-    }
-
-    // Select a suggestion
-    function selectSuggestion(suggestion) {
-      document.getElementById('searchInput').value = suggestion;
-      hideSuggestions();
-      performSearch();
-    }
-
-    // Perform search
-    async function performSearch() {
-      const year = document.getElementById('year').value;
-      const searchTerm = document.getElementById('searchInput').value.trim();
-      const searchType = document.getElementById('searchType').value;
-      
-      if (!searchTerm) {
-        alert('Please enter a search term');
-        return;
-      }
-
-      const resultsDiv = document.getElementById('results');
-      const resultsContent = document.getElementById('results-content');
-      
-      // Show loading state
-      resultsDiv.style.display = 'block';
-      resultsContent.innerHTML = '<div style="text-align: center; padding: 2rem;"><span class="loading"></span> Searching...</div>';
-
-      try {
-        const response = await fetch(`/api/search/?year=${year}&q=${encodeURIComponent(searchTerm)}&search_type=${searchType}`);
-        const data = await response.json();
-        
-        displayResults(data.results, year);
-      } catch (error) {
-        console.error('Error performing search:', error);
-        resultsContent.innerHTML = `
-          <div class="error-message">
-            <i class="fas fa-exclamation-triangle"></i>
-            <h3>Search Error</h3>
-            <p>Unable to fetch results. Please try again.</p>
-          </div>
-        `;
-      }
-    }
-
-    // Display search results
-    function displayResults(results, selectedYear) {
-      const resultsContent = document.getElementById('results-content');
-      
-      if (!results || results.length === 0) {
-        resultsContent.innerHTML = `
-          <div class="no-results">
-            <i class="fas fa-search"></i>
-            <h3>No Results Found</h3>
-            <p>Try adjusting your search criteria or keywords.</p>
-          </div>
-        `;
-        return;
-      }
-
-      const showYearColumn = selectedYear === "all";
-      const showReportPptLinks = true; // Always show these columns if data exists
-      
-      let tableHTML = `
-        <table class="results-table">
-          <thead>
-            <tr>
-              <th>Group</th>
-              ${showYearColumn ? '<th>Academic Year</th>' : ''}
-              <th>USN</th>
-              <th>Student Names</th>
-              <th>Project Title</th>
-              <th>Guide Name</th>
-              <th>Outcomes</th>
-              <th>Proof Link</th>
-              ${showReportPptLinks ? '<th>Documents</th>' : ''}
-            </tr>
-          </thead>
-          <tbody>
-      `;
-
-      results.forEach(project => {
-        // Parse USN and name fields (they might be strings with commas or arrays)
-        const parseField = (field) => {
-          if (!field) return '-';
-          if (Array.isArray(field)) return field;
-          if (typeof field === 'string') {
-            // Check if it looks like an array string
-            if (field.startsWith('[') && field.endsWith(']')) {
-              try {
-                return JSON.parse(field.replace(/'/g, '"'));
-              } catch (e) {
-                return field.split(',').map(item => item.trim());
-              }
-            }
-            return field.split(',').map(item => item.trim());
-          }
-          return [field];
-        };
-
-        const usnList = parseField(project.usn);
-        const nameList = parseField(project.name);
-
-        tableHTML += `
-          <tr>
-            <td><strong>${project.group_no || '-'}</strong></td>
-            ${showYearColumn ? `<td><span class="badge">${project.project_year || '-'}</span></td>` : ''}
-            <td>
-              ${Array.isArray(usnList) && usnList.length > 1 ? 
-                `<ul>${usnList.map(usn => `<li>${usn}</li>`).join('')}</ul>` : 
-                (usnList[0] || project.usn || '-')
-              }
-            </td>
-            <td>
-              ${Array.isArray(nameList) && nameList.length > 1 ? 
-                `<ul>${nameList.map(name => `<li>${name}</li>`).join('')}</ul>` : 
-                (nameList[0] || project.name || '-')
-              }
-            </td>
-            <td><strong>${project.project_title || '-'}</strong></td>
-            <td>${project.guide_name || '-'}</td>
-            <td>${project.outcomes || '-'}</td>
-            <td>
-              ${project.proof_link ? 
-                `<a href="${project.proof_link}" target="_blank" class="proof-link">
-                  <i class="fas fa-external-link-alt"></i> View Proof
-                </a>` : 
-                '-'
-              }
-            </td>
-            ${showReportPptLinks ? `
-              <td>
-                ${project.report_links && project.report_links !== '' ? `<a href="${project.report_links}" target="_blank" class="proof-link"><i class="fas fa-file-pdf"></i> Report</a>` : ''}
-                ${project.report_links && project.report_links !== '' && project.ppt_links && project.ppt_links !== '' ? '<br>' : ''}
-                ${project.ppt_links && project.ppt_links !== '' ? `<a href="${project.ppt_links}" target="_blank" class="proof-link"><i class="fas fa-file-powerpoint"></i> PPT</a>` : ''}
-                ${(!project.report_links || project.report_links === '') && (!project.ppt_links || project.ppt_links === '') ? '-' : ''}
-              </td>
-            ` : ''}
-          </tr>
-        `;
-      });
-
-      tableHTML += '</tbody></table>';
-      resultsContent.innerHTML = tableHTML;
-    }
-
-    // Chatbot functionality
-    function initializeChatbot() {
-      const chatbot = document.getElementById('chatbot');
-      const chatbotToggle = document.getElementById('chatbot-toggle');
-      const chatbotToggleSize = document.getElementById('chatbot-toggle-size');
-      const chatbotSend = document.getElementById('chatbot-send');
-      const chatbotDropdown = document.getElementById('chatbot-dropdown');
-      const chatbotBody = document.getElementById('chatbot-body');
-      const chatbotSemesterContainer = document.getElementById('chatbot-semester-container');
-      const chatbotSemesterSend = document.getElementById('chatbot-semester-send');
-      const chatbotSemesterDropdown = document.getElementById('chatbot-semester-dropdown');
-      const chatbotHeader = document.getElementById('chatbot-header');
-
-      let selectedMainOption = "";
-      let isMinimized = false;
-      let isDragging = false;
-      let dragOffsetX = 0;
-      let dragOffsetY = 0;
-
-      // Dragging functionality
-      chatbotHeader.addEventListener('mousedown', function(e) {
-        isDragging = true;
-        dragOffsetX = e.clientX - chatbot.offsetLeft;
-        dragOffsetY = e.clientY - chatbot.offsetTop;
-        chatbotHeader.style.cursor = 'grabbing';
-        e.preventDefault();
-      });
-
-      document.addEventListener('mousemove', function(e) {
-        if (isDragging) {
-          const newLeft = e.clientX - dragOffsetX;
-          const newTop = e.clientY - dragOffsetY;
-          
-          // Keep chatbot within viewport
-          const maxLeft = window.innerWidth - chatbot.offsetWidth;
-          const maxTop = window.innerHeight - chatbot.offsetHeight;
-          
-          chatbot.style.left = Math.max(0, Math.min(newLeft, maxLeft)) + 'px';
-          chatbot.style.top = Math.max(0, Math.min(newTop, maxTop)) + 'px';
-          chatbot.style.right = 'auto';
-          chatbot.style.bottom = 'auto';
-        }
-      });
-
-      document.addEventListener('mouseup', function() {
-        if (isDragging) {
-          isDragging = false;
-          chatbotHeader.style.cursor = 'move';
-        }
-      });
-
-      // Toggle chatbot visibility
-      chatbotToggle.addEventListener('click', function() {
-        chatbot.classList.toggle('show');
-      });
-
-      // Minimize/maximize chatbot
-      chatbotToggleSize.addEventListener('click', function() {
-        if (!isMinimized) {
-          chatbotBody.style.display = 'none';
-          document.getElementById('chatbot-input').style.display = 'none';
-          chatbotSemesterContainer.style.display = 'none';
-          this.innerHTML = '<i class="fas fa-plus"></i>';
-          isMinimized = true;
-          chatbot.style.height = 'auto';
-        } else {
-          chatbotBody.style.display = 'block';
-          document.getElementById('chatbot-input').style.display = 'flex';
-          this.innerHTML = '<i class="fas fa-minus"></i>';
-          isMinimized = false;
-          chatbot.style.height = '480px';
-        }
-      });
-
-      // Handle main option selection
-      chatbotSend.addEventListener('click', function() {
-        selectedMainOption = chatbotDropdown.value;
-        const selectedText = chatbotDropdown.options[chatbotDropdown.selectedIndex].text;
-        
-        if (!selectedMainOption) {
-          addChatMessage('Please select a valid option.', 'bot');
-          return;
-        }
-
-        addChatMessage(selectedText, 'user');
-
-        if (['proctoring', 'syllabus', 'timetable'].includes(selectedMainOption)) {
-          addChatMessage('Please select a semester for more specific information.', 'bot');
-          chatbotSemesterContainer.style.display = 'flex';
-        } else if (selectedMainOption === 'elective') {
-          addChatMessage('For elective course details, please consult with your academic advisor or visit the department office during office hours.', 'bot');
-          chatbotSemesterContainer.style.display = 'none';
-        }
-
-        chatbotDropdown.value = "";
-      });
-
-      // Handle semester selection
-      chatbotSemesterSend.addEventListener('click', function() {
-        const semesterValue = chatbotSemesterDropdown.value;
-        const semesterText = chatbotSemesterDropdown.options[chatbotSemesterDropdown.selectedIndex].text;
-        
-        if (!semesterValue) {
-          addChatMessage('Please select a semester.', 'bot');
-          return;
-        }
-
-        addChatMessage(semesterText, 'user');
-        handleSemesterRequest(selectedMainOption, semesterValue, semesterText);
-        
-        chatbotSemesterContainer.style.display = 'none';
-        chatbotSemesterDropdown.value = "";
-      });
-    }
-
-    // Add message to chatbot
-    function addChatMessage(message, sender) {
-      const chatbotBody = document.getElementById('chatbot-body');
-      const messageDiv = document.createElement('div');
-      messageDiv.className = `chat-message ${sender}`;
-      
-      if (sender === 'user') {
-        messageDiv.innerHTML = `<strong>You:</strong> ${message}`;
-      } else {
-        messageDiv.innerHTML = `<strong>Assistant:</strong> ${message}`;
-      }
-      
-      chatbotBody.appendChild(messageDiv);
-      chatbotBody.scrollTop = chatbotBody.scrollHeight;
-    }
-
-    // Handle semester-specific requests
-    function handleSemesterRequest(mainOption, semesterValue, semesterText) {
-      const basePath = "/static/";
-      
-      if (mainOption === 'proctoring') {
-        const link = `${basePath}First_sem_proctor_list_FINAL.xlsx`;
-        addChatMessage(`<a href="${link}" download>📥 Download Proctor List for ${semesterText}</a>`, 'bot');
-      } 
-      else if (mainOption === 'syllabus') {
-        let syllabusUrl = "";
-        
-        if (semesterValue === "1" || semesterValue === "2") {
-          syllabusUrl = "https://drive.google.com/file/d/1NKFaOqwXo3KDy0mYpk2y98U94yHRf_Wc/preview";
-        } else if (semesterValue === "3" || semesterValue === "4") {
-          syllabusUrl = basePath + "2nd22.pdf";
-        } else if (semesterValue === "5" || semesterValue === "6") {
-          syllabusUrl = basePath + "233rdsm.pdf";
-        } else if (semesterValue === "7" || semesterValue === "8") {
-          syllabusUrl = basePath + "38th22.pdf";
-        }
-        
-        if (syllabusUrl) {
-          addChatMessage(`<a href="${syllabusUrl}" target="_blank">📖 View ${semesterText} Syllabus</a>`, 'bot');
-        } else {
-          addChatMessage(`Sorry, the syllabus for ${semesterText} is not currently available. Please check back later.`, 'bot');
-        }
-      }
-      else if (mainOption === 'timetable') {
-        const timetableMap = {
-          '3': basePath + "3RD SEM NEP 2022 Time table 2024-25 updated (2).docx",
-          '4': basePath + "4th SEM NEP Time table 2024-25 (2).docx",
-          '5': basePath + "5TH SEM NEP 2022 Time table 2024-25 updated.docx",
-          '6': basePath + "6th SEM NEP Time table 2024-25.docx",
-          '8': basePath + "8th SEM NEP Time table 2024-25.docx"
-        };
-        
-        const timetableUrl = timetableMap[semesterValue];
-        
-        if (timetableUrl) {
-          addChatMessage(`<a href="${timetableUrl}" download>📅 Download ${semesterText} Timetable</a>`, 'bot');
-        } else {
-          addChatMessage(`Sorry, the timetable for ${semesterText} is not currently available. Please contact the department office.`, 'bot');
-        }
-      }
-    }
-  </script>
-</body>
-</html>

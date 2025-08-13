@@ -1,20 +1,18 @@
 import os
-from dotenv import load_dotenv
-load_dotenv()
-
 import re
 import io
 import pandas as pd
 import logging
+from dotenv import load_dotenv
+load_dotenv()
 
 from fastapi import (
     APIRouter, Depends, Path, Body, Form,
     HTTPException, status, Request, UploadFile
 )
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, FileResponse
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy import create_engine, text
-
 from app.database import get_db
 
 # Enable DEBUG logging
@@ -45,6 +43,24 @@ def is_safe_table_name(name):
     if not name or len(name) > 63:  # PostgreSQL table name limit
         return False
     return bool(re.match(r"^[A-Za-z0-9_]+$", name))
+
+# ---------------------------
+# NEW: Download Excel Template
+# ---------------------------
+TEMPLATE_PATH = os.path.join("static", "excel_template.xlsx")
+
+@router.get("/download-template")
+async def download_template():
+    """
+    Serves a static Excel template so admins know the correct upload format.
+    """
+    if not os.path.exists(TEMPLATE_PATH):
+        raise HTTPException(status_code=404, detail="Template not found on server")
+    return FileResponse(
+        path=TEMPLATE_PATH,
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        filename="excel_format_template.xlsx"
+    )
 
 @router.post("/login")
 async def login(
@@ -240,6 +256,24 @@ async def delete_row(
             detail=f"Error deleting row: {e}"
         )
 
+# -----------------------------
+# NEW: Delete whole table route
+# -----------------------------
+@router.delete("/tables/{table_name}")
+async def delete_table(table_name: str):
+    """
+    Deletes the entire specified table from the database.
+    """
+    if not is_safe_table_name(table_name):
+        raise HTTPException(status_code=400, detail="Invalid table name")
+    try:
+        with sync_engine.connect() as conn:
+            conn.execute(text(f'DROP TABLE IF EXISTS "{table_name}";'))
+            conn.commit()
+        return {"success": True, "message": f"Table '{table_name}' deleted successfully"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error deleting table: {e}")
+
 @router.post("/upload-excel")
 async def upload_excel(
     request: Request,
@@ -252,7 +286,6 @@ async def upload_excel(
     if not request.session.get("admin_authenticated"):
         raise HTTPException(status_code=403, detail="Not logged in")
 
-    # Validate table name instead of enforcing format
     if not is_safe_table_name(new_table):
         raise HTTPException(
             status_code=400,
@@ -269,7 +302,6 @@ async def upload_excel(
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"File read error: {e}")
 
-    # --- Cleaning utilities ---
     def normalize_columns(cols):
         normalized = []
         for c in cols:
@@ -297,8 +329,6 @@ async def upload_excel(
 
     def clean_and_structure(sheet_df):
         df = sheet_df.copy()
-
-        # Detect header row
         header_row = None
         for i in range(min(5, len(df))):
             vals = [str(v).upper() for v in df.iloc[i] if pd.notna(v)]
@@ -313,12 +343,10 @@ async def upload_excel(
         df.columns = normalize_columns(df.columns)
         df = df.ffill()
 
-        # Ensure integer group_no
         grp_col = find_column(df.columns, ["groupno", "group", "grp"])
         df[grp_col] = pd.to_numeric(df[grp_col], errors="coerce")
         df = df.dropna(subset=[grp_col]).astype({grp_col: int})
 
-        # Map columns
         usn_c   = find_column(df.columns, ["usn"])
         name_c  = find_column(df.columns, ["name", "student"])
         proj_c  = find_column(df.columns, ["projecttitle", "project"])
@@ -326,7 +354,6 @@ async def upload_excel(
         outc_c  = find_column(df.columns, ["outcomes", "outcome", "result"])
         proof_c = find_column(df.columns, ["prooflink", "link"])
 
-        # Aggregators
         def safe_list(x):
             return [str(v) for v in x if pd.notna(v) and str(v).strip()]
 
@@ -343,22 +370,18 @@ async def upload_excel(
             proof_c: safe_first
         }).reset_index()
 
-        # Flatten lists for storage
         for c in [usn_c, name_c]:
             grouped[c] = grouped[c].apply(lambda x: ", ".join(x) if isinstance(x, list) else str(x))
 
-        # Rename to match schema
         grouped.columns = [
             "group_no", "usn", "name", "project_title",
             "guide_name", "outcomes", "proof_link"
         ]
 
-        # Ensure extra columns exist
         for extra in ("report_links", "ppt_links"):
             if extra not in grouped:
                 grouped[extra] = ""
 
-        # Clean any NaNs
         for col in grouped.columns:
             grouped[col] = grouped[col].fillna("").astype(str).replace("nan", "")
 
@@ -372,7 +395,6 @@ async def upload_excel(
     if cleaned_df.empty:
         raise HTTPException(status_code=400, detail="No valid data found in the uploaded file")
 
-    # Write to DB
     try:
         with sync_engine.connect() as conn:
             conn.execute(text(f'DROP TABLE IF EXISTS "{new_table}";'))
