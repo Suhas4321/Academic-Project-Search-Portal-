@@ -3,901 +3,1459 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>DSCE Admin Dashboard</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <title>DSCE ISE Project Portal</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-  <script>
-    tailwind.config = {
-      theme: {
-        fontFamily: {
-          sans: ['Inter', 'ui-sans-serif', 'system-ui']
-        },
-        extend: {
-          colors: {
-            primary: {
-              50: '#f0f9ff',
-              100: '#e0f2fe',
-              200: '#bae6fd',
-              300: '#7dd3fc',
-              400: '#38bdf8',
-              500: '#0ea5e9',
-              600: '#0284c7',
-              700: '#0369a1',
-              800: '#075985',
-              900: '#0c4a6e'
-            },
-            dark: {
-              50: '#f8fafc',
-              100: '#f1f5f9',
-              200: '#e2e8f0',
-              300: '#cbd5e1',
-              400: '#94a3b8',
-              500: '#64748b',
-              600: '#475569',
-              700: '#334155',
-              800: '#1e293b',
-              900: '#0f172a'
-            }
-          },
-          animation: {
-            'fade-in': 'fadeIn 0.5s ease-in-out',
-            'slide-up': 'slideUp 0.3s ease-out',
-            'pulse-slow': 'pulse 3s infinite',
-          },
-          keyframes: {
-            fadeIn: {
-              '0%': { opacity: '0', transform: 'translateY(10px)' },
-              '100%': { opacity: '1', transform: 'translateY(0)' }
-            },
-            slideUp: {
-              '0%': { opacity: '0', transform: 'translateY(20px)' },
-              '100%': { opacity: '1', transform: 'translateY(0)' }
-            }
-          }
-        }
-      }
-    };
-  </script>
   <style>
-    .glass-effect {
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-    }
     
-    .gradient-bg {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    }
-    
-    .hover-lift {
-      transition: all 0.3s ease;
-    }
-    
-    .hover-lift:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-    }
-    
-    .table-row-hover:hover {
-      background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-      transform: scale(1.01);
-    }
-    
-    .custom-scrollbar::-webkit-scrollbar {
-      width: 6px;
-      height: 6px;
-    }
-    
-    .custom-scrollbar::-webkit-scrollbar-track {
-      background: #f1f5f9;
-      border-radius: 3px;
-    }
-    
-    .custom-scrollbar::-webkit-scrollbar-thumb {
-      background: #cbd5e1;
-      border-radius: 3px;
-    }
-    
-    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-      background: #94a3b8;
-    }
-    
-    #editModal .modal-scroll {
-      max-height: 80vh;
-      overflow-y: auto;
-    }
-    
-    .stats-card {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-    }
-    
-    .upload-zone {
-      border: 2px dashed #cbd5e1;
-      transition: all 0.3s ease;
-    }
-    
-    .upload-zone:hover {
-      border-color: #0ea5e9;
-      background-color: #f0f9ff;
-    }
-    
-    .upload-zone.dragover {
-      border-color: #0ea5e9;
-      background-color: #e0f2fe;
-    }
-    
-    .input-error {
-      border-color: #ef4444 !important;
-      box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1) !important;
-    }
-    
-    .input-valid {
-      border-color: #10b981 !important;
-      box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1) !important;
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
     }
 
-    /* NEW: Improved header layout */
-    .header-container {
-      max-width: none;
-      width: 100%;
-      padding-left: 2rem;
-      padding-right: 2rem;
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: url('/static/dept.jpg') center center / cover no-repeat fixed;
+      color: #1a202c;
+      line-height: 1.6;
+      min-height: 100vh;
+      position: relative;
     }
-    
+
+    /* Reduced background overlay opacity significantly to remove foggy effect */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(255, 255, 255, 0.05);
+      z-index: -1;
+    }
+
+    .container {
+      max-width: 100vw;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+    }
+
+    /* Navigation Bar */
+    .navbar {
+      background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%);
+      padding: 1rem 0;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      animation: slideDown 0.6s ease-out;
+    }
+
+    .nav-content {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .nav-brand {
+      color: white;
+      font-size: 1.2rem;
+      font-weight: 600;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: transform 0.3s ease;
+    }
+
+    .nav-brand:hover {
+      transform: scale(1.05);
+    }
+
+    .admin-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: linear-gradient(135deg, #e53e3e 0%, #c53030 100%);
+      color: white;
+      padding: 0.75rem 1.5rem;
+      border-radius: 12px;
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(229, 62, 62, 0.3);
+      animation: pulse 2s infinite;
+    }
+
+    .admin-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(229, 62, 62, 0.4);
+      animation: none;
+    }
+
+    /* Header Section - Full width with proper spacing */
+    .header {
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.85) 0%, rgba(118, 75, 162, 0.85) 100%);
+      color: white;
+      padding: 2rem 0 1.5rem;
+      position: relative;
+      overflow: hidden;
+      width: 100%;
+    }
+
+    .header::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 20"><defs><radialGradient id="a" cx="50%" cy="0%" r="100%"><stop offset="0%" stop-color="rgba(255,255,255,.1)"/><stop offset="100%" stop-color="rgba(255,255,255,0)"/></radialGradient></defs><rect width="100" height="20" fill="url(%23a)"/></svg>') repeat-x;
+      opacity: 0.1;
+    }
+
     .header-content {
       display: flex;
       align-items: center;
       justify-content: space-between;
       width: 100%;
-    }
-    
-    .logo-section {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      flex-shrink: 0;
-    }
-    
-    .profile-section {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      flex-shrink: 0;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 2rem;
+      position: relative;
+      z-index: 1;
+      animation: fadeInUp 1s ease-out;
     }
 
-    /* Disable table button when no table selected */
-    .btn-disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-      pointer-events: none;
+    .header-logo {
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+    }
+
+    .header-logo img {
+      width: 100px;
+      height: 100px;
+      border-radius: 20px;
+      background: white;
+      padding: 8px;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+      transition: transform 0.3s ease;
+      animation: float 3s ease-in-out infinite;
+    }
+
+    .header-logo img:hover {
+      transform: scale(1.05) rotate(5deg);
+    }
+
+    .header-title {
+      flex: 1;
+      text-align: left;
+      margin-left: 2rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .header-title h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      background: linear-gradient(135deg, #ffffff 0%, #e2e8f0 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: textShine 2s ease-in-out infinite alternate;
+      line-height: 1.2;
+    }
+
+    .header-title p {
+      font-size: 1.1rem;
+      color: #e2e8f0;
+      margin: 0.2rem 0;
+      font-weight: 400;
+      animation: fadeIn 1.5s ease-out;
+    }
+
+    /* Search Container with balanced grid layout */
+    .search-container {
+      max-width: 1400px;
+      margin: -1.5rem auto 2rem;
+      padding: 0 2rem;
+      position: relative;
+      z-index: 10;
+      animation: slideUp 0.8s ease-out;
+    }
+
+    .search-card {
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 20px;
+      padding: 2rem;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(10px);
+      transition: transform 0.3s ease;
+    }
+
+    .search-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+    }
+
+    .search-form {
+      display: grid;
+      grid-template-columns: 220px 220px 2fr 130px;
+      gap: 1rem;
+      align-items: center;
+    }
+
+    .search-form select,
+    .search-form input {
+      padding: 0.75rem 1rem;
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      background: white;
+      font-family: inherit;
+    }
+
+    .search-form input {
+      width: 100%;
+    }
+
+    .search-form select:focus,
+    .search-form input:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+      transform: translateY(-2px);
+    }
+
+    .search-btn {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      padding: 0.75rem 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+      white-space: nowrap;
+    }
+
+    .search-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    }
+
+    .search-btn:active {
+      transform: translateY(0);
+    }
+
+    /* Badge for year display */
+    .badge {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 0.25rem 0.75rem;
+      border-radius: 12px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      display: inline-block;
+    }
+
+    /* Suggestions */
+    #suggestions {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 0 0 12px 12px;
+      max-height: 200px;
+      overflow-y: auto;
+      display: none;
+      z-index: 1000;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      animation: fadeIn 0.3s ease-out;
+    }
+
+    .suggestion-item {
+      padding: 0.75rem 1rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border-bottom: 1px solid #f7fafc;
+    }
+
+    .suggestion-item:hover {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      transform: translateX(5px);
+    }
+
+    /* Results Section */
+    .results-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 2rem 2rem;
+    }
+
+    .results-card {
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      animation: fadeInUp 0.6s ease-out;
+    }
+
+    .results-header {
+      background: linear-gradient(135deg, #4a5568 0%, #2d3748 100%);
+      color: white;
+      padding: 1.5rem 2rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .results-header::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+      animation: shimmer 2s infinite;
+    }
+
+    .results-header h2 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin: 0;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* CHANGED: Removed max-height and overflow-y auto to show full table */
+    .table-container {
+      overflow-x: auto;
+    }
+
+    .results-table {
+      width: 100%;
+      min-width: 1200px;
+      border-collapse: separate;
+      border-spacing: 0;
+      font-size: 0.9rem;
+    }
+
+    .results-table th {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 1rem 0.75rem;
+      text-align: left;
+      font-weight: 600;
+      position: sticky;
+      top: 0;
+      z-index: 5;
+      white-space: nowrap;
+      border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+      transition: all 0.3s ease;
+    }
+
+    .results-table th:hover {
+      background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+    }
+
+    .results-table td {
+      padding: 0.75rem;
+      border-bottom: 1px solid #e2e8f0;
+      background: white;
+      vertical-align: top;
+      transition: all 0.3s ease;
+    }
+
+    .results-table tbody tr:nth-child(even) td {
+      background: #f8fafc;
+    }
+
+    .results-table tbody tr:hover td {
+      background: linear-gradient(135deg, #edf2f7 0%, #e2e8f0 100%);
+      transform: scale(1.01);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .proof-link {
+      color: #667eea;
+      text-decoration: none;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      transition: all 0.3s ease;
+      padding: 0.25rem 0.5rem;
+      border-radius: 6px;
+    }
+
+    .proof-link:hover {
+      color: white;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    }
+
+    
+    /* Enhanced Chatbot Styles */
+    #chatbot {
+      position: fixed;
+      bottom: 100px;
+      right: 30px;
+      width: 380px;
+      height: 480px;
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+      display: none;
+      flex-direction: column;
+      z-index: 1000;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      animation: slideInRight 0.5s ease-out;
+      resize: both;
+      min-width: 300px;
+      min-height: 400px;
+      max-width: 600px;
+      max-height: 700px;
+    }
+
+    #chatbot.show {
+      display: flex;
+    }
+
+    #chatbot-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 1rem 1.5rem;
+      cursor: move;
+      position: relative;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      user-select: none;
+    }
+
+    #chatbot-header:active {
+      cursor: grabbing;
+    }
+
+    #chatbot-toggle-size {
+      cursor: pointer;
+      padding: 0.25rem;
+      border-radius: 4px;
+      transition: background 0.2s ease;
+    }
+
+    #chatbot-toggle-size:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    #chatbot-body {
+      flex: 1;
+      padding: 1.5rem;
+      overflow-y: auto;
+      background: #f8fafc;
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+
+    #chatbot-body p {
+      margin-bottom: 1rem;
+      color: #4a5568;
+    }
+
+    #chatbot-body ul {
+      margin: 1rem 0;
+      padding-left: 1.5rem;
+      color: #4a5568;
+    }
+
+    #chatbot-body li {
+      margin-bottom: 0.5rem;
+    }
+
+    #chatbot-body strong {
+      color: #2d3748;
+    }
+
+    #chatbot-input {
+      background: white;
+      padding: 1rem;
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+      border-top: 1px solid #e2e8f0;
+    }
+
+    #chatbot-dropdown {
+      flex: 1;
+      padding: 0.75rem 1rem;
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      font-size: 0.9rem;
+      background: white;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    #chatbot-dropdown:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    #chatbot-send {
+      padding: 0.75rem 1.5rem;
+      border: none;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+    }
+
+    #chatbot-send:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+
+    #chatbot-semester-container {
+      background: white;
+      padding: 1rem;
+      display: none;
+      gap: 0.75rem;
+      align-items: center;
+      border-top: 1px solid #e2e8f0;
+    }
+
+    #chatbot-semester-dropdown {
+      flex: 1;
+      padding: 0.75rem 1rem;
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      font-size: 0.9rem;
+      background: white;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    #chatbot-semester-dropdown:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    #chatbot-semester-send {
+      padding: 0.75rem 1.5rem;
+      border: none;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+    }
+
+    #chatbot-semester-send:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+
+    #chatbot-toggle {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      cursor: pointer;
+      box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+      z-index: 1001;
+      font-size: 1.5rem;
+      transition: all 0.3s ease;
+      animation: bounce 2s infinite;
+    }
+
+    #chatbot-toggle:hover {
+      transform: translateY(-3px) scale(1.1);
+      box-shadow: 0 15px 30px rgba(102, 126, 234, 0.4);
+      animation: none;
+    }
+
+    /* Chat message styling */
+    .chat-message {
+      margin-bottom: 1rem;
+      padding: 0.75rem;
+      border-radius: 12px;
+      animation: fadeIn 0.3s ease-out;
+    }
+
+    .chat-message.user {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      margin-left: 2rem;
+    }
+
+    .chat-message.bot {
+      background: white;
+      border: 1px solid #e2e8f0;
+      color: #4a5568;
+    }
+
+    .chat-message a {
+      color: #667eea;
+      text-decoration: underline;
+      font-weight: 500;
+    }
+
+    .chat-message.user a {
+      color: white;
+    }
+
+    /* Animations */
+    @keyframes slideDown {
+      from {
+        transform: translateY(-100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(50px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+
+    @keyframes float {
+      0%, 100% {
+        transform: translateY(0px);
+      }
+      50% {
+        transform: translateY(-10px);
+      }
+    }
+
+    @keyframes textShine {
+      0% {
+        background-position: 0% 50%;
+      }
+      100% {
+        background-position: 100% 50%;
+      }
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        transform: scale(1);
+      }
+      50% {
+        transform: scale(1.05);
+      }
+    }
+
+    @keyframes bounce {
+      0%, 20%, 50%, 80%, 100% {
+        transform: translateY(0);
+      }
+      40% {
+        transform: translateY(-10px);
+      }
+      60% {
+        transform: translateY(-5px);
+      }
+    }
+
+    @keyframes shimmer {
+      0% {
+        left: -100%;
+      }
+      100% {
+        left: 100%;
+      }
+    }
+
+    @keyframes slideInRight {
+      from {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+
+    /* Loading Animation */
+    .loading {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 2px solid #f3f3f3;
+      border-top: 2px solid #667eea;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Responsive Design */
+    @media (max-width: 1200px) {
+      .search-form {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+      }
+      
+      .results-table {
+        font-size: 0.8rem;
+      }
+      
+      .results-table th,
+      .results-table td {
+        padding: 0.5rem;
+      }
+      
+      .header-content {
+        flex-direction: column;
+        text-align: center;
+        justify-content: center;
+      }
+      
+      .header-title {
+        text-align: center;
+        margin-left: 0;
+      }
+      
+      .header-title h1 {
+        font-size: 2.2rem;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .header {
+        padding: 2rem 1rem;
+      }
+      
+      .search-container,
+      .results-container {
+        padding: 0 1rem;
+      }
+      
+      .search-card {
+        padding: 1.5rem;
+      }
+      
+      #chatbot {
+        width: 300px;
+        right: 15px;
+        bottom: 80px;
+      }
+      
+      .nav-content {
+        padding: 0 1rem;
+      }
+      
+      .nav-brand {
+        font-size: 1rem;
+      }
+      
+      .admin-btn {
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+      }
+    }
+
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+    }
+
+    /* Additional college website styling */
+    .no-results, .error-message {
+      text-align: center;
+      padding: 4rem 2rem;
+      animation: fadeInUp 0.6s ease-out;
+    }
+
+    .no-results i, .error-message i {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      animation: pulse 2s infinite;
+    }
+
+    .no-results {
+      color: #718096;
+    }
+
+    .error-message {
+      color: #e53e3e;
     }
   </style>
 </head>
-<body class="bg-gradient-to-br from-slate-50 to-blue-50 min-h-screen">
+<body>
   
-  <!-- UPDATED: Header with proper alignment -->
-  <header class="gradient-bg shadow-lg">
-    <div class="header-container py-4">
+  <div class="container">
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+      <div class="nav-content">
+        <a href="#" class="nav-brand">
+          <i class="fas fa-graduation-cap"></i>
+          DSCE ISE Portal
+        </a>
+        <a href="/admin-login" class="admin-btn">
+          <i class="fas fa-user-shield"></i>
+          <span>Admin Access</span>
+        </a>
+      </div>
+    </nav>
+
+    <!-- Header Section -->
+    <header class="header">
       <div class="header-content">
-        <!-- Left: Logo and Title -->
-        <div class="logo-section">
-          <div class="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
-            <i class="fas fa-shield-alt text-white text-xl"></i>
-          </div>
-          <div>
-            <h1 class="text-2xl font-bold text-white">DSCE Admin Dashboard</h1>
-            <p class="text-blue-100 text-sm">Information Science & Engineering Department</p>
-          </div>
+        <div class="header-logo">
+          <img src="/static/images.jpg" alt="DSCE Logo" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDEwMCAxMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjNjY3ZWVhIi8+Cjx0ZXh0IHg9IjUwIiB5PSI1NSIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjE0IiBmaWxsPSJ3aGl0ZSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+RFNDRS1JU0U8L3RleHQ+Cjwvc3ZnPg=='">
         </div>
-        
-        <!-- Right: Profile Section -->
-        <div class="profile-section">
-          <div class="text-right text-white">
-            <p class="text-sm font-medium">Administrator</p>
-            <p class="text-xs text-blue-100">Last login: Today</p>
-          </div>
-          <div class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
-            <i class="fas fa-user text-white"></i>
-          </div>
+        <div class="header-title">
+          <h1>DSCE ISE Project Portal</h1>
+          <p>Dayanand Sagar College of Engineering</p>
+          <p>Information Science & Engineering Department</p>
+          <p>Academic Excellence Through Innovation</p>
         </div>
       </div>
-    </div>
-  </header>
+    </header>
 
-  <!-- Main Container - UPDATED: Proper width utilization -->
-  <div class="w-full px-8 py-8">
-    <!-- Stats Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-      <div class="stats-card rounded-xl p-6 shadow-lg hover-lift">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-blue-100 text-sm font-medium">Total Tables</p>
-            <p id="totalTables" class="text-3xl font-bold text-white">0</p>
+    <!-- Search Section -->
+    <div class="search-container">
+      <div class="search-card">
+        <form id="searchForm" class="search-form">
+          <select id="year">
+            <option value="all">All Academic Years</option>
+          </select>
+          <select id="searchType">
+            <option value="all">Search All Fields</option>
+            <option value="title">Project Title Only</option>
+            <option value="guide">Guide Name Only</option>
+          </select>
+          <div style="position: relative;">
+            <input type="text" id="searchInput" placeholder="Enter search keywords..." autocomplete="off">
+            <div id="suggestions"></div>
           </div>
-          <div class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
-            <i class="fas fa-table text-white text-xl"></i>
-          </div>
-        </div>
-      </div>
-      
-      <div class="bg-white rounded-xl p-6 shadow-lg hover-lift border border-gray-100">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-gray-600 text-sm font-medium">Total Records</p>
-            <p id="totalRecords" class="text-3xl font-bold text-gray-800">0</p>
-          </div>
-          <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-            <i class="fas fa-database text-green-600 text-xl"></i>
-          </div>
-        </div>
-      </div>
-      
-      <div class="bg-white rounded-xl p-6 shadow-lg hover-lift border border-gray-100">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-gray-600 text-sm font-medium">System Status</p>
-            <p id="activeYear" class="text-2xl font-bold text-gray-800">Active</p>
-          </div>
-          <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
-            <i class="fas fa-check-circle text-orange-600 text-xl"></i>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Navigation Tabs -->
-    <div class="bg-white rounded-xl shadow-lg border border-gray-100 mb-8">
-      <div class="border-b border-gray-200">
-        <nav class="flex space-x-8 px-6">
-          <button id="tabTables" class="tab-button active py-4 px-2 border-b-2 border-primary-600 font-medium text-primary-600 text-sm">
-            <i class="fas fa-table mr-2"></i>Manage Tables
+          <button type="submit" class="search-btn">
+            <i class="fas fa-search"></i>
+            <span>Search</span>
           </button>
-          <button id="tabUpload" class="tab-button py-4 px-2 border-b-2 border-transparent font-medium text-gray-500 hover:text-gray-700 text-sm">
-            <i class="fas fa-upload mr-2"></i>Upload Data
-          </button>
-        </nav>
-      </div>
-    </div>
-
-    <!-- Table Management Section -->
-    <div id="tablesSection" class="tab-content">
-      <div class="bg-white rounded-xl shadow-lg border border-gray-100 p-6">
-        <div class="flex items-center justify-between mb-6">
-          <h2 class="text-xl font-semibold text-gray-800 flex items-center">
-            <i class="fas fa-table text-primary-600 mr-3"></i>Table Management
-          </h2>
-          <div class="flex gap-2">
-            <button id="refreshBtn" class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors flex items-center">
-              <i class="fas fa-sync-alt mr-2"></i>Refresh
-            </button>
-            <!-- UPDATED: Delete Table Button with proper state management -->
-            <button id="deleteTableBtn" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors flex items-center btn-disabled">
-              <i class="fas fa-trash-alt mr-2"></i>Delete Table
-            </button>
-          </div>
-        </div>
-
-        <div class="mb-6">
-          <label for="tableSelect" class="block text-sm font-medium text-gray-700 mb-2">Select Table to Manage:</label>
-          <div class="relative">
-            <select id="tableSelect" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-gray-800 bg-white appearance-none">
-              <option value="">Choose a table to view and edit...</option>
-            </select>
-            <i class="fas fa-chevron-down absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none"></i>
-          </div>
-        </div>
-
-        <div id="tableContainer" class="rounded-lg border border-gray-200 shadow-sm mb-6 bg-white overflow-hidden custom-scrollbar"></div>
-
-        <div class="flex flex-col md:flex-row justify-between items-center gap-4">
-          <span id="entryCount" class="text-sm text-gray-600 flex items-center">
-            <i class="fas fa-info-circle mr-2 text-primary-500"></i>
-            Showing 0 of 0 entries
-          </span>
-          <div class="flex gap-2">
-            <button id="prevBtn" class="px-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-700 hover:bg-gray-50 transition-colors flex items-center">
-              <i class="fas fa-chevron-left mr-2"></i>Previous
-            </button>
-            <button id="nextBtn" class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors flex items-center">
-              Next<i class="fas fa-chevron-right ml-2"></i>
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Upload Section -->
-    <div id="uploadSection" class="tab-content hidden">
-      <div class="bg-white rounded-xl shadow-lg border border-gray-100 p-6">
-        <div class="mb-6">
-          <h2 class="text-xl font-semibold text-gray-800 flex items-center mb-2">
-            <i class="fas fa-cloud-upload-alt text-primary-600 mr-3"></i>Import New Table Data
-          </h2>
-          <p class="text-gray-600 text-sm">Upload Excel files to create new data tables in the system</p>
-        </div>
-
-        <!-- Download Excel Format Button -->
-        <div class="mb-4">
-          <button id="downloadFormatBtn" type="button"
-            class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center">
-            <i class="fas fa-download mr-2"></i>Download Excel Format
-          </button>
-        </div>
-
-        <form id="excelUploadForm" class="space-y-6" enctype="multipart/form-data">
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label for="new_table" class="block text-sm font-medium text-gray-700 mb-2">
-                <i class="fas fa-tag mr-2 text-primary-500"></i>Table Name
-              </label>
-              <input type="text" id="new_table" name="new_table" required
-                placeholder="e.g., students_2024, projects_fall, my_data_table"
-                class="w-full border border-gray-300 rounded-lg shadow-sm py-3 px-4 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300" />
-              <p id="tableNameHelp" class="text-xs text-gray-500 mt-1">Only letters, numbers, and underscores allowed. Max 63 characters.</p>
-              <p id="tableNameError" class="text-xs text-red-600 mt-1 hidden"></p>
-            </div>
-            
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">
-                <i class="fas fa-file-excel mr-2 text-green-500"></i>Excel File Upload
-              </label>
-              <div class="upload-zone rounded-lg p-6 text-center">
-                <input type="file" id="excel_file" name="file" accept=".xlsx,.xls,.csv" required class="hidden" />
-                <label for="excel_file" class="cursor-pointer">
-                  <i class="fas fa-cloud-upload-alt text-4xl text-gray-400 mb-3"></i>
-                  <p class="text-gray-600 font-medium">Click to upload or drag and drop</p>
-                  <p class="text-sm text-gray-500">Excel (.xlsx, .xls) or CSV files only</p>
-                </label>
-              </div>
-              <div id="fileName" class="mt-2 text-sm text-gray-600 hidden"></div>
-            </div>
-          </div>
-
-          <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <h4 class="font-medium text-blue-800 mb-2 flex items-center">
-              <i class="fas fa-info-circle mr-2"></i>Upload Requirements
-            </h4>
-            <ul class="text-sm text-blue-700 space-y-1">
-              <li>• Excel file should have headers in the 3rd row</li>
-              <li>• Required columns: Group No, USN, Name, Project Title, Guide Name, Outcomes, Proof Link</li>
-              <li>• Table name: Only letters, numbers, and underscores (e.g., students_2024, CSE_Projects)</li>
-              <li>• File size should be less than 10MB</li>
-              <li>• Supports Excel (.xlsx, .xls) and CSV files</li>
-            </ul>
-          </div>
-
-          <button type="submit" id="uploadBtn" class="w-full py-3 px-6 bg-gradient-to-r from-primary-600 to-primary-700 text-white font-medium rounded-lg hover:from-primary-700 hover:to-primary-800 transition-all duration-300 shadow-lg hover:shadow-xl flex items-center justify-center">
-            <i class="fas fa-upload mr-3"></i>Upload and Create Table
-          </button>
-          
-          <div id="excelUploadMsg" class="mt-4 text-center text-sm rounded-lg p-3 hidden"></div>
         </form>
       </div>
     </div>
-  </div>
 
-  <!-- Edit Modal -->
-  <div id="editModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
-    <div class="glass-effect rounded-xl shadow-2xl w-full max-w-6xl overflow-hidden animate-slide-up">
-      <div class="gradient-bg px-6 py-4">
-        <h2 class="text-xl font-semibold text-white flex items-center">
-          <i class="fas fa-edit mr-3"></i>Edit Record
-        </h2>
-      </div>
-      <div class="p-6 modal-scroll custom-scrollbar">
-        <form id="editForm" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></form>
-        <div class="mt-8 flex justify-end space-x-4 sticky bottom-0 bg-white pt-4 border-t border-gray-200">
-          <button id="cancelBtn" class="px-6 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors flex items-center">
-            <i class="fas fa-times mr-2"></i>Cancel
-          </button>
-          <button id="saveBtn" class="px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors flex items-center">
-            <i class="fas fa-save mr-2"></i>Save Changes
-          </button>
+    <!-- Results Section -->
+    <div class="results-container">
+      <div id="results" class="results-card" style="display: none;">
+        <div class="results-header">
+          <h2>Search Results</h2>
+        </div>
+        <div class="table-container">
+          <div id="results-content">Results will appear here</div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- NEW: Delete Confirmation Modal -->
-  <div id="deleteConfirmModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
-    <div class="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden animate-slide-up">
-      <div class="bg-red-600 px-6 py-4">
-        <h2 class="text-xl font-semibold text-white flex items-center">
-          <i class="fas fa-exclamation-triangle mr-3"></i>Delete Table
-        </h2>
-      </div>
-      <div class="p-6">
-        <p class="text-gray-700 mb-4">Are you sure you want to delete the table "<span id="deleteTableName" class="font-semibold text-red-600"></span>"?</p>
-        <p class="text-sm text-gray-500 mb-6">This action cannot be undone. All data in this table will be permanently lost.</p>
-        <div class="flex justify-end space-x-4">
-          <button id="cancelDeleteBtn" class="px-6 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors">
-            Cancel
-          </button>
-          <button id="confirmDeleteBtn" class="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
-            Delete Table
-          </button>
-        </div>
-      </div>
+  <!-- Chatbot Widget -->
+  <div id="chatbot">
+    <div id="chatbot-header">
+      <span><i class="fas fa-robot"></i> Assistant</span>
+      <span id="chatbot-toggle-size"><i class="fas fa-minus"></i></span>
+    </div>
+    <div id="chatbot-body">
+      <p><strong>Welcome!</strong> I can help you with:</p>
+      <ul>
+        <li>Proctoring information</li>
+        <li>Syllabus documents</li>
+        <li>Timetables</li>
+        <li>Elective details</li>
+      </ul>
+      <p>Please select an option below to get started.</p>
+    </div>
+    <div id="chatbot-input">
+      <select id="chatbot-dropdown">
+        <option value="">Select a service...</option>
+        <option value="proctoring">Proctoring Lists</option>
+        <option value="syllabus">Academic Syllabus</option>
+        <option value="timetable">Class Timetables</option>
+        <option value="elective">Elective Information</option>
+      </select>
+      <button id="chatbot-send">Send</button>
+    </div>
+    <div id="chatbot-semester-container">
+      <select id="chatbot-semester-dropdown">
+        <option value="">Select Semester</option>
+        <option value="1">1st Semester</option>
+        <option value="2">2nd Semester</option>
+        <option value="3">3rd Semester</option>
+        <option value="4">4th Semester</option>
+        <option value="5">5th Semester</option>
+        <option value="6">6th Semester</option>
+        <option value="7">7th Semester</option>
+        <option value="8">8th Semester</option>
+      </select>
+      <button id="chatbot-semester-send">Submit</button>
     </div>
   </div>
 
-  <!-- Loading Overlay -->
-  <div id="loadingOverlay" class="fixed inset-0 bg-black/30 backdrop-blur-sm hidden items-center justify-center z-50">
-    <div class="bg-white rounded-xl p-8 shadow-2xl flex items-center space-x-4">
-      <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
-      <span class="text-gray-700 font-medium">Processing...</span>
-    </div>
-  </div>
-  
+  <button id="chatbot-toggle">
+    <i class="fas fa-comment"></i>
+  </button>
+
   <script>
-    // Enhanced table name validation function
-    function isValidTableName(name) {
-      // Only allow letters, numbers, and underscores, max 63 characters
-      return /^[A-Za-z0-9_]{1,63}$/.test(name) && name.length > 0;
-    }
-
-    // DOM elements and variables
-    const tableSelect = document.getElementById('tableSelect');
-    const tableContainer = document.getElementById('tableContainer');
-    const entryCount = document.getElementById('entryCount');
-    const prevBtn = document.getElementById('prevBtn');
-    const nextBtn = document.getElementById('nextBtn');
-    const editModal = document.getElementById('editModal');
-    const editForm = document.getElementById('editForm');
-    const cancelBtn = document.getElementById('cancelBtn');
-    const saveBtn = document.getElementById('saveBtn');
-    const excelUploadForm = document.getElementById('excelUploadForm');
-    const excelUploadMsg = document.getElementById('excelUploadMsg');
-    const refreshBtn = document.getElementById('refreshBtn');
-    const loadingOverlay = document.getElementById('loadingOverlay');
-    const excelFileInput = document.getElementById('excel_file');
-    const fileName = document.getElementById('fileName');
-    const newTableInput = document.getElementById('new_table');
-    const tableNameHelp = document.getElementById('tableNameHelp');
-    const tableNameError = document.getElementById('tableNameError');
-    const uploadBtn = document.getElementById('uploadBtn');
-
-    // NEW: Delete confirmation modal elements
-    const deleteConfirmModal = document.getElementById('deleteConfirmModal');
-    const deleteTableName = document.getElementById('deleteTableName');
-    const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
-    const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
-    const deleteTableBtn = document.getElementById('deleteTableBtn');
-
-    // Tab system
-    const tabButtons = document.querySelectorAll('.tab-button');
-    const tabContents = document.querySelectorAll('.tab-content');
-
-    let currentTable = '';
-    let currentData = [];
-    let currentPage = 1;
-    const pageSize = 10;
-    let editingRow = null;
-
-    // UPDATED: Download Excel Format - Redirect to Google Sheets
-    document.getElementById('downloadFormatBtn').addEventListener('click', () => {
-      window.open('https://docs.google.com/spreadsheets/d/1ntg93G8SV3tDRGomg9ewqbMPyHjImIIq/edit?usp=drivesdk&ouid=103492233788149897665&rtpof=true&sd=true', '_blank');
-    });
-
-    // UPDATED: Delete Table with proper confirmation and state management
-    deleteTableBtn.addEventListener('click', () => {
-      if (!currentTable) {
-        // Show better notification instead of alert
-        showNotification("Please select a table to delete first.", "warning");
-        return;
-      }
+    // Initialize the application
+    document.addEventListener('DOMContentLoaded', function() {
+      loadAcademicYears();
+      initializeSearchFunctionality();
+      initializeChatbot();
+      addDynamicEffects();
       
-      // Show custom confirmation modal
-      deleteTableName.textContent = currentTable;
-      deleteConfirmModal.classList.remove('hidden');
-      deleteConfirmModal.classList.add('flex');
+      // Set up periodic refresh to check for new tables every 30 seconds
+      setInterval(loadAcademicYears, 30000);
     });
 
-    // Cancel delete
-    cancelDeleteBtn.addEventListener('click', () => {
-      deleteConfirmModal.classList.add('hidden');
-      deleteConfirmModal.classList.remove('flex');
-    });
-
-    // Confirm delete
-    confirmDeleteBtn.addEventListener('click', async () => {
-      deleteConfirmModal.classList.add('hidden');
-      deleteConfirmModal.classList.remove('flex');
-      
-      showLoading();
-      try {
-        const resp = await fetch(`/api/admin/tables/${currentTable}`, { method: 'DELETE' });
-        const data = await resp.json();
-        if (resp.ok && data.success) {
-          showNotification(data.message, "success");
-          currentTable = '';
-          tableSelect.value = '';
-          tableContainer.innerHTML = '';
-          document.getElementById('totalRecords').textContent = '0';
-          updateDeleteButtonState();
-          fetchTables();
-        } else {
-          showNotification(data.detail || 'Error deleting table.', "error");
+    // Add dynamic effects
+    function addDynamicEffects() {
+      // Parallax effect for header
+      window.addEventListener('scroll', function() {
+        const scrolled = window.pageYOffset;
+        const header = document.querySelector('.header');
+        if (header) {
+          header.style.transform = `translateY(${scrolled * 0.5}px)`;
         }
-      } catch (err) {
-        showNotification('Network error deleting table.', "error");
-      } finally {
-        hideLoading();
-      }
-    });
-
-    // NEW: Update delete button state based on table selection
-    function updateDeleteButtonState() {
-      if (currentTable) {
-        deleteTableBtn.classList.remove('btn-disabled');
-      } else {
-        deleteTableBtn.classList.add('btn-disabled');
-      }
-    }
-
-    // NEW: Show notification instead of alerts
-    function showNotification(message, type = 'info') {
-      const notification = document.createElement('div');
-      notification.className = `fixed top-4 right-4 z-50 max-w-sm p-4 rounded-lg shadow-lg animate-slide-up`;
-      
-      if (type === 'success') {
-        notification.className += ' bg-green-100 text-green-800 border border-green-200';
-        notification.innerHTML = `<i class="fas fa-check-circle mr-2"></i>${message}`;
-      } else if (type === 'error') {
-        notification.className += ' bg-red-100 text-red-800 border border-red-200';
-        notification.innerHTML = `<i class="fas fa-exclamation-triangle mr-2"></i>${message}`;
-      } else if (type === 'warning') {
-        notification.className += ' bg-yellow-100 text-yellow-800 border border-yellow-200';
-        notification.innerHTML = `<i class="fas fa-exclamation-triangle mr-2"></i>${message}`;
-      } else {
-        notification.className += ' bg-blue-100 text-blue-800 border border-blue-200';
-        notification.innerHTML = `<i class="fas fa-info-circle mr-2"></i>${message}`;
-      }
-      
-      document.body.appendChild(notification);
-      
-      setTimeout(() => {
-        notification.remove();
-      }, 4000);
-    }
-
-    // Tab functionality
-    tabButtons.forEach(button => {
-      button.addEventListener('click', () => {
-        const targetTab = button.id.replace('tab', '').toLowerCase() + 'Section';
-        
-        tabButtons.forEach(btn => btn.classList.remove('active', 'border-primary-600', 'text-primary-600'));
-        tabButtons.forEach(btn => btn.classList.add('border-transparent', 'text-gray-500'));
-        
-        button.classList.add('active', 'border-primary-600', 'text-primary-600');
-        button.classList.remove('border-transparent', 'text-gray-500');
-        
-        tabContents.forEach(content => content.classList.add('hidden'));
-        document.getElementById(targetTab).classList.remove('hidden');
       });
-    });
 
-    // Real-time table name validation with enhanced feedback
-    newTableInput.addEventListener('input', function(e) {
-      const value = e.target.value.trim();
-      const isValid = isValidTableName(value);
-      
-      // Remove existing classes
-      e.target.classList.remove('input-error', 'input-valid');
-      tableNameError.classList.add('hidden');
-      tableNameHelp.classList.remove('hidden');
-      uploadBtn.disabled = false;
-      uploadBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-      
-      if (value.length === 0) {
-        // Empty input - neutral state
-        return;
-      }
-      
-      if (!isValid) {
-        e.target.classList.add('input-error');
-        tableNameHelp.classList.add('hidden');
-        tableNameError.classList.remove('hidden');
-        uploadBtn.disabled = true;
-        uploadBtn.classList.add('opacity-50', 'cursor-not-allowed');
-        
-        // Specific error messages
-        if (value.length > 63) {
-          tableNameError.textContent = 'Table name too long. Maximum 63 characters allowed.';
-        } else if (!/^[A-Za-z0-9_]+$/.test(value)) {
-          tableNameError.textContent = 'Invalid characters. Only letters, numbers, and underscores allowed.';
-        } else {
-          tableNameError.textContent = 'Invalid table name format.';
-        }
-      } else {
-        e.target.classList.add('input-valid');
-        tableNameHelp.textContent = `✓ Valid table name (${value.length}/63 characters)`;
-        tableNameHelp.classList.remove('text-gray-500');
-        tableNameHelp.classList.add('text-green-600');
-      }
-    });
+      // Add hover effects to cards
+      const cards = document.querySelectorAll('.search-card, .results-card');
+      cards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+          this.style.transform = 'translateY(-5px) scale(1.02)';
+        });
+        card.addEventListener('mouseleave', function() {
+          this.style.transform = 'translateY(0) scale(1)';
+        });
+      });
 
-    // Reset help text when input loses focus
-    newTableInput.addEventListener('blur', function(e) {
-      if (!e.target.value || isValidTableName(e.target.value)) {
-        tableNameHelp.textContent = 'Only letters, numbers, and underscores allowed. Max 63 characters.';
-        tableNameHelp.classList.remove('text-green-600');
-        tableNameHelp.classList.add('text-gray-500');
-      }
-    });
-
-    // File upload enhancements
-    excelFileInput.addEventListener('change', function(e) {
-      if (e.target.files.length > 0) {
-        const file = e.target.files[0];
-        const fileSize = (file.size / 1024 / 1024).toFixed(2); // MB
-        fileName.innerHTML = `<i class="fas fa-file-excel text-green-600 mr-2"></i>Selected: <strong>${file.name}</strong> (${fileSize} MB)`;
-        fileName.classList.remove('hidden');
-      }
-    });
-
-    // Drag and drop functionality
-    const uploadZone = document.querySelector('.upload-zone');
-    
-    uploadZone.addEventListener('dragover', (e) => {
-      e.preventDefault();
-      uploadZone.classList.add('dragover');
-    });
-    
-    uploadZone.addEventListener('dragleave', () => {
-      uploadZone.classList.remove('dragover');
-    });
-    
-    uploadZone.addEventListener('drop', (e) => {
-      e.preventDefault();
-      uploadZone.classList.remove('dragover');
-      const files = e.dataTransfer.files;
-      if (files.length > 0) {
-        excelFileInput.files = files;
-        const file = files[0];
-        const fileSize = (file.size / 1024 / 1024).toFixed(2);
-        fileName.innerHTML = `<i class="fas fa-file-excel text-green-600 mr-2"></i>Selected: <strong>${file.name}</strong> (${fileSize} MB)`;
-        fileName.classList.remove('hidden');
-      }
-    });
-
-    function showLoading() {
-      loadingOverlay.classList.remove('hidden');
-      loadingOverlay.classList.add('flex');
+      // Add typing effect to search input
+      const searchInput = document.getElementById('searchInput');
+      searchInput.addEventListener('focus', function() {
+        this.style.boxShadow = '0 0 20px rgba(102, 126, 234, 0.3)';
+      });
+      searchInput.addEventListener('blur', function() {
+        this.style.boxShadow = 'none';
+      });
     }
 
-    function hideLoading() {
-      loadingOverlay.classList.add('hidden');
-      loadingOverlay.classList.remove('flex');
-    }
-
-    async function fetchTables() {
-      showLoading();
+    // Load academic years from API
+    async function loadAcademicYears() {
       try {
-        const res = await fetch('/api/admin/tables');
-        const { tables } = await res.json();
-        tableSelect.innerHTML = '<option value="">Choose a table to view and edit...</option>';
-        tables.forEach(t => {
+        const response = await fetch('/api/years');
+        const data = await response.json();
+        const yearSelect = document.getElementById('year');
+        
+        // Store current selection
+        const currentValue = yearSelect.value;
+        
+        // Clear existing options except "All Academic Years"
+        yearSelect.innerHTML = '<option value="all">All Academic Years</option>';
+        
+        data.years.forEach(year => {
           const option = document.createElement('option');
-          option.value = t;
-          option.textContent = t.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-          tableSelect.appendChild(option);
+          option.value = year;
+          option.textContent = `Academic Year ${year}`;
+          yearSelect.appendChild(option);
         });
-        document.getElementById('totalTables').textContent = tables.length;
-      } catch (error) {
-        console.error('Error fetching tables:', error);
-      } finally {
-        hideLoading();
-      }
-    }
-
-    async function loadTableData(table) {
-      showLoading();
-      try {
-        currentTable = table;
-        updateDeleteButtonState(); // Enable delete button when table is selected
-        const res = await fetch(`/api/admin/tables/${table}`);
-        const { rows } = await res.json();
-        currentData = rows;
-        currentPage = 1;
-        document.getElementById('totalRecords').textContent = rows.length;
-        renderTable();
-      } catch (error) {
-        console.error('Error loading table data:', error);
-        tableContainer.innerHTML = '<div class="p-8 text-center text-red-600"><i class="fas fa-exclamation-triangle mr-2"></i>Error loading data</div>';
-      } finally {
-        hideLoading();
-      }
-    }
-
-    function renderTable() {
-      const start = (currentPage - 1) * pageSize;
-      const rows = currentData.slice(start, start + pageSize);
-      entryCount.innerHTML = `<i class="fas fa-info-circle mr-2 text-primary-500"></i>Showing ${start + 1}-${Math.min(start + pageSize, currentData.length)} of ${currentData.length} entries`;
-
-      if (!rows.length) {
-        tableContainer.innerHTML = '<div class="p-8 text-center text-gray-500"><i class="fas fa-inbox text-4xl mb-4"></i><p>No data available in this table</p></div>';
-        return;
-      }
-
-      const headers = Object.keys(rows[0]);
-      let html = `<div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-200">
-          <thead class="bg-gradient-to-r from-primary-600 to-primary-700">
-            <tr>`;
-      
-      headers.forEach(h => {
-        html += `<th class="px-6 py-4 text-left text-xs font-medium text-white uppercase tracking-wider">${h.replace('_', ' ')}</th>`;
-      });
-      html += '<th class="px-6 py-4 text-left text-xs font-medium text-white uppercase tracking-wider">Actions</th></tr></thead><tbody class="bg-white divide-y divide-gray-200">';
-
-      rows.forEach((row, i) => {
-        html += `<tr class="table-row-hover transition-all duration-200">`;
-        headers.forEach(h => {
-          const value = Array.isArray(row[h]) ? row[h].join(', ') : (row[h] || '-');
-          html += `<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${value}</td>`;
-        });
-        html += `<td class="px-6 py-4 whitespace-nowrap text-sm space-x-2">
-          <button class="editBtn bg-blue-100 text-blue-700 px-3 py-1 rounded-lg hover:bg-blue-200 transition-colors" data-index="${start + i}">
-            <i class="fas fa-edit mr-1"></i>Edit
-          </button>
-          <button class="deleteBtn bg-red-100 text-red-700 px-3 py-1 rounded-lg hover:bg-red-200 transition-colors" data-id="${row.group_no}">
-            <i class="fas fa-trash mr-1"></i>Delete
-          </button>
-        </td></tr>`;
-      });
-
-      html += '</tbody></table></div>';
-      tableContainer.innerHTML = html;
-
-      document.querySelectorAll('.editBtn').forEach(btn => btn.addEventListener('click', () => openEditModal(currentData[btn.dataset.index])));
-      document.querySelectorAll('.deleteBtn').forEach(btn => btn.addEventListener('click', () => deleteRow(btn.dataset.id)));
-    }
-
-    function openEditModal(row) {
-      editingRow = row;
-      editForm.innerHTML = '';
-      Object.entries(row).forEach(([key, val]) => {
-        const isDisabled = key === 'group_no';
-        const displayName = key.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
-        const fieldValue = Array.isArray(val) ? val.join(', ') : (val || '');
         
-        editForm.insertAdjacentHTML('beforeend', `
-          <div class="space-y-2">
-            <label class="block text-sm font-medium text-gray-700">${displayName}</label>
-            <input name="${key}" value="${fieldValue}" ${isDisabled ? 'disabled' : ''} 
-              class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${isDisabled ? 'bg-gray-100' : ''}" />
-          </div>
-        `);
-      });
-      editModal.classList.remove('hidden');
-      editModal.classList.add('flex');
-    }
-
-    saveBtn.onclick = async () => {
-      showLoading();
-      try {
-        const formData = new FormData(editForm);
-        const updated = {};
-        formData.forEach((val, key) => {
-          updated[key] = val.includes(',') ? val.split(',').map(v => v.trim()) : val;
-        });
-        await fetch(`/api/admin/tables/${currentTable}/${editingRow.group_no}`, {
-          method: 'PUT', 
-          headers: { 'Content-Type': 'application/json' }, 
-          body: JSON.stringify(updated)
-        });
-        closeEditModal();
-        loadTableData(currentTable);
-        showNotification("Record updated successfully!", "success");
-      } catch (error) {
-        console.error('Error saving changes:', error);
-        showNotification("Error updating record.", "error");
-      } finally {
-        hideLoading();
-      }
-    };
-
-    cancelBtn.onclick = closeEditModal;
-    function closeEditModal() {
-      editModal.classList.add('hidden');
-      editModal.classList.remove('flex');
-    }
-
-    async function deleteRow(id) {
-      if (!confirm('Are you sure you want to delete this record? This action cannot be undone.')) return;
-      showLoading();
-      try {
-        await fetch(`/api/admin/tables/${currentTable}/${id}`, { method: 'DELETE' });
-        loadTableData(currentTable);
-        showNotification("Record deleted successfully!", "success");
-      } catch (error) {
-        console.error('Error deleting row:', error);
-        showNotification("Error deleting record.", "error");
-      } finally {
-        hideLoading();
-      }
-    }
-
-    // UPDATED: Event listeners with proper state management
-    tableSelect.onchange = e => {
-      if (e.target.value) {
-        loadTableData(e.target.value);
-      } else {
-        currentTable = '';
-        updateDeleteButtonState();
-        tableContainer.innerHTML = '';
-        document.getElementById('totalRecords').textContent = '0';
-      }
-    };
-
-    prevBtn.onclick = () => { if (currentPage > 1) { currentPage--; renderTable(); } };
-    nextBtn.onclick = () => { if ((currentPage * pageSize) < currentData.length) { currentPage++; renderTable(); } };
-    refreshBtn.onclick = fetchTables;
-
-    // Excel Upload Handler with enhanced validation
-    excelUploadForm.addEventListener('submit', async function(e) {
-      e.preventDefault();
-      
-      const tableName = newTableInput.value.trim();
-      
-      // Final validation before submitting
-      if (!isValidTableName(tableName)) {
-        excelUploadMsg.innerHTML = '<i class="fas fa-exclamation-triangle mr-2"></i>Please enter a valid table name before uploading.';
-        excelUploadMsg.className = 'mt-4 text-center text-sm rounded-lg p-3 bg-red-100 text-red-800 border border-red-200';
-        excelUploadMsg.classList.remove('hidden');
-        newTableInput.focus();
-        return;
-      }
-      
-      showLoading();
-      excelUploadMsg.classList.add('hidden');
-      
-      const formData = new FormData(excelUploadForm);
-
-      try {
-        const resp = await fetch('/api/admin/upload-excel', {
-          method: 'POST',
-          body: formData,
-          credentials: 'include'
-        });
-        const data = await resp.json();
-        
-        if (resp.ok && data.success) {
-          excelUploadMsg.innerHTML = `<i class="fas fa-check-circle mr-2"></i>✅ Table "${tableName}" uploaded successfully! ${data.rows_imported} records imported.`;
-          excelUploadMsg.className = 'mt-4 text-center text-sm rounded-lg p-3 bg-green-100 text-green-800 border border-green-200';
-          excelUploadMsg.classList.remove('hidden');
-          excelUploadForm.reset();
-          fileName.classList.add('hidden');
-          // Reset input styling
-          newTableInput.classList.remove('input-error', 'input-valid');
-          tableNameError.classList.add('hidden');
-          tableNameHelp.classList.remove('hidden', 'text-green-600');
-          tableNameHelp.classList.add('text-gray-500');
-          tableNameHelp.textContent = 'Only letters, numbers, and underscores allowed. Max 63 characters.';
-          uploadBtn.disabled = false;
-          uploadBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-          fetchTables();
-          showNotification(`Table "${tableName}" created successfully!`, "success");
-        } else {
-          excelUploadMsg.innerHTML = `<i class="fas fa-exclamation-triangle mr-2"></i>${data.detail || 'Upload failed.'}`;
-          excelUploadMsg.className = 'mt-4 text-center text-sm rounded-lg p-3 bg-red-100 text-red-800 border border-red-200';
-          excelUploadMsg.classList.remove('hidden');
+        // Restore previous selection if it still exists
+        if (currentValue && currentValue !== 'all') {
+          const foundOption = Array.from(yearSelect.options).find(option => option.value === currentValue);
+          if (foundOption) {
+            yearSelect.value = currentValue;
+          }
         }
-      } catch (err) {
-        excelUploadMsg.innerHTML = '<i class="fas fa-exclamation-triangle mr-2"></i>Network error. Please try again.';
-        excelUploadMsg.className = 'mt-4 text-center text-sm rounded-lg p-3 bg-red-100 text-red-800 border border-red-200';
-        excelUploadMsg.classList.remove('hidden');
-      } finally {
-        hideLoading();
+      } catch (error) {
+        console.error('Error loading academic years:', error);
       }
-    });
+    }
 
-    // Initialize
-    fetchTables();
-    updateDeleteButtonState(); // Set initial state for delete button
+    // Search functionality
+    function initializeSearchFunctionality() {
+      const searchInput = document.getElementById('searchInput');
+      const suggestionsDiv = document.getElementById('suggestions');
+      const searchForm = document.getElementById('searchForm');
+      let typingTimer;
+      const doneTypingInterval = 300;
+
+      // Search input event handlers
+      searchInput.addEventListener('input', function() {
+        clearTimeout(typingTimer);
+        if (this.value.length >= 2) {
+          typingTimer = setTimeout(() => getSuggestions(this.value), doneTypingInterval);
+        } else {
+          hideSuggestions();
+        }
+      });
+
+      searchInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter' && this.value.trim()) {
+          e.preventDefault();
+          performSearch();
+        }
+      });
+
+      searchForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        performSearch();
+      });
+
+      // Hide suggestions when clicking outside
+      document.addEventListener('click', function(e) {
+        if (!e.target.matches('#searchInput') && !e.target.matches('.suggestion-item')) {
+          hideSuggestions();
+        }
+      });
+    }
+
+    // Get search suggestions
+    async function getSuggestions(searchTerm) {
+      if (searchTerm.length < 2) return;
+      
+      const year = document.getElementById('year').value;
+      const searchType = document.getElementById('searchType').value;
+      
+      try {
+        const response = await fetch(`/api/suggestions/?year=${year}&q=${encodeURIComponent(searchTerm)}&search_type=${searchType}`);
+        const data = await response.json();
+        
+        if (data.suggestions && data.suggestions.length > 0) {
+          showSuggestions(data.suggestions);
+        } else {
+          hideSuggestions();
+        }
+      } catch (error) {
+        console.error('Error fetching suggestions:', error);
+        hideSuggestions();
+      }
+    }
+
+    // Display suggestions
+    function showSuggestions(suggestions) {
+      const suggestionsDiv = document.getElementById('suggestions');
+      let html = '';
+      
+      suggestions.forEach(suggestion => {
+        const escapedSuggestion = suggestion.replace(/'/g, "\\'").replace(/"/g, '\\"');
+        html += `<div class="suggestion-item" onclick="selectSuggestion('${escapedSuggestion}')">${suggestion}</div>`;
+      });
+      
+      suggestionsDiv.innerHTML = html;
+      suggestionsDiv.style.display = 'block';
+    }
+
+    // Hide suggestions
+    function hideSuggestions() {
+      document.getElementById('suggestions').style.display = 'none';
+    }
+
+    // Select a suggestion
+    function selectSuggestion(suggestion) {
+      document.getElementById('searchInput').value = suggestion;
+      hideSuggestions();
+      performSearch();
+    }
+
+    // Perform search
+    async function performSearch() {
+      const year = document.getElementById('year').value;
+      const searchTerm = document.getElementById('searchInput').value.trim();
+      const searchType = document.getElementById('searchType').value;
+      
+      if (!searchTerm) {
+        alert('Please enter a search term');
+        return;
+      }
+
+      const resultsDiv = document.getElementById('results');
+      const resultsContent = document.getElementById('results-content');
+      
+      // Show loading state
+      resultsDiv.style.display = 'block';
+      resultsContent.innerHTML = '<div style="text-align: center; padding: 2rem;"><span class="loading"></span> Searching...</div>';
+
+      try {
+        const response = await fetch(`/api/search/?year=${year}&q=${encodeURIComponent(searchTerm)}&search_type=${searchType}`);
+        const data = await response.json();
+        
+        displayResults(data.results, year);
+      } catch (error) {
+        console.error('Error performing search:', error);
+        resultsContent.innerHTML = `
+          <div class="error-message">
+            <i class="fas fa-exclamation-triangle"></i>
+            <h3>Search Error</h3>
+            <p>Unable to fetch results. Please try again.</p>
+          </div>
+        `;
+      }
+    }
+
+    // Display search results
+    function displayResults(results, selectedYear) {
+      const resultsContent = document.getElementById('results-content');
+      
+      if (!results || results.length === 0) {
+        resultsContent.innerHTML = `
+          <div class="no-results">
+            <i class="fas fa-search"></i>
+            <h3>No Results Found</h3>
+            <p>Try adjusting your search criteria or keywords.</p>
+          </div>
+        `;
+        return;
+      }
+
+      const showYearColumn = selectedYear === "all";
+      const showReportPptLinks = true; // Always show these columns if data exists
+      
+      let tableHTML = `
+        <table class="results-table">
+          <thead>
+            <tr>
+              <th>Group</th>
+              ${showYearColumn ? '<th>Academic Year</th>' : ''}
+              <th>USN</th>
+              <th>Student Names</th>
+              <th>Project Title</th>
+              <th>Guide Name</th>
+              <th>Outcomes</th>
+              <th>Proof Link</th>
+              ${showReportPptLinks ? '<th>Documents</th>' : ''}
+            </tr>
+          </thead>
+          <tbody>
+      `;
+
+      results.forEach(project => {
+        // Parse USN and name fields (they might be strings with commas or arrays)
+        const parseField = (field) => {
+          if (!field) return '-';
+          if (Array.isArray(field)) return field;
+          if (typeof field === 'string') {
+            // Check if it looks like an array string
+            if (field.startsWith('[') && field.endsWith(']')) {
+              try {
+                return JSON.parse(field.replace(/'/g, '"'));
+              } catch (e) {
+                return field.split(',').map(item => item.trim());
+              }
+            }
+            return field.split(',').map(item => item.trim());
+          }
+          return [field];
+        };
+
+        const usnList = parseField(project.usn);
+        const nameList = parseField(project.name);
+
+        tableHTML += `
+          <tr>
+            <td><strong>${project.group_no || '-'}</strong></td>
+            ${showYearColumn ? `<td><span class="badge">${project.project_year || '-'}</span></td>` : ''}
+            <td>
+              ${Array.isArray(usnList) && usnList.length > 1 ? 
+                `<ul>${usnList.map(usn => `<li>${usn}</li>`).join('')}</ul>` : 
+                (usnList[0] || project.usn || '-')
+              }
+            </td>
+            <td>
+              ${Array.isArray(nameList) && nameList.length > 1 ? 
+                `<ul>${nameList.map(name => `<li>${name}</li>`).join('')}</ul>` : 
+                (nameList[0] || project.name || '-')
+              }
+            </td>
+            <td><strong>${project.project_title || '-'}</strong></td>
+            <td>${project.guide_name || '-'}</td>
+            <td>${project.outcomes || '-'}</td>
+            <td>
+              ${project.proof_link ? 
+                `<a href="${project.proof_link}" target="_blank" class="proof-link">
+                  <i class="fas fa-external-link-alt"></i> View Proof
+                </a>` : 
+                '-'
+              }
+            </td>
+            ${showReportPptLinks ? `
+              <td>
+                ${project.report_links && project.report_links !== '' ? `<a href="${project.report_links}" target="_blank" class="proof-link"><i class="fas fa-file-pdf"></i> Report</a>` : ''}
+                ${project.report_links && project.report_links !== '' && project.ppt_links && project.ppt_links !== '' ? '<br>' : ''}
+                ${project.ppt_links && project.ppt_links !== '' ? `<a href="${project.ppt_links}" target="_blank" class="proof-link"><i class="fas fa-file-powerpoint"></i> PPT</a>` : ''}
+                ${(!project.report_links || project.report_links === '') && (!project.ppt_links || project.ppt_links === '') ? '-' : ''}
+              </td>
+            ` : ''}
+          </tr>
+        `;
+      });
+
+      tableHTML += '</tbody></table>';
+      resultsContent.innerHTML = tableHTML;
+    }
+
+    // Chatbot functionality
+    function initializeChatbot() {
+      const chatbot = document.getElementById('chatbot');
+      const chatbotToggle = document.getElementById('chatbot-toggle');
+      const chatbotToggleSize = document.getElementById('chatbot-toggle-size');
+      const chatbotSend = document.getElementById('chatbot-send');
+      const chatbotDropdown = document.getElementById('chatbot-dropdown');
+      const chatbotBody = document.getElementById('chatbot-body');
+      const chatbotSemesterContainer = document.getElementById('chatbot-semester-container');
+      const chatbotSemesterSend = document.getElementById('chatbot-semester-send');
+      const chatbotSemesterDropdown = document.getElementById('chatbot-semester-dropdown');
+      const chatbotHeader = document.getElementById('chatbot-header');
+
+      let selectedMainOption = "";
+      let isMinimized = false;
+      let isDragging = false;
+      let dragOffsetX = 0;
+      let dragOffsetY = 0;
+
+      // Dragging functionality
+      chatbotHeader.addEventListener('mousedown', function(e) {
+        isDragging = true;
+        dragOffsetX = e.clientX - chatbot.offsetLeft;
+        dragOffsetY = e.clientY - chatbot.offsetTop;
+        chatbotHeader.style.cursor = 'grabbing';
+        e.preventDefault();
+      });
+
+      document.addEventListener('mousemove', function(e) {
+        if (isDragging) {
+          const newLeft = e.clientX - dragOffsetX;
+          const newTop = e.clientY - dragOffsetY;
+          
+          // Keep chatbot within viewport
+          const maxLeft = window.innerWidth - chatbot.offsetWidth;
+          const maxTop = window.innerHeight - chatbot.offsetHeight;
+          
+          chatbot.style.left = Math.max(0, Math.min(newLeft, maxLeft)) + 'px';
+          chatbot.style.top = Math.max(0, Math.min(newTop, maxTop)) + 'px';
+          chatbot.style.right = 'auto';
+          chatbot.style.bottom = 'auto';
+        }
+      });
+
+      document.addEventListener('mouseup', function() {
+        if (isDragging) {
+          isDragging = false;
+          chatbotHeader.style.cursor = 'move';
+        }
+      });
+
+      // Toggle chatbot visibility
+      chatbotToggle.addEventListener('click', function() {
+        chatbot.classList.toggle('show');
+      });
+
+      // Minimize/maximize chatbot
+      chatbotToggleSize.addEventListener('click', function() {
+        if (!isMinimized) {
+          chatbotBody.style.display = 'none';
+          document.getElementById('chatbot-input').style.display = 'none';
+          chatbotSemesterContainer.style.display = 'none';
+          this.innerHTML = '<i class="fas fa-plus"></i>';
+          isMinimized = true;
+          chatbot.style.height = 'auto';
+        } else {
+          chatbotBody.style.display = 'block';
+          document.getElementById('chatbot-input').style.display = 'flex';
+          this.innerHTML = '<i class="fas fa-minus"></i>';
+          isMinimized = false;
+          chatbot.style.height = '480px';
+        }
+      });
+
+      // Handle main option selection
+      chatbotSend.addEventListener('click', function() {
+        selectedMainOption = chatbotDropdown.value;
+        const selectedText = chatbotDropdown.options[chatbotDropdown.selectedIndex].text;
+        
+        if (!selectedMainOption) {
+          addChatMessage('Please select a valid option.', 'bot');
+          return;
+        }
+
+        addChatMessage(selectedText, 'user');
+
+        if (['proctoring', 'syllabus', 'timetable'].includes(selectedMainOption)) {
+          addChatMessage('Please select a semester for more specific information.', 'bot');
+          chatbotSemesterContainer.style.display = 'flex';
+        } else if (selectedMainOption === 'elective') {
+          addChatMessage('For elective course details, please consult with your academic advisor or visit the department office during office hours.', 'bot');
+          chatbotSemesterContainer.style.display = 'none';
+        }
+
+        chatbotDropdown.value = "";
+      });
+
+      // Handle semester selection
+      chatbotSemesterSend.addEventListener('click', function() {
+        const semesterValue = chatbotSemesterDropdown.value;
+        const semesterText = chatbotSemesterDropdown.options[chatbotSemesterDropdown.selectedIndex].text;
+        
+        if (!semesterValue) {
+          addChatMessage('Please select a semester.', 'bot');
+          return;
+        }
+
+        addChatMessage(semesterText, 'user');
+        handleSemesterRequest(selectedMainOption, semesterValue, semesterText);
+        
+        chatbotSemesterContainer.style.display = 'none';
+        chatbotSemesterDropdown.value = "";
+      });
+    }
+
+    // Add message to chatbot
+    function addChatMessage(message, sender) {
+      const chatbotBody = document.getElementById('chatbot-body');
+      const messageDiv = document.createElement('div');
+      messageDiv.className = `chat-message ${sender}`;
+      
+      if (sender === 'user') {
+        messageDiv.innerHTML = `<strong>You:</strong> ${message}`;
+      } else {
+        messageDiv.innerHTML = `<strong>Assistant:</strong> ${message}`;
+      }
+      
+      chatbotBody.appendChild(messageDiv);
+      chatbotBody.scrollTop = chatbotBody.scrollHeight;
+    }
+
+    // Handle semester-specific requests
+    function handleSemesterRequest(mainOption, semesterValue, semesterText) {
+      const basePath = "/static/";
+      
+      if (mainOption === 'proctoring') {
+        const link = `${basePath}First_sem_proctor_list_FINAL.xlsx`;
+        addChatMessage(`<a href="${link}" download>📥 Download Proctor List for ${semesterText}</a>`, 'bot');
+      } 
+      else if (mainOption === 'syllabus') {
+        let syllabusUrl = "";
+        
+        if (semesterValue === "1" || semesterValue === "2") {
+          syllabusUrl = "https://drive.google.com/file/d/1NKFaOqwXo3KDy0mYpk2y98U94yHRf_Wc/preview";
+        } else if (semesterValue === "3" || semesterValue === "4") {
+          syllabusUrl = basePath + "2nd22.pdf";
+        } else if (semesterValue === "5" || semesterValue === "6") {
+          syllabusUrl = basePath + "233rdsm.pdf";
+        } else if (semesterValue === "7" || semesterValue === "8") {
+          syllabusUrl = basePath + "38th22.pdf";
+        }
+        
+        if (syllabusUrl) {
+          addChatMessage(`<a href="${syllabusUrl}" target="_blank">📖 View ${semesterText} Syllabus</a>`, 'bot');
+        } else {
+          addChatMessage(`Sorry, the syllabus for ${semesterText} is not currently available. Please check back later.`, 'bot');
+        }
+      }
+      else if (mainOption === 'timetable') {
+        const timetableMap = {
+          '3': basePath + "3RD SEM NEP 2022 Time table 2024-25 updated (2).docx",
+          '4': basePath + "4th SEM NEP Time table 2024-25 (2).docx",
+          '5': basePath + "5TH SEM NEP 2022 Time table 2024-25 updated.docx",
+          '6': basePath + "6th SEM NEP Time table 2024-25.docx",
+          '8': basePath + "8th SEM NEP Time table 2024-25.docx"
+        };
+        
+        const timetableUrl = timetableMap[semesterValue];
+        
+        if (timetableUrl) {
+          addChatMessage(`<a href="${timetableUrl}" download>📅 Download ${semesterText} Timetable</a>`, 'bot');
+        } else {
+          addChatMessage(`Sorry, the timetable for ${semesterText} is not currently available. Please contact the department office.`, 'bot');
+        }
+      }
+    }
   </script>
 </body>
 </html>
