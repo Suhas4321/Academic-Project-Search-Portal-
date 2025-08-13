@@ -1001,7 +1001,7 @@
         const scrolled = window.pageYOffset;
         const header = document.querySelector('.header');
         if (header) {
-          header.style.transform = translateY(${scrolled * 0.5}px);
+          header.style.transform = `translateY(${scrolled * 0.5}px)`;
         }
       });
 
@@ -1042,7 +1042,7 @@
         data.years.forEach(year => {
           const option = document.createElement('option');
           option.value = year;
-          option.textContent = Academic Year ${year};
+          option.textContent = `Academic Year ${year}`;
           yearSelect.appendChild(option);
         });
         
@@ -1104,7 +1104,7 @@
       const searchType = document.getElementById('searchType').value;
       
       try {
-        const response = await fetch(/api/suggestions/?year=${year}&q=${encodeURIComponent(searchTerm)}&search_type=${searchType});
+        const response = await fetch(`/api/suggestions/?year=${year}&q=${encodeURIComponent(searchTerm)}&search_type=${searchType}`);
         const data = await response.json();
         
         if (data.suggestions && data.suggestions.length > 0) {
@@ -1125,7 +1125,7 @@
       
       suggestions.forEach(suggestion => {
         const escapedSuggestion = suggestion.replace(/'/g, "\\'").replace(/"/g, '\\"');
-        html += <div class="suggestion-item" onclick="selectSuggestion('${escapedSuggestion}')">${suggestion}</div>;
+        html += `<div class="suggestion-item" onclick="selectSuggestion('${escapedSuggestion}')">${suggestion}</div>`;
       });
       
       suggestionsDiv.innerHTML = html;
@@ -1163,7 +1163,7 @@
       resultsContent.innerHTML = '<div style="text-align: center; padding: 2rem;"><span class="loading"></span> Searching...</div>';
 
       try {
-        const response = await fetch(/api/search/?year=${year}&q=${encodeURIComponent(searchTerm)}&search_type=${searchType});
+        const response = await fetch(`/api/search/?year=${year}&q=${encodeURIComponent(searchTerm)}&search_type=${searchType}`);
         const data = await response.json();
         
         displayResults(data.results, year);
@@ -1240,16 +1240,16 @@
         tableHTML += `
           <tr>
             <td><strong>${project.group_no || '-'}</strong></td>
-            ${showYearColumn ? <td><span class="badge">${project.project_year || '-'}</span></td> : ''}
+            ${showYearColumn ? `<td><span class="badge">${project.project_year || '-'}</span></td>` : ''}
             <td>
               ${Array.isArray(usnList) && usnList.length > 1 ? 
-                `<ul>${usnList.map(usn => <li>${usn}</li>).join('')}</ul>` : 
+                `<ul>${usnList.map(usn => `<li>${usn}</li>`).join('')}</ul>` : 
                 (usnList[0] || project.usn || '-')
               }
             </td>
             <td>
               ${Array.isArray(nameList) && nameList.length > 1 ? 
-                `<ul>${nameList.map(name => <li>${name}</li>).join('')}</ul>` : 
+                `<ul>${nameList.map(name => `<li>${name}</li>`).join('')}</ul>` : 
                 (nameList[0] || project.name || '-')
               }
             </td>
@@ -1266,9 +1266,9 @@
             </td>
             ${showReportPptLinks ? `
               <td>
-                ${project.report_links && project.report_links !== '' ? <a href="${project.report_links}" target="_blank" class="proof-link"><i class="fas fa-file-pdf"></i> Report</a> : ''}
+                ${project.report_links && project.report_links !== '' ? `<a href="${project.report_links}" target="_blank" class="proof-link"><i class="fas fa-file-pdf"></i> Report</a>` : ''}
                 ${project.report_links && project.report_links !== '' && project.ppt_links && project.ppt_links !== '' ? '<br>' : ''}
-                ${project.ppt_links && project.ppt_links !== '' ? <a href="${project.ppt_links}" target="_blank" class="proof-link"><i class="fas fa-file-powerpoint"></i> PPT</a> : ''}
+                ${project.ppt_links && project.ppt_links !== '' ? `<a href="${project.ppt_links}" target="_blank" class="proof-link"><i class="fas fa-file-powerpoint"></i> PPT</a>` : ''}
                 ${(!project.report_links || project.report_links === '') && (!project.ppt_links || project.ppt_links === '') ? '-' : ''}
               </td>
             ` : ''}
@@ -1399,12 +1399,12 @@
     function addChatMessage(message, sender) {
       const chatbotBody = document.getElementById('chatbot-body');
       const messageDiv = document.createElement('div');
-      messageDiv.className = chat-message ${sender};
+      messageDiv.className = `chat-message ${sender}`;
       
       if (sender === 'user') {
-        messageDiv.innerHTML = <strong>You:</strong> ${message};
+        messageDiv.innerHTML = `<strong>You:</strong> ${message}`;
       } else {
-        messageDiv.innerHTML = <strong>Assistant:</strong> ${message};
+        messageDiv.innerHTML = `<strong>Assistant:</strong> ${message}`;
       }
       
       chatbotBody.appendChild(messageDiv);
@@ -1416,8 +1416,8 @@
       const basePath = "/static/";
       
       if (mainOption === 'proctoring') {
-        const link = ${basePath}First_sem_proctor_list_FINAL.xlsx;
-        addChatMessage(<a href="${link}" download>ðŸ“¥ Download Proctor List for ${semesterText}</a>, 'bot');
+        const link = `${basePath}First_sem_proctor_list_FINAL.xlsx`;
+        addChatMessage(`<a href="${link}" download>📥 Download Proctor List for ${semesterText}</a>`, 'bot');
       } 
       else if (mainOption === 'syllabus') {
         let syllabusUrl = "";
@@ -1433,9 +1433,9 @@
         }
         
         if (syllabusUrl) {
-          addChatMessage(<a href="${syllabusUrl}" target="_blank">ðŸ“– View ${semesterText} Syllabus</a>, 'bot');
+          addChatMessage(`<a href="${syllabusUrl}" target="_blank">📖 View ${semesterText} Syllabus</a>`, 'bot');
         } else {
-          addChatMessage(Sorry, the syllabus for ${semesterText} is not currently available. Please check back later., 'bot');
+          addChatMessage(`Sorry, the syllabus for ${semesterText} is not currently available. Please check back later.`, 'bot');
         }
       }
       else if (mainOption === 'timetable') {
@@ -1450,9 +1450,9 @@
         const timetableUrl = timetableMap[semesterValue];
         
         if (timetableUrl) {
-          addChatMessage(<a href="${timetableUrl}" download>ðŸ“… Download ${semesterText} Timetable</a>, 'bot');
+          addChatMessage(`<a href="${timetableUrl}" download>📅 Download ${semesterText} Timetable</a>`, 'bot');
         } else {
-          addChatMessage(Sorry, the timetable for ${semesterText} is not currently available. Please contact the department office., 'bot');
+          addChatMessage(`Sorry, the timetable for ${semesterText} is not currently available. Please contact the department office.`, 'bot');
         }
       }
     }

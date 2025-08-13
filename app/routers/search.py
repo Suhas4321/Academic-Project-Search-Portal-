@@ -306,4 +306,4 @@ async def get_search_suggestions(
     db:  AsyncSession = Depends(get_db)
 ):
     suggestions = await get_suggestions(year, q, db, search_type)
-    return {"suggestions": suggestions} this is the backend code of that
+    return {"suggestions": suggestions}

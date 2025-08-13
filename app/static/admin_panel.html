@@ -430,6 +430,7 @@
       <span class="text-gray-700 font-medium">Processing...</span>
     </div>
   </div>
+  
   <script>
     // Enhanced table name validation function
     function isValidTableName(name) {
@@ -475,9 +476,9 @@
     const pageSize = 10;
     let editingRow = null;
 
-    // Download Excel Format
+    // UPDATED: Download Excel Format - Redirect to Google Sheets
     document.getElementById('downloadFormatBtn').addEventListener('click', () => {
-      window.location.href = '/api/admin/download-template';
+      window.open('https://docs.google.com/spreadsheets/d/1ntg93G8SV3tDRGomg9ewqbMPyHjImIIq/edit?usp=drivesdk&ouid=103492233788149897665&rtpof=true&sd=true', '_blank');
     });
 
     // UPDATED: Delete Table with proper confirmation and state management
