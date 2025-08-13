@@ -1,21 +1,17 @@
-from fastapi import APIRouter, Depends, Query, HTTPException, Path
+from fastapi import APIRouter, Depends, Query, HTTPException
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.database import get_db
 from typing import Optional, List
 import re
 
-
 router = APIRouter()
-
 
 # ────────────────────────────────────────────────────────────────────────────────
 # Helpers
 # ────────────────────────────────────────────────────────────────────────────────
-SAFE_TABLE_RE = re.compile(r"^[A-Za-z0-9_-]{1,63}$")      # backend + frontend rule (updated to allow hyphens)
-BLOCKLIST     = {"alembic_version"}                        # skip system tables
-
-
+SAFE_TABLE_RE = re.compile(r"^[A-Za-z0-9_]{1,63}$")      # backend + frontend rule
+BLOCKLIST     = {"alembic_version"}                      # skip system tables
 
 async def get_year_tables(db: AsyncSession) -> List[str]:
     """
@@ -31,16 +27,12 @@ async def get_year_tables(db: AsyncSession) -> List[str]:
         """
     )
     result = await db.execute(query)
-
     tables = [
         row[0] for row in result
         if SAFE_TABLE_RE.match(row[0]) and row[0] not in BLOCKLIST
     ]
-
     # foo_bar → foo-bar  (purely cosmetic for the frontend)
     return [t.replace("_", "-") for t in sorted(tables)]
-
-
 
 async def get_table_columns(db: AsyncSession, table_name: str) -> List[str]:
     query = text(
@@ -54,63 +46,8 @@ async def get_table_columns(db: AsyncSession, table_name: str) -> List[str]:
     result = await db.execute(query, {"table_name": table_name})
     return [row[0] for row in result]
 
-
-
 # ────────────────────────────────────────────────────────────────────────────────
-# New function to get all projects from a specific year
-# ────────────────────────────────────────────────────────────────────────────────
-async def get_all_projects_by_year(year: str, db: AsyncSession):
-    """
-    Fetch all projects from a specific academic year table.
-    """
-    tables = await get_year_tables(db)
-    if year not in tables:
-        raise HTTPException(status_code=400, detail="Unknown academic year.")
-
-    table_name = year.replace("-", "_")
-    columns = await get_table_columns(db, table_name)
-    
-    # Check for optional columns
-    has_ppt_links = "ppt_links" in columns
-    has_report_links = "report_links" in columns
-
-    ppt_links_col = "COALESCE(ppt_links, '') AS ppt_links" if has_ppt_links else "'' AS ppt_links"
-    report_links_col = "COALESCE(report_links, '') AS report_links" if has_report_links else "'' AS report_links"
-
-    query = text(f"""
-        SELECT
-            group_no,
-            usn,
-            name,
-            project_title,
-            guide_name,
-            outcomes,
-            proof_link,
-            {ppt_links_col},
-            {report_links_col}
-        FROM "{table_name}"
-        ORDER BY 
-            CASE WHEN group_no ~ '^[0-9]+$' THEN CAST(group_no AS INTEGER) ELSE 999999 END,
-            group_no,
-            project_title ASC
-    """)
-
-    try:
-        result = await db.execute(query)
-        projects = []
-        for row in result.mappings().all():
-            project = dict(row)
-            project["project_year"] = year
-            projects.append(project)
-        return projects
-    except Exception as exc:
-        print(f"[get_all_projects] query error in {table_name}: {exc}")
-        raise HTTPException(status_code=500, detail="Error fetching projects from database")
-
-
-
-# ────────────────────────────────────────────────────────────────────────────────
-# Core search logic
+# Core search logic - UNCHANGED
 # ────────────────────────────────────────────────────────────────────────────────
 async def search_projects(
     year: str,
@@ -122,7 +59,6 @@ async def search_projects(
     if year == "all":
         tables  = await get_year_tables(db)
         results = []
-
         for y in tables:
             table_name = y.replace("-", "_")
             try:
@@ -134,28 +70,21 @@ async def search_projects(
             except Exception as exc:               # noqa: BLE001 – want wide catch
                 print(f"[search] error in {table_name}: {exc}")
                 continue
-
         # sort by year asc  ➜  rank desc
         results.sort(key=lambda x: (x.get("project_year", ""), -x.get("rank", 0)))
         return results
-
     # ── Single-table search ────────────────────────────────────────────────────
     tables = await get_year_tables(db)
     if year not in tables:
         raise HTTPException(status_code=400, detail="Unknown table name.")
-
     table_name = year.replace("-", "_")
     sub = await search_single_table(table_name, search_term, db, search_type)
-
     results = []
     for r in sub:
         r = dict(r)
         r["project_year"] = year
         results.append(r)
-
     return results
-
-
 
 async def search_single_table(
     table_name: str,
@@ -168,10 +97,9 @@ async def search_single_table(
     has_search_vector = "search_vector"  in columns
     has_ppt_links     = "ppt_links"      in columns
     has_report_links  = "report_links"   in columns
-
     ppt_links_col    = "COALESCE(ppt_links, '')  AS ppt_links"   if has_ppt_links   else "'' AS ppt_links"
     report_links_col = "COALESCE(report_links, '') AS report_links" if has_report_links else "'' AS report_links"
-
+    
     # build search condition ----------------------------------------------------
     if search_type == "title":
         search_condition = (
@@ -219,7 +147,6 @@ async def search_single_table(
         WHERE {search_condition}
         ORDER BY rank DESC, project_title ASC
     """)
-
     try:
         result = await db.execute(query, {"search_term": search_term})
         return result.mappings().all()
@@ -227,10 +154,58 @@ async def search_single_table(
         print(f"[search] query error in {table_name}: {exc}")
         return []
 
-
+# ────────────────────────────────────────────────────────────────────────────────
+# NEW: Get all projects from a specific year (for auto-loading)
+# ────────────────────────────────────────────────────────────────────────────────
+async def get_all_projects_from_year(year: str, db: AsyncSession):
+    """
+    Fetch ALL projects from a specific academic year table.
+    This enables auto-loading when user selects a year.
+    """
+    tables = await get_year_tables(db)
+    if year not in tables:
+        raise HTTPException(status_code=400, detail="Unknown table name.")
+    
+    table_name = year.replace("-", "_")
+    
+    # Get table columns to handle optional fields
+    columns = await get_table_columns(db, table_name)
+    has_ppt_links = "ppt_links" in columns
+    has_report_links = "report_links" in columns
+    
+    ppt_links_col = "COALESCE(ppt_links, '') AS ppt_links" if has_ppt_links else "'' AS ppt_links"
+    report_links_col = "COALESCE(report_links, '') AS report_links" if has_report_links else "'' AS report_links"
+    
+    # Fetch ALL projects (no search condition)
+    query = text(f"""
+        SELECT
+            group_no,
+            usn,
+            name,
+            project_title,
+            guide_name,
+            outcomes,
+            proof_link,
+            {ppt_links_col},
+            {report_links_col}
+        FROM "{table_name}"
+        ORDER BY project_title ASC
+    """)
+    
+    try:
+        result = await db.execute(query)
+        projects = []
+        for r in result.mappings().all():
+            r = dict(r)
+            r["project_year"] = year
+            projects.append(r)
+        return projects
+    except Exception as exc:
+        print(f"[get_all_projects] error in {table_name}: {exc}")
+        raise HTTPException(status_code=500, detail="Database error")
 
 # ────────────────────────────────────────────────────────────────────────────────
-# Autocomplete helpers
+# Autocomplete helpers - UNCHANGED
 # ────────────────────────────────────────────────────────────────────────────────
 async def get_suggestions(
     year: str,
@@ -241,7 +216,6 @@ async def get_suggestions(
     if year == "all":
         tables          = await get_year_tables(db)
         all_suggestions = set()
-
         for y in tables:
             try:
                 sub = await get_table_suggestions(y.replace("-", "_"), search_term, db, search_type)
@@ -249,16 +223,11 @@ async def get_suggestions(
             except Exception as exc:
                 print(f"[suggest] error in {y}: {exc}")
                 continue
-
         return sorted(all_suggestions)[:10]
-
     tables = await get_year_tables(db)
     if year not in tables:
         raise HTTPException(status_code=400, detail="Unknown table name.")
-
     return await get_table_suggestions(year.replace("-", "_"), search_term, db, search_type)
-
-
 
 async def get_table_suggestions(
     table_name: str,
@@ -292,7 +261,7 @@ async def get_table_suggestions(
         """)
         result = await db.execute(query, {"search_term": search_term})
         return [row[0] for row in result if row[0]]
-
+    
     # single column suggestion query ------------------------------------------
     query = text(f"""
         SELECT DISTINCT {column}
@@ -306,10 +275,8 @@ async def get_table_suggestions(
     result = await db.execute(query, {"search_term": search_term})
     return [row[0] for row in result if row[0]]
 
-
-
 # ────────────────────────────────────────────────────────────────────────────────
-# Routes
+# Routes - ORIGINAL ROUTES UNCHANGED
 # ────────────────────────────────────────────────────────────────────────────────
 @router.get("/years")
 async def get_years(db: AsyncSession = Depends(get_db)):
@@ -319,22 +286,6 @@ async def get_years(db: AsyncSession = Depends(get_db)):
     """
     years = await get_year_tables(db)
     return {"years": years}
-
-
-
-@router.get("/projects/{year}")
-async def get_projects_by_year(
-    year: str = Path(..., description="Academic year (e.g., '2023-2024')"),
-    db: AsyncSession = Depends(get_db)
-):
-    """
-    Fetch all projects from a specific academic year.
-    This endpoint is called when user selects an academic year from dropdown.
-    """
-    projects = await get_all_projects_by_year(year, db)
-    return {"projects": projects, "year": year, "count": len(projects)}
-
-
 
 @router.get("/search/")
 async def full_text_search(
@@ -346,8 +297,6 @@ async def full_text_search(
     results = await search_projects(year, q, db, search_type)
     return {"results": results}
 
-
-
 @router.get("/suggestions/")
 async def get_search_suggestions(
     year: str = Query(..., description="Table name shown in the dropdown or 'all'"),
@@ -357,3 +306,18 @@ async def get_search_suggestions(
 ):
     suggestions = await get_suggestions(year, q, db, search_type)
     return {"suggestions": suggestions}
+
+# ────────────────────────────────────────────────────────────────────────────────
+# NEW ENDPOINT: Get all projects from a specific year
+# ────────────────────────────────────────────────────────────────────────────────
+@router.get("/projects/{year}")
+async def get_all_projects_by_year(
+    year: str,
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Fetch ALL projects for a specific academic year.
+    This enables auto-loading when user selects a year.
+    """
+    projects = await get_all_projects_from_year(year, db)
+    return {"results": projects}
