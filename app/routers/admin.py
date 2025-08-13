@@ -62,6 +62,7 @@ async def download_template():
         filename="excel_format_template.xlsx"
     )
 
+# ✅ UPDATED LOGIN ENDPOINT WITH REDIRECT
 @router.post("/login")
 async def login(
     request: Request,
@@ -69,24 +70,57 @@ async def login(
     password: str = Form(...),
 ):
     """
-    Validates admin credentials and returns JSON on success/failure.
+    Validates admin credentials and returns JSON with redirect URL on success.
     """
     admin_user = os.getenv("ADMIN_USERNAME")
     admin_pass = os.getenv("ADMIN_PASSWORD")
 
     if username == admin_user and password == admin_pass:
         request.session["admin_authenticated"] = True
-        return JSONResponse({"success": True})
+        return JSONResponse({
+            "success": True,
+            "redirect": "/static/admin_panel.html",  # ✅ Added redirect URL
+            "message": "Login successful"
+        })
     raise HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Invalid credentials"
     )
 
+# ✅ NEW: Admin Panel Authentication Check
+@router.get("/verify-session")
+async def verify_admin_session(request: Request):
+    """
+    Verifies if admin is authenticated via session.
+    """
+    if request.session.get("admin_authenticated"):
+        return JSONResponse({"authenticated": True})
+    raise HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Not authenticated"
+    )
+
+# ✅ NEW: Admin Logout
+@router.post("/logout")
+async def logout(request: Request):
+    """
+    Logs out admin by clearing session.
+    """
+    request.session.pop("admin_authenticated", None)
+    return JSONResponse({
+        "success": True,
+        "message": "Logged out successfully"
+    })
+
 @router.get("/tables")
-async def list_tables(db: AsyncSession = Depends(get_db)):
+async def list_tables(request: Request, db: AsyncSession = Depends(get_db)):
     """
     Returns list of all tables in public schema (excluding system tables).
     """
+    # ✅ Added authentication check
+    if not request.session.get("admin_authenticated"):
+        raise HTTPException(status_code=403, detail="Not authenticated")
+    
     query = text(
         "SELECT tablename FROM pg_tables "
         "WHERE schemaname='public' "
@@ -99,12 +133,17 @@ async def list_tables(db: AsyncSession = Depends(get_db)):
 
 @router.get("/tables/{table_name}")
 async def get_table(
+    request: Request,
     table_name: str = Path(...),
     db: AsyncSession = Depends(get_db)
 ):
     """
     Returns all rows from specified table ordered by group_no.
     """
+    # ✅ Added authentication check
+    if not request.session.get("admin_authenticated"):
+        raise HTTPException(status_code=403, detail="Not authenticated")
+        
     if not is_safe_table_name(table_name):
         raise HTTPException(
             status_code=400,
@@ -124,6 +163,7 @@ async def get_table(
 
 @router.post("/tables/{table_name}")
 async def insert_row(
+    request: Request,
     table_name: str = Path(...),
     data: dict = Body(...),
     db: AsyncSession = Depends(get_db)
@@ -131,6 +171,10 @@ async def insert_row(
     """
     Inserts new row into specified table.
     """
+    # ✅ Added authentication check
+    if not request.session.get("admin_authenticated"):
+        raise HTTPException(status_code=403, detail="Not authenticated")
+        
     if not is_safe_table_name(table_name):
         raise HTTPException(
             status_code=400,
@@ -152,6 +196,7 @@ async def insert_row(
 
 @router.put("/tables/{table_name}/{group_no}")
 async def update_row(
+    request: Request,
     table_name: str = Path(...),
     group_no: int = Path(...),
     data: dict = Body(...),
@@ -160,6 +205,10 @@ async def update_row(
     """
     Updates row identified by group_no in specified table and returns the updated row.
     """
+    # ✅ Added authentication check
+    if not request.session.get("admin_authenticated"):
+        raise HTTPException(status_code=403, detail="Not authenticated")
+        
     if not is_safe_table_name(table_name):
         raise HTTPException(
             status_code=400,
@@ -232,6 +281,7 @@ async def update_row(
 
 @router.delete("/tables/{table_name}/{group_no}")
 async def delete_row(
+    request: Request,
     table_name: str = Path(...),
     group_no: int = Path(...),
     db: AsyncSession = Depends(get_db)
@@ -239,6 +289,10 @@ async def delete_row(
     """
     Deletes row identified by group_no in specified table.
     """
+    # ✅ Added authentication check
+    if not request.session.get("admin_authenticated"):
+        raise HTTPException(status_code=403, detail="Not authenticated")
+        
     if not is_safe_table_name(table_name):
         raise HTTPException(
             status_code=400,
@@ -260,10 +314,14 @@ async def delete_row(
 # NEW: Delete whole table route
 # -----------------------------
 @router.delete("/tables/{table_name}")
-async def delete_table(table_name: str):
+async def delete_table(request: Request, table_name: str):
     """
     Deletes the entire specified table from the database.
     """
+    # ✅ Added authentication check
+    if not request.session.get("admin_authenticated"):
+        raise HTTPException(status_code=403, detail="Not authenticated")
+        
     if not is_safe_table_name(table_name):
         raise HTTPException(status_code=400, detail="Invalid table name")
     try:
@@ -284,7 +342,7 @@ async def upload_excel(
     Uploads an Excel/CSV file, cleans it, and creates/replaces the specified table.
     """
     if not request.session.get("admin_authenticated"):
-        raise HTTPException(status_code=403, detail="Not logged in")
+        raise HTTPException(status_code=403, detail="Not authenticated")
 
     if not is_safe_table_name(new_table):
         raise HTTPException(

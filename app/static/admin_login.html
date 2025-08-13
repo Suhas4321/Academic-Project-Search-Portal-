@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -286,7 +285,7 @@
     passwordField.addEventListener('input', validateInputs);
     validateInputs();
 
-    // Handle form submission
+    // ✅ UPDATED: Handle form submission with proper redirect handling
     loginForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       errorDiv.classList.add('hidden');
@@ -304,17 +303,28 @@
       try {
         const response = await fetch('/api/admin/login', {
           method: 'POST',
-          body: new FormData(loginForm)
+          body: new FormData(loginForm),
+          credentials: 'include'  // ✅ Include cookies/session
         });
 
         if (response.ok) {
+          const data = await response.json();  // ✅ Parse JSON response
+          
           loginButton.innerHTML = `
             <span class="material-symbols-outlined text-xl mr-2">check_circle</span>
             <span>Access Granted</span>
           `;
+          
           setTimeout(() => {
-            window.location.href = '/static/admin_panel.html';
+            // ✅ Use redirect URL from backend response
+            if (data.redirect) {
+              window.location.href = data.redirect;
+            } else {
+              // ✅ Fallback redirect
+              window.location.href = '/static/admin_panel.html';
+            }
           }, 1000);
+          
         } else if (response.status === 401) {
           errorText.textContent = 'Invalid credentials. Access denied.';
           errorDiv.classList.remove('hidden');
@@ -327,6 +337,7 @@
           validateInputs();
         }
       } catch (err) {
+        console.error('Login error:', err);  // ✅ Added error logging
         errorText.textContent = 'Network error. Please check your connection.';
         errorDiv.classList.remove('hidden');
         loginButton.innerHTML = originalButtonContent;
