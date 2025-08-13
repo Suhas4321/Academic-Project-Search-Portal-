@@ -1,1460 +1,1461 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DSCE ISE Project Portal</title>
-    <style>
-        /* Reset and base styles */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            line-height: 1.6;
-            color: #2d3748;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-        }
-
-        /* Header styles - ONLY PADDING CHANGED */
-        .header {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            padding: 1rem 0;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-
-        .header-content {
-            max-width: 1400px; /* CHANGED FROM 1200px */
-            margin: 0 auto;
-            padding: 0 20px; /* CHANGED FROM 24px */
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .logo h1 {
-            color: #4a5568;
-            font-size: 1.5rem;
-            font-weight: 700;
-        }
-
-        .logo-icon {
-            width: 40px;
-            height: 40px;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: bold;
-        }
-
-        /* Search container - ONLY PADDING CHANGED */
-        .search-container {
-            max-width: 1400px; /* CHANGED FROM 1200px */
-            margin: 2rem auto;
-            padding: 0 20px; /* CHANGED FROM 24px */
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 16px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-            backdrop-filter: blur(10px);
-        }
-
-        .search-form {
-            padding: 2rem;
-            display: grid;
-            grid-template-columns: 1fr 1fr auto;
-            gap: 1rem;
-            align-items: end;
-        }
-
-        .form-group {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .form-group label {
-            margin-bottom: 0.5rem;
-            font-weight: 600;
-            color: #4a5568;
-        }
-
-        .form-control {
-            padding: 0.75rem;
-            border: 2px solid #e2e8f0;
-            border-radius: 8px;
-            font-size: 1rem;
-            transition: all 0.3s ease;
-            background: white;
-        }
-
-        .form-control:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-
-        .search-input-container {
-            position: relative;
-        }
-
-        .search-suggestions {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            right: 0;
-            background: white;
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-            z-index: 1000;
-            max-height: 200px;
-            overflow-y: auto;
-            display: none;
-        }
-
-        .suggestion-item {
-            padding: 0.75rem;
-            cursor: pointer;
-            border-bottom: 1px solid #f7fafc;
-            transition: background-color 0.2s;
-        }
-
-        .suggestion-item:hover,
-        .suggestion-item.highlighted {
-            background-color: #f7fafc;
-        }
-
-        .suggestion-item:last-child {
-            border-bottom: none;
-        }
-
-        .btn {
-            padding: 0.75rem 1.5rem;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
-        }
-
-        .btn:active {
-            transform: translateY(0);
-        }
-
-        .btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        /* Results container - ONLY PADDING CHANGED */
-        .results-container {
-            max-width: 1400px; /* CHANGED FROM 1200px */
-            margin: 2rem auto;
-            padding: 0 20px; /* CHANGED FROM 24px */
-        }
-
-        .results-header {
-            background: rgba(255, 255, 255, 0.95);
-            padding: 1.5rem;
-            border-radius: 12px 12px 0 0;
-            border-bottom: 2px solid #e2e8f0;
-            backdrop-filter: blur(10px);
-        }
-
-        .results-count {
-            font-size: 1.1rem;
-            color: #4a5568;
-            font-weight: 600;
-        }
-
-        .results-table-container {
-            background: white;
-            border-radius: 0 0 12px 12px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
-        }
-
-        .results-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        .results-table th {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-            padding: 1rem;
-            text-align: left;
-            font-weight: 600;
-            font-size: 0.9rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .results-table td {
-            padding: 1rem;
-            border-bottom: 1px solid #e2e8f0;
-            vertical-align: top;
-        }
-
-        .results-table tbody tr:hover {
-            background-color: #f7fafc;
-        }
-
-        .results-table tbody tr:last-child td {
-            border-bottom: none;
-        }
-
-        .project-title {
-            font-weight: 600;
-            color: #2d3748;
-            margin-bottom: 0.5rem;
-        }
-
-        .project-links {
-            display: flex;
-            gap: 0.5rem;
-            flex-wrap: wrap;
-            margin-top: 0.5rem;
-        }
-
-        .project-link {
-            padding: 0.25rem 0.75rem;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-            text-decoration: none;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 500;
-            transition: all 0.3s ease;
-        }
-
-        .project-link:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 2px 10px rgba(102, 126, 234, 0.4);
-        }
-
-        .loading {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 3rem;
-            color: #4a5568;
-        }
-
-        .loading-spinner {
-            width: 40px;
-            height: 40px;
-            border: 4px solid #e2e8f0;
-            border-top: 4px solid #667eea;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-right: 1rem;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .no-results {
-            text-align: center;
-            padding: 3rem;
-            color: #718096;
-        }
-
-        .no-results-icon {
-            font-size: 4rem;
-            margin-bottom: 1rem;
-            opacity: 0.5;
-        }
-
-        /* NEW: Year header styling for organization */
-        .year-header {
-            background: linear-gradient(135deg, #2d3748, #4a5568);
-            color: white;
-            padding: 0.75rem 1rem;
-            font-weight: 600;
-            font-size: 1rem;
-        }
-
-        /* ALL ORIGINAL CHATBOT STYLES - COMPLETELY UNCHANGED */
-        .chatbot-container {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            z-index: 1000;
-        }
-
-        .chatbot-toggle {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            border: none;
-            cursor: pointer;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 24px;
-        }
-
-        .chatbot-toggle:hover {
-            transform: scale(1.1);
-            box-shadow: 0 6px 25px rgba(0, 0, 0, 0.4);
-        }
-
-        .chatbot-window {
-            position: absolute;
-            bottom: 80px;
-            right: 0;
-            width: 400px;
-            height: 600px;
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
-            display: none;
-            flex-direction: column;
-            overflow: hidden;
-            transform: scale(0.9);
-            opacity: 0;
-            transition: all 0.3s ease;
-        }
-
-        .chatbot-window.show {
-            display: flex;
-            transform: scale(1);
-            opacity: 1;
-        }
-
-        .chatbot-header {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-            padding: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            cursor: move;
-        }
-
-        .chatbot-header h3 {
-            margin: 0;
-            font-size: 18px;
-            font-weight: 600;
-        }
-
-        .chatbot-controls {
-            display: flex;
-            gap: 10px;
-        }
-
-        .control-btn {
-            width: 20px;
-            height: 20px;
-            border: none;
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 4px;
-            color: white;
-            cursor: pointer;
-            transition: background 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 12px;
-        }
-
-        .control-btn:hover {
-            background: rgba(255, 255, 255, 0.3);
-        }
-
-        .chatbot-messages {
-            flex: 1;
-            padding: 20px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        .message {
-            max-width: 80%;
-            padding: 12px 16px;
-            border-radius: 18px;
-            word-wrap: break-word;
-            line-height: 1.4;
-        }
-
-        .message.user {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-            align-self: flex-end;
-            border-bottom-right-radius: 4px;
-        }
-
-        .message.bot {
-            background: #f1f3f4;
-            color: #333;
-            align-self: flex-start;
-            border-bottom-left-radius: 4px;
-        }
-
-        .message.bot ul {
-            margin: 10px 0;
-            padding-left: 20px;
-        }
-
-        .message.bot li {
-            margin: 5px 0;
-        }
-
-        .typing-indicator {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 12px 16px;
-            background: #f1f3f4;
-            border-radius: 18px;
-            border-bottom-left-radius: 4px;
-            align-self: flex-start;
-            max-width: 80px;
-        }
-
-        .typing-dot {
-            width: 8px;
-            height: 8px;
-            background: #999;
-            border-radius: 50%;
-            animation: typing 1.4s infinite ease-in-out;
-        }
-
-        .typing-dot:nth-child(2) {
-            animation-delay: 0.2s;
-        }
-
-        .typing-dot:nth-child(3) {
-            animation-delay: 0.4s;
-        }
-
-        @keyframes typing {
-            0%, 60%, 100% {
-                transform: translateY(0);
-            }
-            30% {
-                transform: translateY(-10px);
-            }
-        }
-
-        .chatbot-input-container {
-            padding: 20px;
-            border-top: 1px solid #eee;
-            display: flex;
-            gap: 12px;
-            align-items: flex-end;
-        }
-
-        .chatbot-input {
-            flex: 1;
-            border: 2px solid #e1e5e9;
-            border-radius: 25px;
-            padding: 12px 20px;
-            font-size: 14px;
-            outline: none;
-            transition: border-color 0.2s;
-            resize: none;
-            min-height: 24px;
-            max-height: 100px;
-            line-height: 1.4;
-        }
-
-        .chatbot-input:focus {
-            border-color: #667eea;
-        }
-
-        .chatbot-send {
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            border: none;
-            color: white;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 16px;
-        }
-
-        .chatbot-send:hover:not(:disabled) {
-            transform: scale(1.05);
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
-        }
-
-        .chatbot-send:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-
-        .semester-selection {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin-top: 10px;
-        }
-
-        .semester-btn {
-            padding: 6px 12px;
-            background: #e3f2fd;
-            border: 1px solid #bbdefb;
-            border-radius: 20px;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-size: 12px;
-            color: #1976d2;
-        }
-
-        .semester-btn:hover {
-            background: #bbdefb;
-            transform: translateY(-1px);
-        }
-
-        .download-link {
-            display: inline-block;
-            margin: 5px 10px 5px 0;
-            padding: 8px 16px;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white !important;
-            text-decoration: none;
-            border-radius: 20px;
-            font-size: 13px;
-            transition: all 0.3s ease;
-        }
-
-        .download-link:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
-            color: white !important;
-        }
-
-        .chatbot-minimized {
-            height: 60px !important;
-        }
-
-        .chatbot-minimized .chatbot-messages,
-        .chatbot-minimized .chatbot-input-container {
-            display: none !important;
-        }
-
-        /* Responsive breakpoints - ONLY PADDING CHANGED */
-        @media (max-width: 768px) {
-            .header-content,
-            .search-container,
-            .results-container {
-                padding: 0 15px; /* CHANGED */
-            }
-
-            .search-form {
-                grid-template-columns: 1fr;
-                gap: 1rem;
-            }
-
-            .results-table {
-                font-size: 0.9rem;
-            }
-
-            .results-table th,
-            .results-table td {
-                padding: 0.75rem 0.5rem;
-            }
-
-            .chatbot-window {
-                width: 90vw;
-                right: 5vw;
-                height: 70vh;
-            }
-
-            .chatbot-toggle {
-                bottom: 10px;
-                right: 10px;
-            }
-        }
-
-        /* WIDER SCREENS OPTIMIZATION - NEW */
-        @media (min-width: 1440px) {
-            .header-content,
-            .search-container,
-            .results-container {
-                max-width: 1600px;
-                padding: 0 30px; /* CHANGED */
-            }
-        }
-
-        @media (min-width: 1920px) {
-            .header-content,
-            .search-container,
-            .results-container {
-                max-width: 1800px;
-                padding: 0 40px; /* CHANGED */
-            }
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DSCE ISE Project Portal</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <style>
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: url('/static/dept.jpg') center center / cover no-repeat fixed;
+      color: #1a202c;
+      line-height: 1.6;
+      min-height: 100vh;
+      position: relative;
+    }
+
+    /* Reduced background overlay opacity significantly to remove foggy effect */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(255, 255, 255, 0.05);
+      z-index: -1;
+    }
+
+    .container {
+      max-width: 100vw;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+    }
+
+    /* Navigation Bar */
+    .navbar {
+      background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%);
+      padding: 1rem 0;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      animation: slideDown 0.6s ease-out;
+    }
+
+    .nav-content {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .nav-brand {
+      color: white;
+      font-size: 1.2rem;
+      font-weight: 600;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: transform 0.3s ease;
+    }
+
+    .nav-brand:hover {
+      transform: scale(1.05);
+    }
+
+    .admin-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: linear-gradient(135deg, #e53e3e 0%, #c53030 100%);
+      color: white;
+      padding: 0.75rem 1.5rem;
+      border-radius: 12px;
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(229, 62, 62, 0.3);
+      animation: pulse 2s infinite;
+    }
+
+    .admin-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(229, 62, 62, 0.4);
+      animation: none;
+    }
+
+    /* Header Section - Full width with proper spacing */
+    .header {
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.85) 0%, rgba(118, 75, 162, 0.85) 100%);
+      color: white;
+      padding: 2rem 0 1.5rem;
+      position: relative;
+      overflow: hidden;
+      width: 100%;
+    }
+
+    .header::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 20"><defs><radialGradient id="a" cx="50%" cy="0%" r="100%"><stop offset="0%" stop-color="rgba(255,255,255,.1)"/><stop offset="100%" stop-color="rgba(255,255,255,0)"/></radialGradient></defs><rect width="100" height="20" fill="url(%23a)"/></svg>') repeat-x;
+      opacity: 0.1;
+    }
+
+    .header-content {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 2rem;
+      position: relative;
+      z-index: 1;
+      animation: fadeInUp 1s ease-out;
+    }
+
+    .header-logo {
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+    }
+
+    .header-logo img {
+      width: 100px;
+      height: 100px;
+      border-radius: 20px;
+      background: white;
+      padding: 8px;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+      transition: transform 0.3s ease;
+      animation: float 3s ease-in-out infinite;
+    }
+
+    .header-logo img:hover {
+      transform: scale(1.05) rotate(5deg);
+    }
+
+    .header-title {
+      flex: 1;
+      text-align: left;
+      margin-left: 2rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .header-title h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      background: linear-gradient(135deg, #ffffff 0%, #e2e8f0 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: textShine 2s ease-in-out infinite alternate;
+      line-height: 1.2;
+    }
+
+    .header-title p {
+      font-size: 1.1rem;
+      color: #e2e8f0;
+      margin: 0.2rem 0;
+      font-weight: 400;
+      animation: fadeIn 1.5s ease-out;
+    }
+
+    /* Search Container with balanced grid layout */
+    .search-container {
+      max-width: 1400px;
+      margin: -1.5rem auto 2rem;
+      padding: 0 2rem;
+      position: relative;
+      z-index: 10;
+      animation: slideUp 0.8s ease-out;
+    }
+
+    .search-card {
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 20px;
+      padding: 2rem;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(10px);
+      transition: transform 0.3s ease;
+    }
+
+    .search-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+    }
+
+    .search-form {
+      display: grid;
+      grid-template-columns: 220px 220px 2fr 130px;
+      gap: 1rem;
+      align-items: center;
+    }
+
+    .search-form select,
+    .search-form input {
+      padding: 0.75rem 1rem;
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      background: white;
+      font-family: inherit;
+    }
+
+    .search-form input {
+      width: 100%;
+    }
+
+    .search-form select:focus,
+    .search-form input:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+      transform: translateY(-2px);
+    }
+
+    .search-btn {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      padding: 0.75rem 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+      white-space: nowrap;
+    }
+
+    .search-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    }
+
+    .search-btn:active {
+      transform: translateY(0);
+    }
+
+    /* Badge for year display */
+    .badge {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 0.25rem 0.75rem;
+      border-radius: 12px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      display: inline-block;
+    }
+
+    /* Suggestions */
+    #suggestions {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 0 0 12px 12px;
+      max-height: 200px;
+      overflow-y: auto;
+      display: none;
+      z-index: 1000;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      animation: fadeIn 0.3s ease-out;
+    }
+
+    .suggestion-item {
+      padding: 0.75rem 1rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border-bottom: 1px solid #f7fafc;
+    }
+
+    .suggestion-item:hover {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      transform: translateX(5px);
+    }
+
+    /* Results Section */
+    .results-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 2rem 2rem;
+    }
+
+    .results-card {
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      animation: fadeInUp 0.6s ease-out;
+    }
+
+    .results-header {
+      background: linear-gradient(135deg, #4a5568 0%, #2d3748 100%);
+      color: white;
+      padding: 1.5rem 2rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .results-header::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+      animation: shimmer 2s infinite;
+    }
+
+    .results-header h2 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin: 0;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* CHANGED: Removed max-height and overflow-y auto to show full table */
+    .table-container {
+      overflow-x: auto;
+    }
+
+    .results-table {
+      width: 100%;
+      min-width: 1200px;
+      border-collapse: separate;
+      border-spacing: 0;
+      font-size: 0.9rem;
+    }
+
+    .results-table th {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 1rem 0.75rem;
+      text-align: left;
+      font-weight: 600;
+      position: sticky;
+      top: 0;
+      z-index: 5;
+      white-space: nowrap;
+      border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+      transition: all 0.3s ease;
+    }
+
+    .results-table th:hover {
+      background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+    }
+
+    .results-table td {
+      padding: 0.75rem;
+      border-bottom: 1px solid #e2e8f0;
+      background: white;
+      vertical-align: top;
+      transition: all 0.3s ease;
+    }
+
+    .results-table tbody tr:nth-child(even) td {
+      background: #f8fafc;
+    }
+
+    .results-table tbody tr:hover td {
+      background: linear-gradient(135deg, #edf2f7 0%, #e2e8f0 100%);
+      transform: scale(1.01);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .proof-link {
+      color: #667eea;
+      text-decoration: none;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      transition: all 0.3s ease;
+      padding: 0.25rem 0.5rem;
+      border-radius: 6px;
+    }
+
+    .proof-link:hover {
+      color: white;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    }
+
+    
+    /* Enhanced Chatbot Styles */
+    #chatbot {
+      position: fixed;
+      bottom: 100px;
+      right: 30px;
+      width: 380px;
+      height: 480px;
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+      display: none;
+      flex-direction: column;
+      z-index: 1000;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      animation: slideInRight 0.5s ease-out;
+      resize: both;
+      min-width: 300px;
+      min-height: 400px;
+      max-width: 600px;
+      max-height: 700px;
+    }
+
+    #chatbot.show {
+      display: flex;
+    }
+
+    #chatbot-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 1rem 1.5rem;
+      cursor: move;
+      position: relative;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      user-select: none;
+    }
+
+    #chatbot-header:active {
+      cursor: grabbing;
+    }
+
+    #chatbot-toggle-size {
+      cursor: pointer;
+      padding: 0.25rem;
+      border-radius: 4px;
+      transition: background 0.2s ease;
+    }
+
+    #chatbot-toggle-size:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    #chatbot-body {
+      flex: 1;
+      padding: 1.5rem;
+      overflow-y: auto;
+      background: #f8fafc;
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+
+    #chatbot-body p {
+      margin-bottom: 1rem;
+      color: #4a5568;
+    }
+
+    #chatbot-body ul {
+      margin: 1rem 0;
+      padding-left: 1.5rem;
+      color: #4a5568;
+    }
+
+    #chatbot-body li {
+      margin-bottom: 0.5rem;
+    }
+
+    #chatbot-body strong {
+      color: #2d3748;
+    }
+
+    #chatbot-input {
+      background: white;
+      padding: 1rem;
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+      border-top: 1px solid #e2e8f0;
+    }
+
+    #chatbot-dropdown {
+      flex: 1;
+      padding: 0.75rem 1rem;
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      font-size: 0.9rem;
+      background: white;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    #chatbot-dropdown:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    #chatbot-send {
+      padding: 0.75rem 1.5rem;
+      border: none;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+    }
+
+    #chatbot-send:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+
+    #chatbot-semester-container {
+      background: white;
+      padding: 1rem;
+      display: none;
+      gap: 0.75rem;
+      align-items: center;
+      border-top: 1px solid #e2e8f0;
+    }
+
+    #chatbot-semester-dropdown {
+      flex: 1;
+      padding: 0.75rem 1rem;
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      font-size: 0.9rem;
+      background: white;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    #chatbot-semester-dropdown:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    #chatbot-semester-send {
+      padding: 0.75rem 1.5rem;
+      border: none;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+    }
+
+    #chatbot-semester-send:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+
+    #chatbot-toggle {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      cursor: pointer;
+      box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+      z-index: 1001;
+      font-size: 1.5rem;
+      transition: all 0.3s ease;
+      animation: bounce 2s infinite;
+    }
+
+    #chatbot-toggle:hover {
+      transform: translateY(-3px) scale(1.1);
+      box-shadow: 0 15px 30px rgba(102, 126, 234, 0.4);
+      animation: none;
+    }
+
+    /* Chat message styling */
+    .chat-message {
+      margin-bottom: 1rem;
+      padding: 0.75rem;
+      border-radius: 12px;
+      animation: fadeIn 0.3s ease-out;
+    }
+
+    .chat-message.user {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      margin-left: 2rem;
+    }
+
+    .chat-message.bot {
+      background: white;
+      border: 1px solid #e2e8f0;
+      color: #4a5568;
+    }
+
+    .chat-message a {
+      color: #667eea;
+      text-decoration: underline;
+      font-weight: 500;
+    }
+
+    .chat-message.user a {
+      color: white;
+    }
+
+    /* Animations */
+    @keyframes slideDown {
+      from {
+        transform: translateY(-100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(50px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+
+    @keyframes float {
+      0%, 100% {
+        transform: translateY(0px);
+      }
+      50% {
+        transform: translateY(-10px);
+      }
+    }
+
+    @keyframes textShine {
+      0% {
+        background-position: 0% 50%;
+      }
+      100% {
+        background-position: 100% 50%;
+      }
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        transform: scale(1);
+      }
+      50% {
+        transform: scale(1.05);
+      }
+    }
+
+    @keyframes bounce {
+      0%, 20%, 50%, 80%, 100% {
+        transform: translateY(0);
+      }
+      40% {
+        transform: translateY(-10px);
+      }
+      60% {
+        transform: translateY(-5px);
+      }
+    }
+
+    @keyframes shimmer {
+      0% {
+        left: -100%;
+      }
+      100% {
+        left: 100%;
+      }
+    }
+
+    @keyframes slideInRight {
+      from {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+
+    /* Loading Animation */
+    .loading {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 2px solid #f3f3f3;
+      border-top: 2px solid #667eea;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Responsive Design */
+    @media (max-width: 1200px) {
+      .search-form {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+      }
+      
+      .results-table {
+        font-size: 0.8rem;
+      }
+      
+      .results-table th,
+      .results-table td {
+        padding: 0.5rem;
+      }
+      
+      .header-content {
+        flex-direction: column;
+        text-align: center;
+        justify-content: center;
+      }
+      
+      .header-title {
+        text-align: center;
+        margin-left: 0;
+      }
+      
+      .header-title h1 {
+        font-size: 2.2rem;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .header {
+        padding: 2rem 1rem;
+      }
+      
+      .search-container,
+      .results-container {
+        padding: 0 1rem;
+      }
+      
+      .search-card {
+        padding: 1.5rem;
+      }
+      
+      #chatbot {
+        width: 300px;
+        right: 15px;
+        bottom: 80px;
+      }
+      
+      .nav-content {
+        padding: 0 1rem;
+      }
+      
+      .nav-brand {
+        font-size: 1rem;
+      }
+      
+      .admin-btn {
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+      }
+    }
+
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+    }
+
+    /* Additional college website styling */
+    .no-results, .error-message {
+      text-align: center;
+      padding: 4rem 2rem;
+      animation: fadeInUp 0.6s ease-out;
+    }
+
+    .no-results i, .error-message i {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      animation: pulse 2s infinite;
+    }
+
+    .no-results {
+      color: #718096;
+    }
+
+    .error-message {
+      color: #e53e3e;
+    }
+  </style>
 </head>
 <body>
-    <!-- Header - COMPLETELY UNCHANGED -->
+  
+  <div class="container">
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+      <div class="nav-content">
+        <a href="#" class="nav-brand">
+          <i class="fas fa-graduation-cap"></i>
+          DSCE ISE Portal
+        </a>
+        <a href="/admin-login" class="admin-btn">
+          <i class="fas fa-user-shield"></i>
+          <span>Admin Access</span>
+        </a>
+      </div>
+    </nav>
+
+    <!-- Header Section -->
     <header class="header">
-        <div class="header-content">
-            <div class="logo">
-                <div class="logo-icon">P</div>
-                <h1>DSCE ISE Project Portal</h1>
-            </div>
+      <div class="header-content">
+        <div class="header-logo">
+          <img src="/static/images.jpg" alt="DSCE Logo" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDEwMCAxMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjNjY3ZWVhIi8+Cjx0ZXh0IHg9IjUwIiB5PSI1NSIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjE0IiBmaWxsPSJ3aGl0ZSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+RFNDRS1JU0U8L3RleHQ+Cjwvc3ZnPg=='">
         </div>
+        <div class="header-title">
+          <h1>DSCE ISE Project Portal</h1>
+          <p>Dayanand Sagar College of Engineering</p>
+          <p>Information Science & Engineering Department</p>
+          <p>Academic Excellence Through Innovation</p>
+        </div>
+      </div>
     </header>
 
-    <!-- Search Container - COMPLETELY UNCHANGED -->
+    <!-- Search Section -->
     <div class="search-container">
-        <form class="search-form" id="searchForm">
-            <div class="form-group">
-                <label for="academicYear">Academic Year</label>
-                <select id="academicYear" class="form-control" required>
-                    <option value="">Select Academic Year</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="searchQuery">Search Projects</label>
-                <div class="search-input-container">
-                    <input 
-                        type="text" 
-                        id="searchQuery" 
-                        class="form-control" 
-                        placeholder="Search by title, guide, or keywords..."
-                        autocomplete="off"
-                    >
-                    <div class="search-suggestions" id="searchSuggestions"></div>
-                </div>
-            </div>
-            <button type="submit" class="btn" id="searchBtn">
-                <span>🔍</span>
-                Search
-            </button>
+      <div class="search-card">
+        <form id="searchForm" class="search-form">
+          <select id="year">
+            <option value="all">All Academic Years</option>
+          </select>
+          <select id="searchType">
+            <option value="all">Search All Fields</option>
+            <option value="title">Project Title Only</option>
+            <option value="guide">Guide Name Only</option>
+          </select>
+          <div style="position: relative;">
+            <input type="text" id="searchInput" placeholder="Enter search keywords..." autocomplete="off">
+            <div id="suggestions"></div>
+          </div>
+          <button type="submit" class="search-btn">
+            <i class="fas fa-search"></i>
+            <span>Search</span>
+          </button>
         </form>
+      </div>
     </div>
 
-    <!-- Results Container - COMPLETELY UNCHANGED -->
-    <div class="results-container" id="resultsContainer" style="display: none;">
+    <!-- Results Section -->
+    <div class="results-container">
+      <div id="results" class="results-card" style="display: none;">
         <div class="results-header">
-            <div class="results-count" id="resultsCount">0 projects found</div>
+          <h2>Search Results</h2>
         </div>
-        <div class="results-table-container">
-            <table class="results-table">
-                <thead>
-                    <tr>
-                        <th>Group</th>
-                        <th>Students</th>
-                        <th>Project Title</th>
-                        <th>Guide</th>
-                        <th>Outcomes</th>
-                        <th>Links</th>
-                    </tr>
-                </thead>
-                <tbody id="resultsTableBody">
-                </tbody>
-            </table>
+        <div class="table-container">
+          <div id="results-content">Results will appear here</div>
         </div>
+      </div>
     </div>
+  </div>
 
-    <!-- Loading State - COMPLETELY UNCHANGED -->
-    <div class="loading" id="loadingState" style="display: none;">
-        <div class="loading-spinner"></div>
-        <span>Searching projects...</span>
+  <!-- Chatbot Widget -->
+  <div id="chatbot">
+    <div id="chatbot-header">
+      <span><i class="fas fa-robot"></i> Assistant</span>
+      <span id="chatbot-toggle-size"><i class="fas fa-minus"></i></span>
     </div>
-
-    <!-- No Results State - COMPLETELY UNCHANGED -->
-    <div class="no-results" id="noResultsState" style="display: none;">
-        <div class="no-results-icon">📚</div>
-        <h3>No projects found</h3>
-        <p>Try adjusting your search terms or select a different academic year.</p>
+    <div id="chatbot-body">
+      <p><strong>Welcome!</strong> I can help you with:</p>
+      <ul>
+        <li>Proctoring information</li>
+        <li>Syllabus documents</li>
+        <li>Timetables</li>
+        <li>Elective details</li>
+      </ul>
+      <p>Please select an option below to get started.</p>
     </div>
-
-    <!-- Chatbot Container - COMPLETELY UNCHANGED FROM ORIGINAL -->
-    <div class="chatbot-container">
-        <button class="chatbot-toggle" id="chatbotToggle">💬</button>
-        <div class="chatbot-window" id="chatbotWindow">
-            <div class="chatbot-header" id="chatbotHeader">
-                <h3>ISE Assistant</h3>
-                <div class="chatbot-controls">
-                    <button class="control-btn" id="minimizeBtn" title="Minimize">_</button>
-                    <button class="control-btn" id="closeBtn" title="Close">×</button>
-                </div>
-            </div>
-            <div class="chatbot-messages" id="chatbotMessages">
-                <div class="message bot">
-                    Hello! I'm your ISE Assistant. I can help you with:
-                    <ul>
-                        <li>📋 Semester-wise syllabus documents</li>
-                        <li>📚 Study materials and resources</li>
-                        <li>🔍 Project search guidance</li>
-                        <li>❓ General ISE department queries</li>
-                    </ul>
-                    How can I help you today?
-                </div>
-            </div>
-            <div class="chatbot-input-container">
-                <textarea 
-                    class="chatbot-input" 
-                    id="chatbotInput" 
-                    placeholder="Type your message..."
-                    rows="1"
-                ></textarea>
-                <button class="chatbot-send" id="chatbotSend">➤</button>
-            </div>
-        </div>
+    <div id="chatbot-input">
+      <select id="chatbot-dropdown">
+        <option value="">Select a service...</option>
+        <option value="proctoring">Proctoring Lists</option>
+        <option value="syllabus">Academic Syllabus</option>
+        <option value="timetable">Class Timetables</option>
+        <option value="elective">Elective Information</option>
+      </select>
+      <button id="chatbot-send">Send</button>
     </div>
+    <div id="chatbot-semester-container">
+      <select id="chatbot-semester-dropdown">
+        <option value="">Select Semester</option>
+        <option value="1">1st Semester</option>
+        <option value="2">2nd Semester</option>
+        <option value="3">3rd Semester</option>
+        <option value="4">4th Semester</option>
+        <option value="5">5th Semester</option>
+        <option value="6">6th Semester</option>
+        <option value="7">7th Semester</option>
+        <option value="8">8th Semester</option>
+      </select>
+      <button id="chatbot-semester-send">Submit</button>
+    </div>
+  </div>
 
-    <script>
-        // ═══════════════════════════════════════════════════════════════════
-        // ALL ORIGINAL VARIABLES AND FUNCTIONS - UNCHANGED
-        // ═══════════════════════════════════════════════════════════════════
-        let currentQuery = '';
-        let currentYear = '';
-        let currentSearchType = 'all';
-        let suggestionIndex = -1;
-        let isDragging = false;
-        let dragOffset = { x: 0, y: 0 };
+  <button id="chatbot-toggle">
+    <i class="fas fa-comment"></i>
+  </button>
 
-        const elements = {
-            academicYear: document.getElementById('academicYear'),
-            searchQuery: document.getElementById('searchQuery'),
-            searchForm: document.getElementById('searchForm'),
-            searchBtn: document.getElementById('searchBtn'),
-            searchSuggestions: document.getElementById('searchSuggestions'),
-            resultsContainer: document.getElementById('resultsContainer'),
-            resultsCount: document.getElementById('resultsCount'),
-            resultsTableBody: document.getElementById('resultsTableBody'),
-            loadingState: document.getElementById('loadingState'),
-            noResultsState: document.getElementById('noResultsState'),
-            chatbotToggle: document.getElementById('chatbotToggle'),
-            chatbotWindow: document.getElementById('chatbotWindow'),
-            chatbotHeader: document.getElementById('chatbotHeader'),
-            chatbotMessages: document.getElementById('chatbotMessages'),
-            chatbotInput: document.getElementById('chatbotInput'),
-            chatbotSend: document.getElementById('chatbotSend'),
-            minimizeBtn: document.getElementById('minimizeBtn'),
-            closeBtn: document.getElementById('closeBtn')
+  <script>
+    // Initialize the application
+    document.addEventListener('DOMContentLoaded', function() {
+      loadAcademicYears();
+      initializeSearchFunctionality();
+      initializeChatbot();
+      addDynamicEffects();
+      
+      // Set up periodic refresh to check for new tables every 30 seconds
+      setInterval(loadAcademicYears, 30000);
+    });
+
+    // Add dynamic effects
+    function addDynamicEffects() {
+      // Parallax effect for header
+      window.addEventListener('scroll', function() {
+        const scrolled = window.pageYOffset;
+        const header = document.querySelector('.header');
+        if (header) {
+          header.style.transform = translateY(${scrolled * 0.5}px);
+        }
+      });
+
+      // Add hover effects to cards
+      const cards = document.querySelectorAll('.search-card, .results-card');
+      cards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+          this.style.transform = 'translateY(-5px) scale(1.02)';
+        });
+        card.addEventListener('mouseleave', function() {
+          this.style.transform = 'translateY(0) scale(1)';
+        });
+      });
+
+      // Add typing effect to search input
+      const searchInput = document.getElementById('searchInput');
+      searchInput.addEventListener('focus', function() {
+        this.style.boxShadow = '0 0 20px rgba(102, 126, 234, 0.3)';
+      });
+      searchInput.addEventListener('blur', function() {
+        this.style.boxShadow = 'none';
+      });
+    }
+
+    // Load academic years from API
+    async function loadAcademicYears() {
+      try {
+        const response = await fetch('/api/years');
+        const data = await response.json();
+        const yearSelect = document.getElementById('year');
+        
+        // Store current selection
+        const currentValue = yearSelect.value;
+        
+        // Clear existing options except "All Academic Years"
+        yearSelect.innerHTML = '<option value="all">All Academic Years</option>';
+        
+        data.years.forEach(year => {
+          const option = document.createElement('option');
+          option.value = year;
+          option.textContent = Academic Year ${year};
+          yearSelect.appendChild(option);
+        });
+        
+        // Restore previous selection if it still exists
+        if (currentValue && currentValue !== 'all') {
+          const foundOption = Array.from(yearSelect.options).find(option => option.value === currentValue);
+          if (foundOption) {
+            yearSelect.value = currentValue;
+          }
+        }
+      } catch (error) {
+        console.error('Error loading academic years:', error);
+      }
+    }
+
+    // Search functionality
+    function initializeSearchFunctionality() {
+      const searchInput = document.getElementById('searchInput');
+      const suggestionsDiv = document.getElementById('suggestions');
+      const searchForm = document.getElementById('searchForm');
+      let typingTimer;
+      const doneTypingInterval = 300;
+
+      // Search input event handlers
+      searchInput.addEventListener('input', function() {
+        clearTimeout(typingTimer);
+        if (this.value.length >= 2) {
+          typingTimer = setTimeout(() => getSuggestions(this.value), doneTypingInterval);
+        } else {
+          hideSuggestions();
+        }
+      });
+
+      searchInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter' && this.value.trim()) {
+          e.preventDefault();
+          performSearch();
+        }
+      });
+
+      searchForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        performSearch();
+      });
+
+      // Hide suggestions when clicking outside
+      document.addEventListener('click', function(e) {
+        if (!e.target.matches('#searchInput') && !e.target.matches('.suggestion-item')) {
+          hideSuggestions();
+        }
+      });
+    }
+
+    // Get search suggestions
+    async function getSuggestions(searchTerm) {
+      if (searchTerm.length < 2) return;
+      
+      const year = document.getElementById('year').value;
+      const searchType = document.getElementById('searchType').value;
+      
+      try {
+        const response = await fetch(/api/suggestions/?year=${year}&q=${encodeURIComponent(searchTerm)}&search_type=${searchType});
+        const data = await response.json();
+        
+        if (data.suggestions && data.suggestions.length > 0) {
+          showSuggestions(data.suggestions);
+        } else {
+          hideSuggestions();
+        }
+      } catch (error) {
+        console.error('Error fetching suggestions:', error);
+        hideSuggestions();
+      }
+    }
+
+    // Display suggestions
+    function showSuggestions(suggestions) {
+      const suggestionsDiv = document.getElementById('suggestions');
+      let html = '';
+      
+      suggestions.forEach(suggestion => {
+        const escapedSuggestion = suggestion.replace(/'/g, "\\'").replace(/"/g, '\\"');
+        html += <div class="suggestion-item" onclick="selectSuggestion('${escapedSuggestion}')">${suggestion}</div>;
+      });
+      
+      suggestionsDiv.innerHTML = html;
+      suggestionsDiv.style.display = 'block';
+    }
+
+    // Hide suggestions
+    function hideSuggestions() {
+      document.getElementById('suggestions').style.display = 'none';
+    }
+
+    // Select a suggestion
+    function selectSuggestion(suggestion) {
+      document.getElementById('searchInput').value = suggestion;
+      hideSuggestions();
+      performSearch();
+    }
+
+    // Perform search
+    async function performSearch() {
+      const year = document.getElementById('year').value;
+      const searchTerm = document.getElementById('searchInput').value.trim();
+      const searchType = document.getElementById('searchType').value;
+      
+      if (!searchTerm) {
+        alert('Please enter a search term');
+        return;
+      }
+
+      const resultsDiv = document.getElementById('results');
+      const resultsContent = document.getElementById('results-content');
+      
+      // Show loading state
+      resultsDiv.style.display = 'block';
+      resultsContent.innerHTML = '<div style="text-align: center; padding: 2rem;"><span class="loading"></span> Searching...</div>';
+
+      try {
+        const response = await fetch(/api/search/?year=${year}&q=${encodeURIComponent(searchTerm)}&search_type=${searchType});
+        const data = await response.json();
+        
+        displayResults(data.results, year);
+      } catch (error) {
+        console.error('Error performing search:', error);
+        resultsContent.innerHTML = `
+          <div class="error-message">
+            <i class="fas fa-exclamation-triangle"></i>
+            <h3>Search Error</h3>
+            <p>Unable to fetch results. Please try again.</p>
+          </div>
+        `;
+      }
+    }
+
+    // Display search results
+    function displayResults(results, selectedYear) {
+      const resultsContent = document.getElementById('results-content');
+      
+      if (!results || results.length === 0) {
+        resultsContent.innerHTML = `
+          <div class="no-results">
+            <i class="fas fa-search"></i>
+            <h3>No Results Found</h3>
+            <p>Try adjusting your search criteria or keywords.</p>
+          </div>
+        `;
+        return;
+      }
+
+      const showYearColumn = selectedYear === "all";
+      const showReportPptLinks = true; // Always show these columns if data exists
+      
+      let tableHTML = `
+        <table class="results-table">
+          <thead>
+            <tr>
+              <th>Group</th>
+              ${showYearColumn ? '<th>Academic Year</th>' : ''}
+              <th>USN</th>
+              <th>Student Names</th>
+              <th>Project Title</th>
+              <th>Guide Name</th>
+              <th>Outcomes</th>
+              <th>Proof Link</th>
+              ${showReportPptLinks ? '<th>Documents</th>' : ''}
+            </tr>
+          </thead>
+          <tbody>
+      `;
+
+      results.forEach(project => {
+        // Parse USN and name fields (they might be strings with commas or arrays)
+        const parseField = (field) => {
+          if (!field) return '-';
+          if (Array.isArray(field)) return field;
+          if (typeof field === 'string') {
+            // Check if it looks like an array string
+            if (field.startsWith('[') && field.endsWith(']')) {
+              try {
+                return JSON.parse(field.replace(/'/g, '"'));
+              } catch (e) {
+                return field.split(',').map(item => item.trim());
+              }
+            }
+            return field.split(',').map(item => item.trim());
+          }
+          return [field];
         };
 
-        // Load academic years - UPDATED WITH AUTO-LOAD
-        async function loadAcademicYears() {
-            try {
-                const response = await fetch('/api/years');
-                const data = await response.json();
-                
-                elements.academicYear.innerHTML = '<option value="">Select Academic Year</option><option value="all">All Years</option>';
-                data.years.forEach(year => {
-                    const option = document.createElement('option');
-                    option.value = year;
-                    option.textContent = year;
-                    elements.academicYear.appendChild(option);
-                });
+        const usnList = parseField(project.usn);
+        const nameList = parseField(project.name);
 
-                // NEW: Auto-load all projects by default
-                elements.academicYear.value = 'all';
-                await loadAllYearProjects();
-            } catch (error) {
-                console.error('Error loading academic years:', error);
-            }
-        }
+        tableHTML += `
+          <tr>
+            <td><strong>${project.group_no || '-'}</strong></td>
+            ${showYearColumn ? <td><span class="badge">${project.project_year || '-'}</span></td> : ''}
+            <td>
+              ${Array.isArray(usnList) && usnList.length > 1 ? 
+                `<ul>${usnList.map(usn => <li>${usn}</li>).join('')}</ul>` : 
+                (usnList[0] || project.usn || '-')
+              }
+            </td>
+            <td>
+              ${Array.isArray(nameList) && nameList.length > 1 ? 
+                `<ul>${nameList.map(name => <li>${name}</li>).join('')}</ul>` : 
+                (nameList[0] || project.name || '-')
+              }
+            </td>
+            <td><strong>${project.project_title || '-'}</strong></td>
+            <td>${project.guide_name || '-'}</td>
+            <td>${project.outcomes || '-'}</td>
+            <td>
+              ${project.proof_link ? 
+                `<a href="${project.proof_link}" target="_blank" class="proof-link">
+                  <i class="fas fa-external-link-alt"></i> View Proof
+                </a>` : 
+                '-'
+              }
+            </td>
+            ${showReportPptLinks ? `
+              <td>
+                ${project.report_links && project.report_links !== '' ? <a href="${project.report_links}" target="_blank" class="proof-link"><i class="fas fa-file-pdf"></i> Report</a> : ''}
+                ${project.report_links && project.report_links !== '' && project.ppt_links && project.ppt_links !== '' ? '<br>' : ''}
+                ${project.ppt_links && project.ppt_links !== '' ? <a href="${project.ppt_links}" target="_blank" class="proof-link"><i class="fas fa-file-powerpoint"></i> PPT</a> : ''}
+                ${(!project.report_links || project.report_links === '') && (!project.ppt_links || project.ppt_links === '') ? '-' : ''}
+              </td>
+            ` : ''}
+          </tr>
+        `;
+      });
 
-        // NEW: Load all projects from all years
-        async function loadAllYearProjects() {
-            try {
-                showLoadingState();
-                
-                const yearsResponse = await fetch('/api/years');
-                const yearsData = await yearsResponse.json();
-                
-                let allResults = [];
-                
-                for (const year of yearsData.years) {
-                    try {
-                        const response = await fetch(`/api/projects/${year}`);
-                        const data = await response.json();
-                        if (data.results && data.results.length > 0) {
-                            allResults.push({
-                                year: year,
-                                projects: data.results
-                            });
-                        }
-                    } catch (error) {
-                        console.error(`Error loading projects for year ${year}:`, error);
-                    }
-                }
-                
-                displayProjectsByYear(allResults);
-            } catch (error) {
-                console.error('Error loading all projects:', error);
-                showNoResultsState();
-            }
-        }
+      tableHTML += '</tbody></table>';
+      resultsContent.innerHTML = tableHTML;
+    }
 
-        // NEW: Load projects for specific year
-        async function loadYearProjects(year) {
-            try {
-                showLoadingState();
-                const response = await fetch(`/api/projects/${year}`);
-                const data = await response.json();
-                
-                const results = [{
-                    year: year,
-                    projects: data.results || []
-                }];
-                
-                displayProjectsByYear(results);
-            } catch (error) {
-                console.error('Error loading projects for year:', error);
-                showNoResultsState();
-            }
-        }
+    // Chatbot functionality
+    function initializeChatbot() {
+      const chatbot = document.getElementById('chatbot');
+      const chatbotToggle = document.getElementById('chatbot-toggle');
+      const chatbotToggleSize = document.getElementById('chatbot-toggle-size');
+      const chatbotSend = document.getElementById('chatbot-send');
+      const chatbotDropdown = document.getElementById('chatbot-dropdown');
+      const chatbotBody = document.getElementById('chatbot-body');
+      const chatbotSemesterContainer = document.getElementById('chatbot-semester-container');
+      const chatbotSemesterSend = document.getElementById('chatbot-semester-send');
+      const chatbotSemesterDropdown = document.getElementById('chatbot-semester-dropdown');
+      const chatbotHeader = document.getElementById('chatbot-header');
 
-        // NEW: Display projects organized by year
-        function displayProjectsByYear(resultsByYear) {
-            hideAllStates();
-            
-            if (!resultsByYear || resultsByYear.length === 0) {
-                showNoResultsState();
-                return;
-            }
-            
-            const totalProjects = resultsByYear.reduce((sum, yearData) => sum + yearData.projects.length, 0);
-            elements.resultsCount.textContent = `${totalProjects} project${totalProjects === 1 ? '' : 's'} found`;
-            
-            elements.resultsTableBody.innerHTML = '';
-            
-            resultsByYear.forEach(yearData => {
-                if (yearData.projects.length > 0) {
-                    // Add year header
-                    const headerRow = document.createElement('tr');
-                    headerRow.innerHTML = `
-                        <td colspan="6" class="year-header">
-                            ${yearData.year} (${yearData.projects.length} projects)
-                        </td>
-                    `;
-                    elements.resultsTableBody.appendChild(headerRow);
-                    
-                    // Add project rows
-                    yearData.projects.forEach(project => {
-                        const row = createProjectRow(project);
-                        elements.resultsTableBody.appendChild(row);
-                    });
-                }
-            });
-            
-            elements.resultsContainer.style.display = 'block';
-        }
+      let selectedMainOption = "";
+      let isMinimized = false;
+      let isDragging = false;
+      let dragOffsetX = 0;
+      let dragOffsetY = 0;
 
-        // ORIGINAL: Search projects function - UNCHANGED
-        async function searchProjects(year, query, searchType = 'all') {
-            try {
-                showLoadingState();
-                const params = new URLSearchParams({
-                    year: year,
-                    q: query,
-                    search_type: searchType
-                });
-                
-                const response = await fetch(`/api/search/?${params}`);
-                const data = await response.json();
-                displayResults(data.results);
-            } catch (error) {
-                console.error('Error searching projects:', error);
-                showNoResultsState();
-            }
-        }
+      // Dragging functionality
+      chatbotHeader.addEventListener('mousedown', function(e) {
+        isDragging = true;
+        dragOffsetX = e.clientX - chatbot.offsetLeft;
+        dragOffsetY = e.clientY - chatbot.offsetTop;
+        chatbotHeader.style.cursor = 'grabbing';
+        e.preventDefault();
+      });
 
-        // ORIGINAL: Display search results - UNCHANGED  
-        function displayResults(results) {
-            hideAllStates();
-            
-            if (!results || results.length === 0) {
-                showNoResultsState();
-                return;
-            }
-            
-            elements.resultsCount.textContent = `${results.length} project${results.length === 1 ? '' : 's'} found`;
-            elements.resultsTableBody.innerHTML = '';
-            
-            results.forEach(project => {
-                const row = createProjectRow(project);
-                elements.resultsTableBody.appendChild(row);
-            });
-            
-            elements.resultsContainer.style.display = 'block';
+      document.addEventListener('mousemove', function(e) {
+        if (isDragging) {
+          const newLeft = e.clientX - dragOffsetX;
+          const newTop = e.clientY - dragOffsetY;
+          
+          // Keep chatbot within viewport
+          const maxLeft = window.innerWidth - chatbot.offsetWidth;
+          const maxTop = window.innerHeight - chatbot.offsetHeight;
+          
+          chatbot.style.left = Math.max(0, Math.min(newLeft, maxLeft)) + 'px';
+          chatbot.style.top = Math.max(0, Math.min(newTop, maxTop)) + 'px';
+          chatbot.style.right = 'auto';
+          chatbot.style.bottom = 'auto';
         }
+      });
 
-        // ORIGINAL: Get suggestions - UNCHANGED
-        async function getSuggestions(year, query, searchType = 'all') {
-            if (query.length < 2) return [];
-            
-            try {
-                const params = new URLSearchParams({
-                    year: year,
-                    q: query,
-                    search_type: searchType
-                });
-                
-                const response = await fetch(`/api/suggestions/?${params}`);
-                const data = await response.json();
-                return data.suggestions || [];
-            } catch (error) {
-                console.error('Error getting suggestions:', error);
-                return [];
-            }
+      document.addEventListener('mouseup', function() {
+        if (isDragging) {
+          isDragging = false;
+          chatbotHeader.style.cursor = 'move';
         }
+      });
 
-        // ORIGINAL: Create project row - UNCHANGED
-        function createProjectRow(project) {
-            const row = document.createElement('tr');
-            
-            const links = [];
-            if (project.proof_link) {
-                links.push(`<a href="${project.proof_link}" class="project-link" target="_blank">Demo</a>`);
-            }
-            if (project.ppt_links) {
-                links.push(`<a href="${project.ppt_links}" class="project-link" target="_blank">PPT</a>`);
-            }
-            if (project.report_links) {
-                links.push(`<a href="${project.report_links}" class="project-link" target="_blank">Report</a>`);
-            }
-            
-            row.innerHTML = `
-                <td>${project.group_no || 'N/A'}</td>
-                <td>
-                    <div><strong>USN:</strong> ${project.usn || 'N/A'}</div>
-                    <div><strong>Name:</strong> ${project.name || 'N/A'}</div>
-                </td>
-                <td>
-                    <div class="project-title">${project.project_title || 'N/A'}</div>
-                    ${project.project_year ? `<small>Year: ${project.project_year}</small>` : ''}
-                </td>
-                <td>${project.guide_name || 'N/A'}</td>
-                <td>${project.outcomes || 'N/A'}</td>
-                <td>
-                    <div class="project-links">
-                        ${links.join('')}
-                    </div>
-                </td>
-            `;
-            
-            return row;
-        }
+      // Toggle chatbot visibility
+      chatbotToggle.addEventListener('click', function() {
+        chatbot.classList.toggle('show');
+      });
 
-        // ORIGINAL: State management - UNCHANGED
-        function showLoadingState() {
-            hideAllStates();
-            elements.loadingState.style.display = 'flex';
+      // Minimize/maximize chatbot
+      chatbotToggleSize.addEventListener('click', function() {
+        if (!isMinimized) {
+          chatbotBody.style.display = 'none';
+          document.getElementById('chatbot-input').style.display = 'none';
+          chatbotSemesterContainer.style.display = 'none';
+          this.innerHTML = '<i class="fas fa-plus"></i>';
+          isMinimized = true;
+          chatbot.style.height = 'auto';
+        } else {
+          chatbotBody.style.display = 'block';
+          document.getElementById('chatbot-input').style.display = 'flex';
+          this.innerHTML = '<i class="fas fa-minus"></i>';
+          isMinimized = false;
+          chatbot.style.height = '480px';
         }
+      });
 
-        function showNoResultsState() {
-            hideAllStates();
-            elements.noResultsState.style.display = 'block';
-        }
-
-        function hideAllStates() {
-            elements.resultsContainer.style.display = 'none';
-            elements.loadingState.style.display = 'none';
-            elements.noResultsState.style.display = 'none';
-        }
-        // ═══════════════════════════════════════════════════════════════════
-        // SEARCH SUGGESTIONS FUNCTIONALITY - COMPLETELY UNCHANGED
-        // ═══════════════════════════════════════════════════════════════════
+      // Handle main option selection
+      chatbotSend.addEventListener('click', function() {
+        selectedMainOption = chatbotDropdown.value;
+        const selectedText = chatbotDropdown.options[chatbotDropdown.selectedIndex].text;
         
-        function showSuggestions(suggestions) {
-            const suggestionsContainer = elements.searchSuggestions;
-            suggestionsContainer.innerHTML = '';
-            
-            if (suggestions.length === 0) {
-                suggestionsContainer.style.display = 'none';
-                return;
-            }
-            
-            suggestions.forEach((suggestion, index) => {
-                const item = document.createElement('div');
-                item.className = 'suggestion-item';
-                item.textContent = suggestion;
-                item.dataset.index = index;
-                
-                item.addEventListener('click', () => {
-                    elements.searchQuery.value = suggestion;
-                    suggestionsContainer.style.display = 'none';
-                    suggestionIndex = -1;
-                });
-                
-                suggestionsContainer.appendChild(item);
-            });
-            
-            suggestionsContainer.style.display = 'block';
-            suggestionIndex = -1;
+        if (!selectedMainOption) {
+          addChatMessage('Please select a valid option.', 'bot');
+          return;
         }
 
-        function hideSuggestions() {
-            elements.searchSuggestions.style.display = 'none';
-            suggestionIndex = -1;
+        addChatMessage(selectedText, 'user');
+
+        if (['proctoring', 'syllabus', 'timetable'].includes(selectedMainOption)) {
+          addChatMessage('Please select a semester for more specific information.', 'bot');
+          chatbotSemesterContainer.style.display = 'flex';
+        } else if (selectedMainOption === 'elective') {
+          addChatMessage('For elective course details, please consult with your academic advisor or visit the department office during office hours.', 'bot');
+          chatbotSemesterContainer.style.display = 'none';
         }
 
-        function highlightSuggestion(index) {
-            const suggestions = elements.searchSuggestions.querySelectorAll('.suggestion-item');
-            suggestions.forEach((item, i) => {
-                item.classList.toggle('highlighted', i === index);
-            });
-        }
+        chatbotDropdown.value = "";
+      });
 
-        function selectSuggestion(index) {
-            const suggestions = elements.searchSuggestions.querySelectorAll('.suggestion-item');
-            if (suggestions[index]) {
-                elements.searchQuery.value = suggestions[index].textContent;
-                hideSuggestions();
-            }
-        }
-
-        // ═══════════════════════════════════════════════════════════════════
-        // EVENT LISTENERS - UPDATED WITH AUTO-FETCH FUNCTIONALITY
-        // ═══════════════════════════════════════════════════════════════════
+      // Handle semester selection
+      chatbotSemesterSend.addEventListener('click', function() {
+        const semesterValue = chatbotSemesterDropdown.value;
+        const semesterText = chatbotSemesterDropdown.options[chatbotSemesterDropdown.selectedIndex].text;
         
-        // ORIGINAL: Form submission - UNCHANGED
-        elements.searchForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const year = elements.academicYear.value;
-            const query = elements.searchQuery.value.trim();
-            
-            if (!year) {
-                alert('Please select an academic year');
-                return;
-            }
-            
-            if (!query) {
-                alert('Please enter a search query');
-                return;
-            }
-            
-            currentYear = year;
-            currentQuery = query;
-            
-            await searchProjects(year, query, currentSearchType);
-            hideSuggestions();
-        });
+        if (!semesterValue) {
+          addChatMessage('Please select a semester.', 'bot');
+          return;
+        }
 
-        // NEW: Auto-fetch on year change
-        elements.academicYear.addEventListener('change', async (e) => {
-            const selectedYear = e.target.value;
-            
-            // Clear search input when year changes
-            elements.searchQuery.value = '';
-            hideSuggestions();
-            
-            if (selectedYear === 'all') {
-                await loadAllYearProjects();
-            } else if (selectedYear) {
-                await loadYearProjects(selectedYear);
-            } else {
-                hideAllStates();
-            }
-        });
-
-        // ORIGINAL: Search input with suggestions - UNCHANGED
-        let suggestionTimeout;
-        elements.searchQuery.addEventListener('input', async (e) => {
-            const query = e.target.value.trim();
-            const year = elements.academicYear.value;
-            
-            clearTimeout(suggestionTimeout);
-            
-            if (query.length < 2 || !year) {
-                hideSuggestions();
-                return;
-            }
-            
-            suggestionTimeout = setTimeout(async () => {
-                const suggestions = await getSuggestions(year, query, currentSearchType);
-                showSuggestions(suggestions);
-            }, 300);
-        });
-
-        // ORIGINAL: Keyboard navigation - UNCHANGED
-        elements.searchQuery.addEventListener('keydown', (e) => {
-            const suggestions = elements.searchSuggestions.querySelectorAll('.suggestion-item');
-            const isVisible = elements.searchSuggestions.style.display === 'block';
-            
-            if (!isVisible || suggestions.length === 0) return;
-            
-            switch (e.key) {
-                case 'ArrowDown':
-                    e.preventDefault();
-                    suggestionIndex = Math.min(suggestionIndex + 1, suggestions.length - 1);
-                    highlightSuggestion(suggestionIndex);
-                    break;
-                    
-                case 'ArrowUp':
-                    e.preventDefault();
-                    suggestionIndex = Math.max(suggestionIndex - 1, -1);
-                    if (suggestionIndex === -1) {
-                        highlightSuggestion(-1);
-                    } else {
-                        highlightSuggestion(suggestionIndex);
-                    }
-                    break;
-                    
-                case 'Enter':
-                    if (suggestionIndex >= 0) {
-                        e.preventDefault();
-                        selectSuggestion(suggestionIndex);
-                    }
-                    break;
-                    
-                case 'Escape':
-                    hideSuggestions();
-                    break;
-            }
-        });
-
-        // ORIGINAL: Hide suggestions when clicking outside - UNCHANGED
-        document.addEventListener('click', (e) => {
-            if (!elements.searchQuery.contains(e.target) && !elements.searchSuggestions.contains(e.target)) {
-                hideSuggestions();
-            }
-        });
-
-        // ═══════════════════════════════════════════════════════════════════
-        // COMPLETE ORIGINAL CHATBOT FUNCTIONALITY - COMPLETELY UNCHANGED
-        // ═══════════════════════════════════════════════════════════════════
+        addChatMessage(semesterText, 'user');
+        handleSemesterRequest(selectedMainOption, semesterValue, semesterText);
         
-        // Chatbot state
-        let chatbotVisible = false;
-        let chatbotMinimized = false;
+        chatbotSemesterContainer.style.display = 'none';
+        chatbotSemesterDropdown.value = "";
+      });
+    }
 
-        // Chatbot toggle
-        elements.chatbotToggle.addEventListener('click', () => {
-            chatbotVisible = !chatbotVisible;
-            if (chatbotVisible) {
-                elements.chatbotWindow.classList.add('show');
-                elements.chatbotToggle.innerHTML = '✕';
-                chatbotMinimized = false;
-                elements.chatbotWindow.classList.remove('chatbot-minimized');
-            } else {
-                elements.chatbotWindow.classList.remove('show');
-                elements.chatbotToggle.innerHTML = '💬';
-            }
-        });
+    // Add message to chatbot
+    function addChatMessage(message, sender) {
+      const chatbotBody = document.getElementById('chatbot-body');
+      const messageDiv = document.createElement('div');
+      messageDiv.className = chat-message ${sender};
+      
+      if (sender === 'user') {
+        messageDiv.innerHTML = <strong>You:</strong> ${message};
+      } else {
+        messageDiv.innerHTML = <strong>Assistant:</strong> ${message};
+      }
+      
+      chatbotBody.appendChild(messageDiv);
+      chatbotBody.scrollTop = chatbotBody.scrollHeight;
+    }
 
-        // Chatbot controls
-        elements.minimizeBtn.addEventListener('click', () => {
-            chatbotMinimized = !chatbotMinimized;
-            elements.chatbotWindow.classList.toggle('chatbot-minimized', chatbotMinimized);
-            elements.minimizeBtn.innerHTML = chatbotMinimized ? '□' : '_';
-        });
-
-        elements.closeBtn.addEventListener('click', () => {
-            chatbotVisible = false;
-            elements.chatbotWindow.classList.remove('show');
-            elements.chatbotToggle.innerHTML = '💬';
-            chatbotMinimized = false;
-            elements.chatbotWindow.classList.remove('chatbot-minimized');
-        });
-
-        // Chatbot dragging functionality
-        elements.chatbotHeader.addEventListener('mousedown', (e) => {
-            isDragging = true;
-            const rect = elements.chatbotWindow.getBoundingClientRect();
-            dragOffset.x = e.clientX - rect.right;
-            dragOffset.y = e.clientY - rect.bottom;
-            elements.chatbotHeader.style.cursor = 'grabbing';
-        });
-
-        document.addEventListener('mousemove', (e) => {
-            if (!isDragging) return;
-            
-            const x = e.clientX - dragOffset.x;
-            const y = e.clientY - dragOffset.y;
-            
-            elements.chatbotWindow.style.right = `${window.innerWidth - x}px`;
-            elements.chatbotWindow.style.bottom = `${window.innerHeight - y}px`;
-        });
-
-        document.addEventListener('mouseup', () => {
-            if (isDragging) {
-                isDragging = false;
-                elements.chatbotHeader.style.cursor = 'move';
-            }
-        });
-
-        // Chatbot messaging
-        elements.chatbotSend.addEventListener('click', sendMessage);
-        elements.chatbotInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                sendMessage();
-            }
-        });
-
-        // Auto-resize textarea
-        elements.chatbotInput.addEventListener('input', () => {
-            elements.chatbotInput.style.height = 'auto';
-            elements.chatbotInput.style.height = elements.chatbotInput.scrollHeight + 'px';
-        });
-
-        async function sendMessage() {
-            const message = elements.chatbotInput.value.trim();
-            if (!message) return;
-
-            addMessage('user', message);
-            elements.chatbotInput.value = '';
-            elements.chatbotInput.style.height = 'auto';
-            elements.chatbotSend.disabled = true;
-
-            showTypingIndicator();
-
-            try {
-                const response = await fetch('/api/chat', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ message })
-                });
-
-                const data = await response.json();
-                hideTypingIndicator();
-                
-                if (data.response) {
-                    addMessage('bot', data.response);
-                    
-                    if (data.show_semesters) {
-                        showSemesterSelection();
-                    }
-                } else {
-                    addMessage('bot', 'Sorry, I encountered an error. Please try again.');
-                }
-            } catch (error) {
-                hideTypingIndicator();
-                addMessage('bot', 'Sorry, I\'m having trouble connecting. Please try again later.');
-            }
-
-            elements.chatbotSend.disabled = false;
-        }
-
-        function addMessage(type, content) {
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `message ${type}`;
-            
-            if (type === 'bot' && content.includes('•')) {
-                const lines = content.split('\n');
-                let htmlContent = '';
-                let inList = false;
-                
-                lines.forEach(line => {
-                    const trimmed = line.trim();
-                    if (trimmed.startsWith('•')) {
-                        if (!inList) {
-                            htmlContent += '<ul>';
-                            inList = true;
-                        }
-                        htmlContent += `<li>${trimmed.substring(1).trim()}</li>`;
-                    } else {
-                        if (inList) {
-                            htmlContent += '</ul>';
-                            inList = false;
-                        }
-                        if (trimmed) {
-                            htmlContent += `<p>${trimmed}</p>`;
-                        }
-                    }
-                });
-                
-                if (inList) {
-                    htmlContent += '</ul>';
-                }
-                
-                messageDiv.innerHTML = htmlContent;
-            } else {
-                messageDiv.textContent = content;
-            }
-            
-            elements.chatbotMessages.appendChild(messageDiv);
-            elements.chatbotMessages.scrollTop = elements.chatbotMessages.scrollHeight;
-        }
-
-        function showTypingIndicator() {
-            const typingDiv = document.createElement('div');
-            typingDiv.className = 'typing-indicator';
-            typingDiv.id = 'typingIndicator';
-            
-            for (let i = 0; i < 3; i++) {
-                const dot = document.createElement('div');
-                dot.className = 'typing-dot';
-                typingDiv.appendChild(dot);
-            }
-            
-            elements.chatbotMessages.appendChild(typingDiv);
-            elements.chatbotMessages.scrollTop = elements.chatbotMessages.scrollHeight;
-        }
-
-        function hideTypingIndicator() {
-            const typingIndicator = document.getElementById('typingIndicator');
-            if (typingIndicator) {
-                typingIndicator.remove();
-            }
-        }
-
-        function showSemesterSelection() {
-            const semesterDiv = document.createElement('div');
-            semesterDiv.className = 'message bot';
-            
-            const semesters = [
-                'Semester 1', 'Semester 2', 'Semester 3', 'Semester 4',
-                'Semester 5', 'Semester 6', 'Semester 7', 'Semester 8'
-            ];
-            
-            let content = 'Please select a semester to download syllabus documents:<div class="semester-selection">';
-            
-            semesters.forEach(semester => {
-                content += `<button class="semester-btn" onclick="downloadSyllabus('${semester}')">${semester}</button>`;
-            });
-            
-            content += '</div>';
-            semesterDiv.innerHTML = content;
-            
-            elements.chatbotMessages.appendChild(semesterDiv);
-            elements.chatbotMessages.scrollTop = elements.chatbotMessages.scrollHeight;
-        }
-
-        async function downloadSyllabus(semester) {
-            try {
-                const response = await fetch('/api/download-syllabus', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ semester })
-                });
-
-                const data = await response.json();
-                
-                if (data.download_links && data.download_links.length > 0) {
-                    let content = `Here are the syllabus documents for ${semester}:\n\n`;
-                    
-                    data.download_links.forEach(link => {
-                        content += `<a href="${link.url}" class="download-link" target="_blank" download>${link.name}</a>`;
-                    });
-                    
-                    const messageDiv = document.createElement('div');
-                    messageDiv.className = 'message bot';
-                    messageDiv.innerHTML = content;
-                    
-                    elements.chatbotMessages.appendChild(messageDiv);
-                } else {
-                    addMessage('bot', `Sorry, no syllabus documents are available for ${semester} at the moment.`);
-                }
-            } catch (error) {
-                addMessage('bot', 'Sorry, there was an error downloading the syllabus. Please try again later.');
-            }
-            
-            elements.chatbotMessages.scrollTop = elements.chatbotMessages.scrollHeight;
-        }
-
-        // ═══════════════════════════════════════════════════════════════════
-        // INITIALIZATION - UPDATED WITH AUTO-LOAD
-        // ═══════════════════════════════════════════════════════════════════
+    // Handle semester-specific requests
+    function handleSemesterRequest(mainOption, semesterValue, semesterText) {
+      const basePath = "/static/";
+      
+      if (mainOption === 'proctoring') {
+        const link = ${basePath}First_sem_proctor_list_FINAL.xlsx;
+        addChatMessage(<a href="${link}" download>ðŸ“¥ Download Proctor List for ${semesterText}</a>, 'bot');
+      } 
+      else if (mainOption === 'syllabus') {
+        let syllabusUrl = "";
         
-        document.addEventListener('DOMContentLoaded', () => {
-            loadAcademicYears(); // This will auto-load all projects
-            
-            // Set initial chatbot state
-            elements.chatbotWindow.classList.remove('show');
-            elements.chatbotToggle.innerHTML = '💬';
-        });
-
-        // Global function for semester selection (needed for onclick)
-        window.downloadSyllabus = downloadSyllabus;
-
-        // ═══════════════════════════════════════════════════════════════════
-        // ORIGINAL UTILITY FUNCTIONS - COMPLETELY UNCHANGED
-        // ═══════════════════════════════════════════════════════════════════
+        if (semesterValue === "1" || semesterValue === "2") {
+          syllabusUrl = "https://drive.google.com/file/d/1NKFaOqwXo3KDy0mYpk2y98U94yHRf_Wc/preview";
+        } else if (semesterValue === "3" || semesterValue === "4") {
+          syllabusUrl = basePath + "2nd22.pdf";
+        } else if (semesterValue === "5" || semesterValue === "6") {
+          syllabusUrl = basePath + "233rdsm.pdf";
+        } else if (semesterValue === "7" || semesterValue === "8") {
+          syllabusUrl = basePath + "38th22.pdf";
+        }
         
-        function debounce(func, wait) {
-            let timeout;
-            return function executedFunction(...args) {
-                const later = () => {
-                    clearTimeout(timeout);
-                    func(...args);
-                };
-                clearTimeout(timeout);
-                timeout = setTimeout(later, wait);
-            };
+        if (syllabusUrl) {
+          addChatMessage(<a href="${syllabusUrl}" target="_blank">ðŸ“– View ${semesterText} Syllabus</a>, 'bot');
+        } else {
+          addChatMessage(Sorry, the syllabus for ${semesterText} is not currently available. Please check back later., 'bot');
         }
-
-        function escapeHtml(text) {
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
+      }
+      else if (mainOption === 'timetable') {
+        const timetableMap = {
+          '3': basePath + "3RD SEM NEP 2022 Time table 2024-25 updated (2).docx",
+          '4': basePath + "4th SEM NEP Time table 2024-25 (2).docx",
+          '5': basePath + "5TH SEM NEP 2022 Time table 2024-25 updated.docx",
+          '6': basePath + "6th SEM NEP Time table 2024-25.docx",
+          '8': basePath + "8th SEM NEP Time table 2024-25.docx"
+        };
+        
+        const timetableUrl = timetableMap[semesterValue];
+        
+        if (timetableUrl) {
+          addChatMessage(<a href="${timetableUrl}" download>ðŸ“… Download ${semesterText} Timetable</a>, 'bot');
+        } else {
+          addChatMessage(Sorry, the timetable for ${semesterText} is not currently available. Please contact the department office., 'bot');
         }
-
-        function formatDate(date) {
-            return new Intl.DateTimeFormat('en-US', {
-                year: 'numeric',
-                month: 'short',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-            }).format(new Date(date));
-        }
-
-        // Error handling for unhandled promise rejections
-        window.addEventListener('unhandledrejection', (event) => {
-            console.error('Unhandled promise rejection:', event.reason);
-            event.preventDefault();
-        });
-
-        // Service worker registration (if available)
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js')
-                    .then(registration => {
-                        console.log('SW registered: ', registration);
-                    })
-                    .catch(registrationError => {
-                        console.log('SW registration failed: ', registrationError);
-                    });
-            });
-        }
-    </script>
+      }
+    }
+  </script>
 </body>
 </html>
