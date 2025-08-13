@@ -19,7 +19,7 @@ app = FastAPI()
 # Sessions for admin auth
 app.add_middleware(
     SessionMiddleware,
-    secret_key=os.getenv("SECRET_KEY", "change-me"),
+    secret_key=os.getenv("SECRET_KEY", "change-me-to-a-secure-key"),
 )
 
 # Serve static files under /static
@@ -35,13 +35,12 @@ async def root():
 async def admin_login():
     return FileResponse("app/static/admin_login.html")
 
-# UPDATED: Protected admin panel route instead of serving static file
+# ✅ FIXED: Protected admin panel route with session-based authentication
 @app.get("/admin-panel", include_in_schema=False)
 async def admin_panel(request: Request):
     """Serve admin panel with authentication check"""
-    # Check if user is authenticated
-    admin_session = request.cookies.get("admin_session")
-    if not admin_session or admin_session != "authenticated":
+    # ✅ Check session instead of cookie
+    if not request.session.get("admin_authenticated"):
         # Not authenticated, redirect to login
         return RedirectResponse(url="/admin-login", status_code=302)
     
