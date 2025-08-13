@@ -2,8 +2,8 @@
 
 import os
 from dotenv import load_dotenv
-from fastapi import FastAPI
-from fastapi.responses import FileResponse
+from fastapi import FastAPI, Request, HTTPException
+from fastapi.responses import FileResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from starlette.middleware.sessions import SessionMiddleware
 
@@ -34,6 +34,19 @@ async def root():
 @app.get("/admin-login", include_in_schema=False)
 async def admin_login():
     return FileResponse("app/static/admin_login.html")
+
+# UPDATED: Protected admin panel route instead of serving static file
+@app.get("/admin-panel", include_in_schema=False)
+async def admin_panel(request: Request):
+    """Serve admin panel with authentication check"""
+    # Check if user is authenticated
+    admin_session = request.cookies.get("admin_session")
+    if not admin_session or admin_session != "authenticated":
+        # Not authenticated, redirect to login
+        return RedirectResponse(url="/admin-login", status_code=302)
+    
+    # User is authenticated, serve the admin panel
+    return FileResponse("app/static/admin_panel.html")
 
 # Optionally, you can keep /admin as well if you want
 @app.get("/admin", include_in_schema=False)
